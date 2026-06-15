@@ -1,0 +1,154 @@
+# .github/workflows/ci.yml
+name: Ambient Weather CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+# Cancels previously running jobs on the same PR/branch if a new commit is pushed
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  # --- Backend Job (.NET Web API) ---
+  backend:
+    name: Build & Test Backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore Dependencies
+        run: dotnet restore backend/AmbientWeather.slnx
+
+      - name: Build Solution
+        run: dotnet build backend/AmbientWeather.slnx --configuration Release --no-restore
+
+      - name: Lint Backend
+        run: dotnet format whitespace backend/AmbientWeather.slnx --verify-no-changes --verbosity minimal
+
+      - name: Run Unit/Integration Tests
+        run: dotnet test backend/AmbientWeather.slnx --configuration Release --no-build --verbosity normal
+
+  # --- Frontend Job (Vite + React TS) ---
+  frontend:
+    name: Build & Test Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node 24 LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.x"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Type Check (TypeScript)
+        working-directory: frontend
+        run: npx tsc -b --noEmit
+
+      - name: Lint Frontend
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Run Frontend Tests
+        working-directory: frontend
+        run: npm test
+
+      - name: Build Application
+        working-directory: frontend
+        run: npm run build
+
+  # --- E2E Job (Playwright TypeScript) ---
+  # Runs the TS Playwright suite against a Vite dev server.
+  # All Auth0 and BFF API calls are intercepted by Playwright route handlers,
+  # so only the frontend dev server is required — no backend needed.
+  e2e:
+    name: E2E Tests (Playwright ${{ matrix.suite }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - suite: P0
+            command: npm run test:e2e:p0
+          - suite: P1
+            command: npm run test:e2e:p1
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node 24 LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.x"
+          cache: npm
+          cache-dependency-path: |
+            frontend/package-lock.json
+            tests/e2e/package-lock.json
+
+      - name: Install Frontend Dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Install E2E Dependencies
+        working-directory: tests/e2e
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        working-directory: tests/e2e
+        run: npm run install:browsers
+
+      - name: Create Frontend Env File
+        run: cp frontend/.env.example frontend/.env.local
+
+      - name: Start Frontend Dev Server
+        working-directory: frontend
+        run: npm run dev &
+
+      - name: Wait for Frontend Dev Server
+        run: timeout 60 bash -c 'until curl -sf http://localhost:5173 > /dev/null 2>&1; do sleep 1; done'
+
+      - name: Run E2E Tests (${{ matrix.suite }})
+        run: ${{ matrix.command }}
+
+      - name: Upload Playwright Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.suite }}
+          path: playwright-report/
+          retention-days: 14
+
+      - name: Upload Trace/Screenshot/Video Results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-test-results-${{ matrix.suite }}
+          path: tests/e2e/test-results/
+          retention-days: 7

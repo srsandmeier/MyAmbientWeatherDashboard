@@ -1,0 +1,40 @@
+# .github/workflows/dependabot-auto-merge.yml
+#
+# Enables auto-merge only for Dependabot patch bumps after a maintainer adds the
+# `automerge-dependabot` label. Minor and major bumps require manual review.
+#
+# Uses the free single-CPU runner (ubuntu-latest-1-core) — no compilation or test
+# execution happens here, so 1 core and the 15-minute job timeout are sufficient.
+#
+# Major version bumps are left open for manual review.
+name: Dependabot Auto-Merge
+
+on:
+  pull_request:
+    branches: [main, master]
+    types: [opened, synchronize, reopened, labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    name: Auto-merge labeled Dependabot patch updates
+    runs-on: ubuntu-latest-1-core
+    if: |
+      github.actor == 'dependabot[bot]' &&
+      contains(github.event.pull_request.labels.*.name, 'automerge-dependabot')
+    steps:
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable auto-merge for labeled patch updates
+        if: steps.metadata.outputs.update-type == 'version-update:semver-patch'
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

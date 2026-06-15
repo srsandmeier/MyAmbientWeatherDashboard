@@ -1,0 +1,16 @@
+{
+  "name": "ambient-weather-e2e",
+  "private": true,
+  "scripts": {
+    "test": "node --no-warnings ./node_modules/@playwright/test/cli.js test",
+    "test:p0": "node --no-warnings ./node_modules/@playwright/test/cli.js test --grep @p0",
+    "test:p1": "node --no-warnings ./node_modules/@playwright/test/cli.js test --grep @p1",
+    "install:browsers": "playwright install --with-deps chromium"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^10.4.0",
+    "@playwright/test": "^1.60.0",
+    "@types/node": "^25.9.2",
+    "typescript": "~5.7.2"
+  }
+}

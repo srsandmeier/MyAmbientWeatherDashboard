@@ -1,0 +1,61 @@
+# docker-compose.yml
+# Location: Root directory of the monorepo
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: ambient_weather_db
+    environment:
+      # Defaults provided for zero-friction local startup, but easily overridden by a .env file
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-local-only}
+      POSTGRES_DB: ${POSTGRES_DB:-AmbientWeatherDB}
+    ports:
+      - "5432:5432"
+    volumes:
+      # Maps local named volume to container data directory to persist state between restarts
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      # Ensures the database is actively accepting connections before dependent services start
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-AmbientWeatherDB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - backend_network
+
+  cache:
+    image: redis:7-alpine
+    container_name: ambient_weather_cache
+    # Configures Redis to snapshot data to disk every 60 seconds if at least 1 key changes
+    command: redis-server --save 60 1 --loglevel warning
+    ports:
+      - "6379:6379"
+    volumes:
+      # Persists cached data and rate-limiting buckets across container rebuilds
+      - redis_data:/data
+    healthcheck:
+      # Pings the Redis server directly to confirm readiness
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+    networks:
+      - backend_network
+
+volumes:
+  # Explicitly named volumes prevent conflicts with other local Docker projects
+  postgres_data:
+    name: ambient_weather_postgres_data
+  redis_data:
+    name: ambient_weather_redis_data
+
+networks:
+  # Isolated bridge network prevents external containers from communicating with this stack
+  backend_network:
+    name: ambient_weather_network
+    driver: bridge

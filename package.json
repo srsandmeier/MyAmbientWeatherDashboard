@@ -1,0 +1,32 @@
+{
+  "name": "ambient-weather-dashboard",
+  "private": true,
+  "engines": {
+    "node": ">=24 <25",
+    "npm": ">=11"
+  },
+  "scripts": {
+    "start:all": "node scripts/start-all.mjs",
+    "lint": "npm run lint:backend && npm run lint:frontend",
+    "lint:backend": "dotnet format whitespace backend/AmbientWeather.slnx --verify-no-changes --verbosity minimal",
+    "lint:frontend": "npm run lint --prefix frontend",
+    "test": "node scripts/test-all.mjs",
+    "test:backend": "dotnet test backend/AmbientWeather.slnx --configuration Release",
+    "test:frontend": "npm test --prefix frontend",
+    "test:e2e": "npm --prefix tests/e2e run test",
+    "test:e2e:p0": "npm --prefix tests/e2e run test:p0",
+    "test:e2e:p1": "npm --prefix tests/e2e run test:p1",
+    "test:contract": "dotnet test backend/AmbientWeather.slnx --configuration Release --filter \"FullyQualifiedName~SwaggerContractTests\"",
+    "swagger:generate": "node scripts/swagger-generate.mjs",
+    "build": "npm run build --prefix frontend",
+    "dev": "npm run dev --prefix frontend",
+    "api": "dotnet run --project backend/src/AmbientWeather.Api",
+    "api:watch": "dotnet watch --project backend/src/AmbientWeather.Api",
+    "db:update": "dotnet ef database update --project backend/src/AmbientWeather.Infrastructure --startup-project backend/src/AmbientWeather.Api",
+    "db:migrate": "dotnet ef migrations add --project backend/src/AmbientWeather.Infrastructure --startup-project backend/src/AmbientWeather.Api",
+    "kill": "powershell -Command \"$p = Get-Process dotnet,node -ErrorAction SilentlyContinue; if ($p) { $p | ForEach-Object { Write-Output \\\"Killed $($_.Name) (PID $($_.Id))\\\" }; $p | Stop-Process -Force } else { Write-Output 'Nothing to kill' }\""
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.1"
+  }
+}

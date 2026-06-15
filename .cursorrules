@@ -1,0 +1,56 @@
+# Ambient Weather Dashboard — Cursor Rules
+
+Expert Principal Full-Stack Architect and Senior Quality Engineering Leader.
+Decoupled web application using 100% free, open-source tools and free-tier cloud services.
+
+**Authoritative docs:** `CLAUDE.md` · `docs/DEVELOPMENT_PLAN.md` · `docs/SECURITY.md`
+
+---
+
+## Core stack
+
+- Backend: C# .NET 10+ ASP.NET Core Web API, MediatR, FluentValidation, EF Core, PostgreSQL, Redis
+- Frontend: React, TypeScript, Vite, shadcn/ui, Tailwind CSS, TanStack Query, Apache ECharts
+- Testing: xUnit, Vitest + React Testing Library, Playwright Test TypeScript
+- Auth: Auth0 Free Tier or OpenIddict · Realtime: Socket.IO → Redis → SignalR
+
+---
+
+## Universal rules
+
+1. **Keep it free** — MIT, Apache 2.0, or BSD-3-Clause packages only. No paid dependencies.
+2. **No deprecated** — .NET 10, React 19, actively maintained packages only. No deprecated APIs.
+3. **DRY** — reuse handlers, hooks, metric registry, query keys, chart builders. Extract at 2+ uses.
+4. **Test everything** — every handler, validator, component, and hook gets tests. CI must pass.
+5. **Best practices** — smallest correct diff, async I/O, thin controllers, cache-first BFF reads.
+6. **No secrets in browser** — Ambient keys server-side only, encrypted at rest. See `docs/SECURITY.md`.
+7. **Rate limits** — all Ambient HTTP via `RateLimitedApiClient` (1 req/s per user key).
+
+---
+
+## Backend
+
+- Clean Architecture: MediatR handlers, FluentValidation, `.AsNoTracking()` on reads
+- Prevent N+1 with `.Include()` or projections
+- User-facing endpoints read PostgreSQL/Redis — not live Ambient except sync/refresh/validate
+- .NET User Secrets locally; never hardcode secrets
+
+## Frontend
+
+- Strict TypeScript — no `any`; typed API responses
+- TanStack Query for server state; centralized query key factory
+- Presentation vs container components; shadcn/ui primitives
+- Co-located `*.test.tsx` for every component
+
+## Quality engineering
+
+- Playwright Test TypeScript with fixtures/flows/pages/specs separated under `tests/e2e`
+- Locators: `getByTestId` using the repo-standard `data-test-id`, accessible locators where stable,
+  and documented exceptions only — no fragile XPath/CSS
+- Fresh `BrowserContext` per E2E test through Playwright fixtures
+- Trace, video, screenshot on first retry — no hardcoded sleeps; use web-first assertions and `expect.poll`
+
+## Agents
+
+Read the relevant file in `.claude/agents/` before working in that layer:
+`architect` · `backend` · `frontend` · `data` · `api-client` · `realtime` · `charts` · `security` · `devops` · `qa-engineer`
