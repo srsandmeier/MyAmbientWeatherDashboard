@@ -1,0 +1,74 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".cursorrules" />
+    <File Path=".editorconfig" />
+    <File Path=".env.example" />
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
+    <File Path=".mcp.json" />
+    <File Path=".nvmrc" />
+    <File Path="AGENTS.md" />
+    <File Path="CLAUDE.md" />
+    <File Path="docker-compose.yml" />
+    <File Path="dotnet-tools.json" />
+    <File Path="LICENSE.txt" />
+    <File Path="package-lock.json" />
+    <File Path="package.json" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/backend/" />
+  <Folder Name="/backend/src/">
+    <Project Path="backend/src/AmbientWeather.Api/AmbientWeather.Api.csproj" />
+    <Project Path="backend/src/AmbientWeather.Application/AmbientWeather.Application.csproj" />
+    <Project Path="backend/src/AmbientWeather.Domain/AmbientWeather.Domain.csproj" />
+    <Project Path="backend/src/AmbientWeather.Infrastructure/AmbientWeather.Infrastructure.csproj" />
+    <Project Path="backend/src/AmbientWeather.Workers/AmbientWeather.Workers.csproj" />
+  </Folder>
+  <Folder Name="/backend/tests/">
+    <Project Path="backend/tests/AmbientWeather.IntegrationTests/AmbientWeather.IntegrationTests.csproj" />
+    <Project Path="backend/tests/AmbientWeather.UnitTests/AmbientWeather.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/frontend/">
+    <File Path="frontend/package.json" />
+  </Folder>
+  <Folder Name="/tests/e2e/">
+    <File Path="tests/e2e/package.json" />
+    <File Path="tests/e2e/playwright.config.ts" />
+    <File Path="tests/e2e/tsconfig.json" />
+  </Folder>
+  <Folder Name="/docs/">
+    <File Path="docs/ACCESSIBILITY.md" />
+    <File Path="docs/AMBIENT_HISTORY_API_RESEARCH.md" />
+    <File Path="docs/API_REFERENCE.md" />
+    <File Path="docs/DEVELOPMENT_PLAN.md" />
+    <File Path="docs/NEIGHBOR_DATA_RESEARCH.md" />
+    <File Path="docs/PHASE_12_COMPLETION_PLAN.md" />
+    <File Path="docs/SECURITY.md" />
+    <File Path="docs/e2e-specs/e2e-test-flows.md" />
+  </Folder>
+  <Folder Name="/docs/archive/phases/">
+    <File Path="docs/archive/phases/PHASE_2_COMPLETION_PLAN.md" />
+    <File Path="docs/archive/phases/PHASE_3_FIXES_PLAN.md" />
+    <File Path="docs/archive/phases/PHASE_3_FOUNDATION_PLAN.md" />
+    <File Path="docs/archive/phases/PHASE_5_OBSERVABILITY_PLAN.md" />
+    <File Path="docs/archive/phases/PHASE_6_COMPLETION_PLAN.md" />
+    <File Path="docs/archive/phases/PHASE_7_COMPLETION_PLAN.md" />
+    <File Path="docs/archive/phases/PHASE_8_COMPLETION_PLAN.md" />
+    <File Path="docs/archive/phases/PHASE_9_COMPLETION_PLAN.md" />
+    <File Path="docs/archive/phases/PHASE_10_COMPLETION_PLAN.md" />
+    <File Path="docs/archive/phases/PHASE_11_COMPLETION_PLAN.md" />
+  </Folder>
+  <Folder Name="/docs/archive/plans/">
+    <File Path="docs/archive/plans/CODEBASE_IMPROVEMENT_PLAN.md" />
+  </Folder>
+  <Folder Name="/scripts/">
+    <File Path="scripts/start-all.mjs" />
+    <File Path="scripts/swagger-generate.mjs" />
+    <File Path="scripts/test-all.mjs" />
+  </Folder>
+  <Folder Name="/.github/workflows/">
+    <File Path=".github/workflows/ci.yml" />
+    <File Path=".github/workflows/codeql.yml" />
+    <File Path=".github/workflows/dependabot-auto-merge.yml" />
+  </Folder>
+</Solution>

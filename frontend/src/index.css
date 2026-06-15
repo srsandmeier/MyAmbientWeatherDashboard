@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+/* Class-based dark mode — ThemeProvider toggles .dark on <html>. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Map Tailwind color utility classes to CSS custom properties so .dark
+ * overrides apply at runtime without needing static class names.
+ */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-surface-layer-2: var(--surface-layer-2);
+  --color-surface-layer-3: var(--surface-layer-3);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* Light theme tokens */
+:root {
+  --background: oklch(0.94 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(0.975 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(0.975 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.925 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.925 0 0);
+  --muted-foreground: oklch(0.38 0 0);
+  --surface-layer-2: oklch(0.9 0 0);
+  --surface-layer-3: oklch(0.84 0 0);
+  --accent: oklch(0.925 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.54 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(0.78 0 0);
+  --input: oklch(0.78 0 0);
+  --ring: oklch(0.44 0 0);
+  --radius: 0.625rem;
+}
+
+/* Dark theme tokens */
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --surface-layer-2: oklch(0.221 0 0);
+  --surface-layer-3: oklch(0.248 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(0.31 0 0);
+  --input: oklch(0.31 0 0);
+  --ring: oklch(0.439 0 0);
+}
+
+*,
+*::before,
+*::after {
+  border-color: var(--border);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  /* Ensure text always uses the theme foreground so dark mode works without
+     explicit text-foreground on every element. */
+  color: var(--foreground);
+  background-color: var(--background);
+}
+
+select {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+select option {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+/* Ticker animation for custom dashboard ticker tiles */
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.ticker-animate {
+  animation: ticker-scroll var(--ticker-duration, 20s) linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-animate {
+    animation: none;
+  }
+}

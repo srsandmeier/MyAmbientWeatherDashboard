@@ -1,0 +1,69 @@
+# Build output
+bin/
+obj/
+out/
+dist/
+
+# Visual Studio / Rider
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# NuGet
+*.nupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# .NET
+*.dll
+*.exe
+*.pdb
+
+# Node / frontend
+node_modules/
+npm-debug.log*
+pnpm-debug.log*
+.yarn/
+*.tsbuildinfo
+
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+appsettings.Local.json
+secrets.json
+.claude/settings.local.json
+
+# ASP.NET Data Protection key ring (local)
+**/keys/
+dataprotection/
+
+# Database runtime files
+*.db
+*.db-shm
+*.db-wal
+
+# Playwright
+**/test-results/
+**/playwright-report/
+**/blob-report/
+**/playwright/.cache/
+tests/e2e/screenshots/
+
+# Test coverage
+coverage/
+TestResults/
+*.coverage
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/

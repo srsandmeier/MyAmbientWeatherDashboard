@@ -1,0 +1,3515 @@
+{
+  "components": {
+    "schemas": {
+      "AmbientCredentialStatusDto": {
+        "additionalProperties": false,
+        "properties": {
+          "hasCredentials": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "hasCredentials"
+        ],
+        "type": "object"
+      },
+      "CreatePublicWeatherSourceRequest": {
+        "additionalProperties": false,
+        "description": "Request body for creating a user-selected public weather source.",
+        "properties": {
+          "displayLabel": {
+            "description": "User-facing display label.",
+            "nullable": true,
+            "type": "string"
+          },
+          "isEnabled": {
+            "description": "Whether this source is enabled for dashboard layouts.",
+            "type": "boolean"
+          },
+          "latitude": {
+            "description": "Selected source latitude.",
+            "format": "double",
+            "type": "number"
+          },
+          "longitude": {
+            "description": "Selected source longitude.",
+            "format": "double",
+            "type": "number"
+          },
+          "provider": {
+            "description": "Public provider key.",
+            "nullable": true,
+            "type": "string"
+          },
+          "selectedMetricKeys": {
+            "description": "Optional selected metric keys; null means all provider-supported metrics.",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "sourceId": {
+            "description": "Provider-specific source identifier.",
+            "nullable": true,
+            "type": "string"
+          },
+          "timezone": {
+            "description": "Optional IANA timezone.",
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CurrentReadingDto": {
+        "additionalProperties": false,
+        "properties": {
+          "baromAbsIn": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "baromRelIn": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "battOut": {
+            "format": "int32",
+            "nullable": true,
+            "type": "integer"
+          },
+          "dailyHighTempF": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "dailyLowTempF": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "dailyRainIn": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "deviceId": {
+            "nullable": true,
+            "type": "string"
+          },
+          "deviceName": {
+            "nullable": true,
+            "type": "string"
+          },
+          "dewPoint": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "dewPointIn": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "eventRainIn": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "feelsLike": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "feelsLikeIn": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "hourlyRainIn": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "humidity": {
+            "format": "int32",
+            "nullable": true,
+            "type": "integer"
+          },
+          "humidityIn": {
+            "format": "int32",
+            "nullable": true,
+            "type": "integer"
+          },
+          "lastRain": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "maxDailyGust": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "monthlyRainIn": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "nwsPresentWeather": {
+            "nullable": true,
+            "type": "string"
+          },
+          "nwsRawMetar": {
+            "nullable": true,
+            "type": "string"
+          },
+          "nwsSkyConditions": {
+            "nullable": true,
+            "type": "string"
+          },
+          "nwsTextDescription": {
+            "nullable": true,
+            "type": "string"
+          },
+          "omCloudCover": {
+            "format": "int32",
+            "nullable": true,
+            "type": "integer"
+          },
+          "omPrecipProbability": {
+            "format": "int32",
+            "nullable": true,
+            "type": "integer"
+          },
+          "omPrecipSumIn": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "omSunrise": {
+            "nullable": true,
+            "type": "string"
+          },
+          "omSunset": {
+            "nullable": true,
+            "type": "string"
+          },
+          "omUvIndexMax": {
+            "format": "int32",
+            "nullable": true,
+            "type": "integer"
+          },
+          "omWeatherDescription": {
+            "nullable": true,
+            "type": "string"
+          },
+          "omWindDirDominant": {
+            "format": "int32",
+            "nullable": true,
+            "type": "integer"
+          },
+          "omWindGustMax": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "omWindSpeedMax": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "receivedAtUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "solarRadiation": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "source": {
+            "nullable": true,
+            "type": "string"
+          },
+          "tempF": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "tempInF": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "timestampUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "totalRainIn": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "tz": {
+            "nullable": true,
+            "type": "string"
+          },
+          "uv": {
+            "format": "int32",
+            "nullable": true,
+            "type": "integer"
+          },
+          "weeklyRainIn": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "windDir": {
+            "format": "int32",
+            "nullable": true,
+            "type": "integer"
+          },
+          "windGustMph": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "windSpeedMph": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "yearlyRainIn": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          }
+        },
+        "required": [
+          "deviceId"
+        ],
+        "type": "object"
+      },
+      "CustomLayoutItemDto": {
+        "additionalProperties": false,
+        "properties": {
+          "alertsZone": {
+            "nullable": true,
+            "type": "string"
+          },
+          "channelStationId": {
+            "nullable": true,
+            "type": "string"
+          },
+          "displayMode": {
+            "nullable": true,
+            "type": "string"
+          },
+          "icon": {
+            "nullable": true,
+            "type": "string"
+          },
+          "iconPosition": {
+            "nullable": true,
+            "type": "string"
+          },
+          "id": {
+            "nullable": true,
+            "type": "string"
+          },
+          "isPaused": {
+            "type": "boolean"
+          },
+          "metrics": {
+            "items": {
+              "$ref": "#/components/schemas/CustomMetricReferenceDto"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "name": {
+            "nullable": true,
+            "type": "string"
+          },
+          "position": {
+            "nullable": true,
+            "type": "string"
+          },
+          "size": {
+            "nullable": true,
+            "type": "string"
+          },
+          "sourceLabels": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "type": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "size",
+          "type"
+        ],
+        "type": "object"
+      },
+      "CustomMetricReferenceDto": {
+        "additionalProperties": false,
+        "properties": {
+          "labelOverride": {
+            "nullable": true,
+            "type": "string"
+          },
+          "metricKey": {
+            "nullable": true,
+            "type": "string"
+          },
+          "stationId": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "metricKey",
+          "stationId"
+        ],
+        "type": "object"
+      },
+      "DailyExtremaDto": {
+        "additionalProperties": false,
+        "properties": {
+          "dailyHighTempF": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "dailyHighTempInF": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "dailyLowTempF": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "dailyLowTempInF": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "dateUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "deviceId": {
+            "nullable": true,
+            "type": "string"
+          },
+          "deviceName": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "dateUtc",
+          "deviceId"
+        ],
+        "type": "object"
+      },
+      "DashboardLayoutDto": {
+        "additionalProperties": false,
+        "properties": {
+          "customItems": {
+            "items": {
+              "$ref": "#/components/schemas/CustomLayoutItemDto"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "layoutMode": {
+            "nullable": true,
+            "type": "string"
+          },
+          "name": {
+            "nullable": true,
+            "type": "string"
+          },
+          "tiles": {
+            "items": {
+              "$ref": "#/components/schemas/DashboardTileDto"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "updatedAtUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "layoutMode",
+          "name",
+          "tiles",
+          "updatedAtUtc"
+        ],
+        "type": "object"
+      },
+      "DashboardRainfallDto": {
+        "additionalProperties": false,
+        "properties": {
+          "dailyRainIn": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "deviceId": {
+            "nullable": true,
+            "type": "string"
+          },
+          "deviceName": {
+            "nullable": true,
+            "type": "string"
+          },
+          "eventRainIn": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "lastRain": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "monthlyRainIn": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "receivedAtUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "timestampUtc": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "weeklyRainIn": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "yearlyRainIn": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          }
+        },
+        "required": [
+          "deviceId",
+          "receivedAtUtc"
+        ],
+        "type": "object"
+      },
+      "DashboardTileDto": {
+        "additionalProperties": false,
+        "properties": {
+          "deviceId": {
+            "nullable": true,
+            "type": "string"
+          },
+          "h": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "i": {
+            "nullable": true,
+            "type": "string"
+          },
+          "metricKey": {
+            "nullable": true,
+            "type": "string"
+          },
+          "type": {
+            "nullable": true,
+            "type": "string"
+          },
+          "w": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "x": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "y": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "h",
+          "i",
+          "type",
+          "w",
+          "x",
+          "y"
+        ],
+        "type": "object"
+      },
+      "DeviceHistoryResponseDto": {
+        "additionalProperties": false,
+        "properties": {
+          "pagination": {
+            "$ref": "#/components/schemas/PaginationMetadataDto"
+          },
+          "readings": {
+            "items": {
+              "$ref": "#/components/schemas/WeatherReadingDto"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "totalReadings": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "readings"
+        ],
+        "type": "object"
+      },
+      "DiscoveredPublicSourceDto": {
+        "additionalProperties": false,
+        "properties": {
+          "displayLabel": {
+            "nullable": true,
+            "type": "string"
+          },
+          "latitude": {
+            "format": "double",
+            "type": "number"
+          },
+          "longitude": {
+            "format": "double",
+            "type": "number"
+          },
+          "provider": {
+            "nullable": true,
+            "type": "string"
+          },
+          "sourceId": {
+            "nullable": true,
+            "type": "string"
+          },
+          "timezone": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "displayLabel",
+          "provider",
+          "sourceId"
+        ],
+        "type": "object"
+      },
+      "ErrorResponseDto": {
+        "additionalProperties": false,
+        "properties": {
+          "details": {
+            "nullable": true,
+            "type": "string"
+          },
+          "error": {
+            "nullable": true,
+            "type": "string"
+          },
+          "message": {
+            "nullable": true,
+            "type": "string"
+          },
+          "statusCode": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "error",
+          "message"
+        ],
+        "type": "object"
+      },
+      "HealthResponse": {
+        "additionalProperties": false,
+        "description": "Health check response body.",
+        "properties": {
+          "status": {
+            "description": "Current service status.",
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "MetricHistoryPointDto": {
+        "additionalProperties": false,
+        "properties": {
+          "timestampUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "value": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          }
+        },
+        "required": [
+          "timestampUtc"
+        ],
+        "type": "object"
+      },
+      "MetricHistoryResponseDto": {
+        "additionalProperties": false,
+        "properties": {
+          "deviceId": {
+            "nullable": true,
+            "type": "string"
+          },
+          "deviceName": {
+            "nullable": true,
+            "type": "string"
+          },
+          "fromUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "granularity": {
+            "nullable": true,
+            "type": "string"
+          },
+          "metricKey": {
+            "nullable": true,
+            "type": "string"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/MetricHistoryPointDto"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "range": {
+            "nullable": true,
+            "type": "string"
+          },
+          "toUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "unit": {
+            "nullable": true,
+            "type": "string"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          }
+        },
+        "required": [
+          "deviceId",
+          "fromUtc",
+          "granularity",
+          "metricKey",
+          "points",
+          "range",
+          "toUtc",
+          "unit",
+          "warnings"
+        ],
+        "type": "object"
+      },
+      "NeighborConfigDto": {
+        "additionalProperties": false,
+        "properties": {
+          "ambientOpenMaxRadiusMiles": {
+            "format": "double",
+            "type": "number"
+          },
+          "comparisonRadiusMiles": {
+            "format": "double",
+            "type": "number"
+          },
+          "discoveryLocationQuery": {
+            "nullable": true,
+            "type": "string"
+          },
+          "enabledProviders": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "enabledStationMacAddresses": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "isAmbientOpenAvailable": {
+            "type": "boolean"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "maxAgeMinutes": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "minStations": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "municipality": {
+            "nullable": true,
+            "type": "string"
+          },
+          "pinnedStations": {
+            "items": {
+              "$ref": "#/components/schemas/PinnedNeighborStationDto"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "radiusMiles": {
+            "format": "double",
+            "type": "number"
+          },
+          "refreshIntervalMinutes": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "comparisonRadiusMiles",
+          "enabledProviders",
+          "isEnabled",
+          "maxAgeMinutes",
+          "minStations",
+          "radiusMiles",
+          "refreshIntervalMinutes"
+        ],
+        "type": "object"
+      },
+      "NeighborStationDto": {
+        "additionalProperties": false,
+        "properties": {
+          "baromAbsIn": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "baromRelIn": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "dailyRainIn": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "dewPoint": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "discoveryKind": {
+            "nullable": true,
+            "type": "string"
+          },
+          "distanceMiles": {
+            "format": "double",
+            "type": "number"
+          },
+          "feelsLike": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "freshnessMinutes": {
+            "format": "int32",
+            "nullable": true,
+            "type": "integer"
+          },
+          "hourlyRainIn": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "humidity": {
+            "format": "int32",
+            "nullable": true,
+            "type": "integer"
+          },
+          "lastObservedAtUtc": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "lat": {
+            "format": "double",
+            "type": "number"
+          },
+          "lon": {
+            "format": "double",
+            "type": "number"
+          },
+          "monthlyRainIn": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "name": {
+            "nullable": true,
+            "type": "string"
+          },
+          "provider": {
+            "nullable": true,
+            "type": "string"
+          },
+          "solarRadiation": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "sourceId": {
+            "nullable": true,
+            "type": "string"
+          },
+          "tempF": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "uv": {
+            "format": "int32",
+            "nullable": true,
+            "type": "integer"
+          },
+          "weeklyRainIn": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "windDir": {
+            "format": "int32",
+            "nullable": true,
+            "type": "integer"
+          },
+          "windGustMph": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "windSpeedMph": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "yearlyRainIn": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          }
+        },
+        "required": [
+          "distanceMiles",
+          "lat",
+          "lon",
+          "provider",
+          "sourceId"
+        ],
+        "type": "object"
+      },
+      "PaginationMetadataDto": {
+        "additionalProperties": false,
+        "properties": {
+          "hasNextPage": {
+            "type": "boolean"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "pageNumber": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageSize": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalPages": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "PinnedNeighborStation": {
+        "additionalProperties": false,
+        "properties": {
+          "displayLabel": {
+            "nullable": true,
+            "type": "string"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "provider": {
+            "nullable": true,
+            "type": "string"
+          },
+          "selectedMetricKeys": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "sourceId": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PinnedNeighborStationDto": {
+        "additionalProperties": false,
+        "properties": {
+          "displayLabel": {
+            "nullable": true,
+            "type": "string"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "provider": {
+            "nullable": true,
+            "type": "string"
+          },
+          "selectedMetricKeys": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "sourceId": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "provider",
+          "sourceId"
+        ],
+        "type": "object"
+      },
+      "ProblemDetails": {
+        "additionalProperties": {},
+        "properties": {
+          "detail": {
+            "nullable": true,
+            "type": "string"
+          },
+          "instance": {
+            "nullable": true,
+            "type": "string"
+          },
+          "status": {
+            "format": "int32",
+            "nullable": true,
+            "type": "integer"
+          },
+          "title": {
+            "nullable": true,
+            "type": "string"
+          },
+          "type": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PublicWeatherSourceDto": {
+        "additionalProperties": false,
+        "properties": {
+          "createdAtUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "displayLabel": {
+            "nullable": true,
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "latitude": {
+            "format": "double",
+            "type": "number"
+          },
+          "longitude": {
+            "format": "double",
+            "type": "number"
+          },
+          "provider": {
+            "nullable": true,
+            "type": "string"
+          },
+          "selectedMetricKeys": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "sourceId": {
+            "nullable": true,
+            "type": "string"
+          },
+          "timezone": {
+            "nullable": true,
+            "type": "string"
+          },
+          "updatedAtUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "displayLabel",
+          "provider",
+          "sourceId"
+        ],
+        "type": "object"
+      },
+      "SaveAmbientCredentialsRequest": {
+        "additionalProperties": false,
+        "description": "Request body for saving Ambient Weather credentials.",
+        "properties": {
+          "apiKey": {
+            "description": "The Ambient Weather user API key.",
+            "nullable": true,
+            "type": "string"
+          },
+          "applicationKey": {
+            "description": "The Ambient Weather application key.",
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SaveDashboardLayoutCommand": {
+        "additionalProperties": false,
+        "properties": {
+          "customItems": {
+            "items": {
+              "$ref": "#/components/schemas/CustomLayoutItemDto"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "layoutMode": {
+            "nullable": true,
+            "type": "string"
+          },
+          "tiles": {
+            "items": {
+              "$ref": "#/components/schemas/DashboardTileDto"
+            },
+            "nullable": true,
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "SettingsDeviceDto": {
+        "additionalProperties": false,
+        "properties": {
+          "address": {
+            "nullable": true,
+            "type": "string"
+          },
+          "displayOnDashboard": {
+            "type": "boolean"
+          },
+          "elevationMeters": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "isPrimary": {
+            "type": "boolean"
+          },
+          "lastSyncAtUtc": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "latitude": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "location": {
+            "nullable": true,
+            "type": "string"
+          },
+          "longitude": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "macAddress": {
+            "nullable": true,
+            "type": "string"
+          },
+          "name": {
+            "nullable": true,
+            "type": "string"
+          },
+          "nickname": {
+            "nullable": true,
+            "type": "string"
+          },
+          "selectedMetricKeys": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "tz": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "macAddress"
+        ],
+        "type": "object"
+      },
+      "UpdateNeighborConfigCommand": {
+        "additionalProperties": false,
+        "properties": {
+          "comparisonRadiusMiles": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "discoveryLocationQuery": {
+            "nullable": true,
+            "type": "string"
+          },
+          "enabledProviders": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "enabledStationMacAddresses": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "maxAgeMinutes": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "minStations": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "municipality": {
+            "nullable": true,
+            "type": "string"
+          },
+          "pinnedStations": {
+            "items": {
+              "$ref": "#/components/schemas/PinnedNeighborStation"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "radiusMiles": {
+            "format": "double",
+            "type": "number"
+          },
+          "refreshIntervalMinutes": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "UpdatePublicWeatherSourceRequest": {
+        "additionalProperties": false,
+        "description": "Request body for updating a user-selected public weather source.",
+        "properties": {
+          "displayLabel": {
+            "description": "Optional replacement display label.",
+            "nullable": true,
+            "type": "string"
+          },
+          "isEnabled": {
+            "description": "Optional enabled-state replacement.",
+            "nullable": true,
+            "type": "boolean"
+          },
+          "selectedMetricKeys": {
+            "description": "Optional selected metric keys replacement.",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "UpdateSettingsDeviceRequest": {
+        "additionalProperties": false,
+        "description": "Request body for \u0060PUT /api/settings/devices/{mac}\u0060.\nAll fields use patch semantics: null means \u0022leave unchanged\u0022.",
+        "properties": {
+          "displayOnDashboard": {
+            "description": "Gets or sets whether the station is shown on the dashboard. Null leaves unchanged.",
+            "nullable": true,
+            "type": "boolean"
+          },
+          "isPrimary": {
+            "description": "Gets or sets whether this is the primary/default station. Null leaves unchanged.",
+            "nullable": true,
+            "type": "boolean"
+          },
+          "nickname": {
+            "description": "Gets or sets the user-assigned nickname. Pass empty string to clear.",
+            "nullable": true,
+            "type": "string"
+          },
+          "selectedMetricKeys": {
+            "description": "Gets or sets the selected metric keys. Pass empty list to clear. Null leaves unchanged.",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "UpdateUserPreferencesRequest": {
+        "additionalProperties": false,
+        "description": "Request body for \u0060PUT /api/settings/preferences\u0060.",
+        "properties": {
+          "dailyExtremaTimezone": {
+            "description": "Gets the calendar-day timezone for daily high/low and history date queries: \u0060utc\u0060 or \u0060local\u0060.",
+            "nullable": true,
+            "type": "string"
+          },
+          "dateFormat": {
+            "description": "Gets the date format: \u0060mdy\u0060, \u0060dmy\u0060, or \u0060iso\u0060.",
+            "nullable": true,
+            "type": "string"
+          },
+          "distanceUnit": {
+            "description": "Gets the distance unit: \u0060mi\u0060 or \u0060km\u0060.",
+            "nullable": true,
+            "type": "string"
+          },
+          "pressureUnit": {
+            "description": "Gets the pressure unit: \u0060inhg\u0060, \u0060hpa\u0060, or \u0060mbar\u0060.",
+            "nullable": true,
+            "type": "string"
+          },
+          "rainfallUnit": {
+            "description": "Gets the rainfall unit: \u0060in\u0060 or \u0060mm\u0060.",
+            "nullable": true,
+            "type": "string"
+          },
+          "speedUnit": {
+            "description": "Gets the wind speed unit: \u0060mph\u0060, \u0060kmh\u0060, or \u0060ms\u0060.",
+            "nullable": true,
+            "type": "string"
+          },
+          "temperatureDecimals": {
+            "description": "Gets the number of decimal places for temperature values: 0, 1, or 2.",
+            "format": "int32",
+            "type": "integer"
+          },
+          "temperatureUnit": {
+            "description": "Gets the temperature unit: \u0060F\u0060 or \u0060C\u0060.",
+            "nullable": true,
+            "type": "string"
+          },
+          "theme": {
+            "description": "Gets the UI theme: \u0060light\u0060, \u0060dark\u0060, or \u0060system\u0060.",
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "UserPreferencesDto": {
+        "additionalProperties": false,
+        "properties": {
+          "dailyExtremaTimezone": {
+            "nullable": true,
+            "type": "string"
+          },
+          "dateFormat": {
+            "nullable": true,
+            "type": "string"
+          },
+          "distanceUnit": {
+            "nullable": true,
+            "type": "string"
+          },
+          "pressureUnit": {
+            "nullable": true,
+            "type": "string"
+          },
+          "rainfallUnit": {
+            "nullable": true,
+            "type": "string"
+          },
+          "speedUnit": {
+            "nullable": true,
+            "type": "string"
+          },
+          "temperatureDecimals": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "temperatureUnit": {
+            "nullable": true,
+            "type": "string"
+          },
+          "theme": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "dailyExtremaTimezone",
+          "dateFormat",
+          "distanceUnit",
+          "pressureUnit",
+          "rainfallUnit",
+          "speedUnit",
+          "temperatureDecimals",
+          "temperatureUnit",
+          "theme"
+        ],
+        "type": "object"
+      },
+      "WeatherAlertDto": {
+        "additionalProperties": false,
+        "properties": {
+          "areaDesc": {
+            "nullable": true,
+            "type": "string"
+          },
+          "certainty": {
+            "nullable": true,
+            "type": "string"
+          },
+          "description": {
+            "nullable": true,
+            "type": "string"
+          },
+          "effectiveUtc": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "event": {
+            "nullable": true,
+            "type": "string"
+          },
+          "expiresUtc": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "headline": {
+            "nullable": true,
+            "type": "string"
+          },
+          "id": {
+            "nullable": true,
+            "type": "string"
+          },
+          "severity": {
+            "nullable": true,
+            "type": "string"
+          },
+          "urgency": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "WeatherReadingDto": {
+        "additionalProperties": false,
+        "properties": {
+          "baromabsin": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "baromrelin": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "battout": {
+            "format": "int32",
+            "nullable": true,
+            "type": "integer"
+          },
+          "dailyrainin": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "date": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "dateutc": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "dewPoint": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "dewPointin": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "eventrainin": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "feelsLike": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "feelsLikein": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "hourlyrainin": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "humidity": {
+            "format": "int32",
+            "nullable": true,
+            "type": "integer"
+          },
+          "humidityin": {
+            "format": "int32",
+            "nullable": true,
+            "type": "integer"
+          },
+          "lastRain": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "maxdailygust": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "monthlyrainin": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "solarradiation": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "tempf": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "tempinf": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "totalrainin": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "tz": {
+            "nullable": true,
+            "type": "string"
+          },
+          "uv": {
+            "format": "int32",
+            "nullable": true,
+            "type": "integer"
+          },
+          "weeklyrainin": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "winddir": {
+            "format": "int32",
+            "nullable": true,
+            "type": "integer"
+          },
+          "windgustmph": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "windspeedmph": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "yearlyrainin": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          }
+        },
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "bearerFormat": "JWT",
+        "description": "Paste your Auth0 access token (without \u0027Bearer \u0027 prefix).",
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "description": "BFF API for the Ambient Weather Dashboard web application.",
+    "title": "Ambient Weather Dashboard API",
+    "version": "v1"
+  },
+  "openapi": "3.0.4",
+  "paths": {
+    "/api/alerts/active": {
+      "get": {
+        "parameters": [
+          {
+            "description": "Optional Weather.gov area, zone, or state code.",
+            "in": "query",
+            "name": "area",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/WeatherAlertDto"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          }
+        },
+        "security": [
+          {}
+        ],
+        "summary": "Returns active public weather alerts for the authenticated user\u0027s default station area or a selected Weather.gov area code.",
+        "tags": [
+          "Alerts"
+        ]
+      }
+    },
+    "/api/dashboard/current": {
+      "get": {
+        "parameters": [
+          {
+            "description": "Data source: \u0060own\u0060 (default) for the user\u0027s own station;\n\u0060neighbors\u0060 for an aggregated reading from nearby public stations.",
+            "in": "query",
+            "name": "source",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentReadingDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentReadingDto"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentReadingDto"
+                }
+              }
+            },
+            "description": "Latest reading."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not authenticated."
+          },
+          "428": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "No credentials/station configured, or neighbor feature unavailable."
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Rate limit exceeded."
+          },
+          "503": {
+            "description": "Ambient circuit breaker is open."
+          }
+        },
+        "security": [
+          {}
+        ],
+        "summary": "Returns the latest current reading for the user\u0027s default weather station,\nor an aggregated neighbor reading when source is \u0060neighbors\u0060.",
+        "tags": [
+          "Dashboard"
+        ]
+      }
+    },
+    "/api/dashboard/daily-extremes": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DailyExtremaDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DailyExtremaDto"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DailyExtremaDto"
+                }
+              }
+            },
+            "description": "Daily temperature extrema for the primary station."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not authenticated."
+          },
+          "428": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "No Ambient credentials saved or no station configured."
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Rate limit exceeded."
+          }
+        },
+        "security": [
+          {}
+        ],
+        "summary": "Returns the daily high/low outdoor and indoor temperatures for the user\u0027s default station,\ncomputed from stored readings for the current UTC calendar day.\nReturns null values for any sensor that has no readings today.",
+        "tags": [
+          "Dashboard"
+        ]
+      }
+    },
+    "/api/dashboard/layout": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardLayoutDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardLayoutDto"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardLayoutDto"
+                }
+              }
+            },
+            "description": "The active layout with all tile configurations."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not authenticated."
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Rate limit exceeded."
+          }
+        },
+        "security": [
+          {}
+        ],
+        "summary": "Returns the user\u0027s active dashboard layout, seeding a suggested default on first access.",
+        "tags": [
+          "Dashboard"
+        ]
+      },
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveDashboardLayoutCommand"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveDashboardLayoutCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveDashboardLayoutCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardLayoutDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardLayoutDto"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardLayoutDto"
+                }
+              }
+            },
+            "description": "The saved layout echoed back with its persisted identifier and timestamp."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Validation failed \u2014 invalid tile structure or unrecognized metric key."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not authenticated."
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Rate limit exceeded."
+          }
+        },
+        "security": [
+          {}
+        ],
+        "summary": "Saves the user\u0027s dashboard tile layout.\nValidates tile structure, metric keys, and metric reference format before persisting.\nStation IDs in custom items are display configuration and are not validated against ownership.",
+        "tags": [
+          "Dashboard"
+        ]
+      }
+    },
+    "/api/dashboard/rainfall": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardRainfallDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardRainfallDto"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardRainfallDto"
+                }
+              }
+            },
+            "description": "Rainfall accumulation values for the primary station."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not authenticated."
+          },
+          "428": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "No Ambient credentials saved or no station configured."
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Rate limit exceeded."
+          },
+          "503": {
+            "description": "Ambient circuit breaker is open."
+          }
+        },
+        "security": [
+          {}
+        ],
+        "summary": "Returns a rainfall accumulation snapshot for the user\u0027s default weather station.\nReads from the server-side latest-reading cache first; falls back to the Ambient REST API\non cache miss.",
+        "tags": [
+          "Dashboard"
+        ]
+      }
+    },
+    "/api/health": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Returns API liveness status.",
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/api/metrics/{metricKey}/history": {
+      "get": {
+        "parameters": [
+          {
+            "description": "User-facing metric key (e.g., \u0060outdoor_temp\u0060, \u0060wind_speed\u0060, \u0060rainfall_day\u0060).",
+            "in": "path",
+            "name": "metricKey",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Preset time range or mode: \u006024h\u0060, \u00607d\u0060, \u006030d\u0060, \u006090d\u0060, \u00601y\u0060, \u0060custom\u0060, \u0060date\u0060.",
+            "in": "query",
+            "name": "range",
+            "schema": {
+              "default": "24h",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional MAC address of an owned station. Omit to use the user\u0027s default station.",
+            "in": "query",
+            "name": "deviceId",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "ISO date/time start for \u0060range=custom\u0060.",
+            "in": "query",
+            "name": "from",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "ISO date/time end for \u0060range=custom\u0060.",
+            "in": "query",
+            "name": "to",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Calendar date in \u0060YYYY-MM-DD\u0060 format for \u0060range=date\u0060.",
+            "in": "query",
+            "name": "date",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Aggregation resolution: \u0060auto\u0060 (default), \u0060raw\u0060, \u0060hour\u0060, or \u0060day\u0060.",
+            "in": "query",
+            "name": "granularity",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Data source. Only \u0060my\u0060 is accepted in this version.",
+            "in": "query",
+            "name": "source",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MetricHistoryResponseDto"
+                }
+              }
+            },
+            "description": "History retrieved successfully."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "Invalid metric key, range, or query parameters."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "Authentication required."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "Requested station not found or not owned by the authenticated user."
+          },
+          "428": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "Ambient credentials or default station not configured."
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "Ambient API rate limit exceeded."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "Ambient API unavailable (circuit breaker open)."
+          }
+        },
+        "security": [
+          {}
+        ],
+        "summary": "Returns chart-ready metric history for a single metric from an owned station.\nPages Ambient Weather history, caches individual pages in Redis, and aggregates to\nthe requested granularity.",
+        "tags": [
+          "Metrics"
+        ]
+      }
+    },
+    "/api/neighbors/comparison-stations": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "macAddress",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/NeighborStationDto"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/NeighborStationDto"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/NeighborStationDto"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "List of contributing neighbor stations."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not authenticated."
+          }
+        },
+        "security": [
+          {}
+        ],
+        "summary": "Returns the Ambient Weather stations contributing to neighbor comparison for an owned station.",
+        "tags": [
+          "Neighbors"
+        ]
+      }
+    },
+    "/api/neighbors/config": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NeighborConfigDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NeighborConfigDto"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/NeighborConfigDto"
+                }
+              }
+            },
+            "description": "Neighbor configuration."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not authenticated."
+          }
+        },
+        "security": [
+          {}
+        ],
+        "summary": "Returns the neighbor comparison configuration for the authenticated user,\nseeding defaults on first access. Includes \u0060isAmbientOpenAvailable\u0060 so\nthe frontend can enable or disable the provider checkbox accordingly.",
+        "tags": [
+          "Neighbors"
+        ]
+      },
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateNeighborConfigCommand"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateNeighborConfigCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateNeighborConfigCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NeighborConfigDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NeighborConfigDto"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/NeighborConfigDto"
+                }
+              }
+            },
+            "description": "Updated neighbor configuration."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Validation error."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not authenticated."
+          }
+        },
+        "security": [
+          {}
+        ],
+        "summary": "Updates the neighbor comparison configuration for the authenticated user.",
+        "tags": [
+          "Neighbors"
+        ]
+      }
+    },
+    "/api/neighbors/refresh": {
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/NeighborStationDto"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/NeighborStationDto"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/NeighborStationDto"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "428": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Precondition Required"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          }
+        },
+        "security": [
+          {}
+        ],
+        "summary": "Triggers a neighbor station discovery refresh and returns the updated station list.",
+        "tags": [
+          "Neighbors"
+        ]
+      }
+    },
+    "/api/neighbors/stations/current": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "provider",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sourceId",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentReadingDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentReadingDto"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentReadingDto"
+                }
+              }
+            },
+            "description": "Current reading for the pinned station."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not authenticated."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Station not found in cache \u2014 refresh neighbor stations first."
+          },
+          "428": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Neighbor comparison is disabled."
+          },
+          "429": {
+            "description": "Rate limit exceeded."
+          }
+        },
+        "security": [
+          {}
+        ],
+        "summary": "Clears the neighbor station cache and triggers an immediate re-discovery.\nReturns the refreshed station list.",
+        "tags": [
+          "Neighbors"
+        ]
+      }
+    },
+    "/api/public-sources": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PublicWeatherSourceDto"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {}
+        ],
+        "summary": "Returns all public weather sources selected by the authenticated user.",
+        "tags": [
+          "PublicSources"
+        ]
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePublicWeatherSourceRequest"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePublicWeatherSourceRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePublicWeatherSourceRequest"
+              }
+            }
+          },
+          "description": "The source selection to save."
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicWeatherSourceDto"
+                }
+              }
+            },
+            "description": "Created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "security": [
+          {}
+        ],
+        "summary": "Adds a public weather source for the authenticated user.",
+        "tags": [
+          "PublicSources"
+        ]
+      }
+    },
+    "/api/public-sources/discover": {
+      "get": {
+        "parameters": [
+          {
+            "description": "Zipcode or \u0022City, State\u0022 query string (max 128 chars).",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DiscoveredPublicSourceDto"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "security": [
+          {}
+        ],
+        "summary": "Searches for discoverable public weather sources near the given location.",
+        "tags": [
+          "PublicSources"
+        ]
+      }
+    },
+    "/api/public-sources/{id}": {
+      "delete": {
+        "parameters": [
+          {
+            "description": "The source identifier.",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {}
+        ],
+        "summary": "Deletes a selected public weather source for the authenticated user.",
+        "tags": [
+          "PublicSources"
+        ]
+      },
+      "put": {
+        "parameters": [
+          {
+            "description": "The source identifier.",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePublicWeatherSourceRequest"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePublicWeatherSourceRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePublicWeatherSourceRequest"
+              }
+            }
+          },
+          "description": "Patch-style source settings."
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicWeatherSourceDto"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {}
+        ],
+        "summary": "Updates user-managed settings for a selected public weather source.",
+        "tags": [
+          "PublicSources"
+        ]
+      }
+    },
+    "/api/public-sources/{id}/current": {
+      "get": {
+        "parameters": [
+          {
+            "description": "The source identifier.",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentReadingDto"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {}
+        ],
+        "summary": "Returns a current reading for a selected public weather source.",
+        "tags": [
+          "PublicSources"
+        ]
+      }
+    },
+    "/api/settings/credentials": {
+      "delete": {
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "security": [
+          {}
+        ],
+        "summary": "Deletes stored Ambient Weather credentials for the authenticated user.",
+        "tags": [
+          "Settings"
+        ]
+      },
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AmbientCredentialStatusDto"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {}
+        ],
+        "summary": "Gets safe Ambient Weather credential status for the authenticated user.",
+        "tags": [
+          "Settings"
+        ]
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveAmbientCredentialsRequest"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveAmbientCredentialsRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveAmbientCredentialsRequest"
+              }
+            }
+          },
+          "description": "Ambient Weather credentials."
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "security": [
+          {}
+        ],
+        "summary": "Validates and saves Ambient Weather credentials for the authenticated user.",
+        "tags": [
+          "Settings"
+        ]
+      }
+    },
+    "/api/settings/devices": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SettingsDeviceDto"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {}
+        ],
+        "summary": "Returns all Ambient Weather stations owned by the authenticated user.",
+        "tags": [
+          "Settings"
+        ]
+      }
+    },
+    "/api/settings/devices/sync": {
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SettingsDeviceDto"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "security": [
+          {}
+        ],
+        "summary": "Syncs the authenticated user\u0027s Ambient Weather devices into the local station store.\nRequires saved credentials. Preserves user-managed settings across syncs.",
+        "tags": [
+          "Settings"
+        ]
+      }
+    },
+    "/api/settings/devices/{mac}": {
+      "put": {
+        "parameters": [
+          {
+            "description": "The station MAC address.",
+            "in": "path",
+            "name": "mac",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSettingsDeviceRequest"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSettingsDeviceRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSettingsDeviceRequest"
+              }
+            }
+          },
+          "description": "The fields to update."
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {}
+        ],
+        "summary": "Updates user-managed settings for an owned station.\nAll body fields use patch semantics: omit or null to leave unchanged.",
+        "tags": [
+          "Settings"
+        ]
+      }
+    },
+    "/api/settings/preferences": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserPreferencesDto"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {}
+        ],
+        "summary": "Gets display preferences (units, date format, and theme) for the authenticated user.\nReturns defaults on first use.",
+        "tags": [
+          "Settings"
+        ]
+      },
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserPreferencesRequest"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserPreferencesRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserPreferencesRequest"
+              }
+            }
+          },
+          "description": "The updated preference values."
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserPreferencesDto"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "security": [
+          {}
+        ],
+        "summary": "Updates display preferences (units, date format, and theme) for the authenticated user.",
+        "tags": [
+          "Settings"
+        ]
+      }
+    },
+    "/api/v1/devices/{macAddress}/cache": {
+      "delete": {
+        "parameters": [
+          {
+            "description": "The MAC address of the device.",
+            "in": "path",
+            "name": "macAddress",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Cache invalidated successfully."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "Invalid MAC address format."
+          }
+        },
+        "security": [
+          {}
+        ],
+        "summary": "Invalidates the cache for a specific device.\nCall this endpoint when you need fresh data without waiting for the cache to expire.",
+        "tags": [
+          "DeviceHistory"
+        ]
+      }
+    },
+    "/api/v1/devices/{macAddress}/history": {
+      "get": {
+        "parameters": [
+          {
+            "description": "The MAC address of the device (primary identifier from Ambient Weather).\nExample: \u002200:11:22:33:44:55\u0022",
+            "in": "path",
+            "name": "macAddress",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Maximum number of readings to return.\nDefault: 288 (24 hours at 5-minute intervals).\nMaximum: 288.",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "default": 288,
+              "format": "int32",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Optional end date for the query in ISO 8601 format (yyyy-MM-dd).\nIf not provided, returns the most recent readings.\nExample: \u00222026-05-27\u0022",
+            "in": "query",
+            "name": "endDate",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceHistoryResponseDto"
+                }
+              }
+            },
+            "description": "Successfully retrieved device history."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "Invalid request parameters."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "Device not found or no data available."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "Ambient Weather API is temporarily unavailable."
+          }
+        },
+        "security": [
+          {}
+        ],
+        "summary": "Retrieves historical weather readings for a specific device.\nReturns up to 288 readings (typically 24 hours of 5-minute intervals).",
+        "tags": [
+          "DeviceHistory"
+        ]
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Alerts"
+    },
+    {
+      "name": "Dashboard"
+    },
+    {
+      "name": "DeviceHistory"
+    },
+    {
+      "name": "Health"
+    },
+    {
+      "name": "Metrics"
+    },
+    {
+      "name": "Neighbors"
+    },
+    {
+      "name": "PublicSources"
+    },
+    {
+      "name": "Settings"
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+# deploy.yml — Deployment artifact baseline
+#
+# Builds the backend and frontend into deployable artifacts and uploads them.
+# Does NOT deploy to any cloud provider — hosting target is not yet chosen.
+# Run this workflow manually or trigger it after a successful CI run on main/master.
+#
+# Required production environment variables (set in your hosting platform, not here):
+#   Authentication:Authority             — Auth0 tenant authority URL
+#   Authentication:Audience             — Auth0 API audience
+#   ConnectionStrings:Postgres          — PostgreSQL connection string
+#   ConnectionStrings:Redis             — Redis connection string
+#   DataProtection:KeyRingPath          — Persistent directory for Data Protection key ring
+#   AzureMonitor:ConnectionString       — Application Insights connection string (optional)
+#   VITE_AUTH0_DOMAIN                   — Auth0 tenant domain (browser-safe)
+#   VITE_AUTH0_CLIENT_ID               — Auth0 SPA client ID (browser-safe)
+#   VITE_AUTH0_AUDIENCE                — Auth0 API audience (browser-safe)
+#   VITE_APPLICATIONINSIGHTS_CONNECTION_STRING — App Insights connection string (optional, browser-safe)
+
+name: Build Deployment Artifacts
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-backend-artifact:
+    name: Publish Backend API
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Publish API
+        run: |
+          dotnet publish backend/src/AmbientWeather.Api/AmbientWeather.Api.csproj \
+            --configuration Release \
+            --output ./artifacts/api
+
+      - name: Upload API artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-release
+          path: ./artifacts/api
+          retention-days: 7
+
+  build-frontend-artifact:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.x"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build Frontend
+        working-directory: frontend
+        # VITE_* vars are injected at build time from deployment environment secrets.
+        # Leave them unset here — the build will fail loudly if required vars are missing.
+        run: npm run build
+
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+          retention-days: 7
