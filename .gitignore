@@ -64,6 +64,10 @@ TestResults/
 .DS_Store
 Thumbs.db
 
+# MCP tool scratch output and local tool config
+.playwright-mcp/
+.mcp.json
+
 # Logs
 *.log
 logs/
