@@ -3,6 +3,9 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  // Subpath required when deployed to GitHub Pages at /<repo-name>/.
+  // GITHUB_ACTIONS is set automatically in all Actions runners.
+  base: process.env.GITHUB_ACTIONS === 'true' ? '/MyAmbientWeatherDashboard/' : '/',
   plugins: [react(), tailwindcss()],
   server: {
     port: 5173,

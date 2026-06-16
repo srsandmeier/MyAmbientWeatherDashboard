@@ -6,6 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Personal weather dashboard for Ambient Weather stations — live readings, historical charts, and realtime updates." />
     <title>Ambient Weather Dashboard</title>
+    <script>
+      // Restore the route saved by 404.html when GitHub Pages deep-links to a non-root path.
+      (function () {
+        var route = sessionStorage.getItem('spa-redirect');
+        if (route) {
+          sessionStorage.removeItem('spa-redirect');
+          history.replaceState(null, '', route);
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
