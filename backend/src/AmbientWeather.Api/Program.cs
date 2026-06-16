@@ -235,6 +235,23 @@ builder.Services.AddSwaggerGen(options =>
 
     options.OperationFilter<AuthorizeCheckOperationFilter>();
 });
+var corsAllowedOrigin = builder.Configuration["Cors:AllowedOrigin"];
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Frontend", policy =>
+    {
+        if (string.IsNullOrWhiteSpace(corsAllowedOrigin))
+        {
+            return;
+        }
+
+        policy.WithOrigins(corsAllowedOrigin)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<IWeatherHubPusher, WeatherHubPusher>();
 builder.Services.AddHostedService<RealtimeSubscriberService>();
@@ -288,6 +305,7 @@ if (!app.Environment.IsEnvironment("Testing"))
 }
 app.UseMiddleware<SecurityHeadersMiddleware>();
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
+app.UseCors("Frontend");
 app.UseAuthentication();
 // Phase 8+: replace this fixed-window limiter with a Redis-backed IRateLimiterPolicy
 // for shared counters when the application scales horizontally.

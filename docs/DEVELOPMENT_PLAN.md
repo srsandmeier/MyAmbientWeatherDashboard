@@ -1227,6 +1227,22 @@ Detailed plan: `docs/PHASE_11_COMPLETION_PLAN.md`
   - [x] `npm run test:e2e`: 79 passing.
   - [x] `dotnet ef migrations list --project backend/src/AmbientWeather.Infrastructure --startup-project backend/src/AmbientWeather.Api`: clean; latest migration `20260614053257_AddDistanceUnitPreference`.
 
+### Phase 13 — Backend Hosting (Oracle Cloud Always Free)
+Frontend is live on GitHub Pages; the backend (.NET API + Workers + PostgreSQL + Redis)
+had no hosting. Full design and rationale: [`ORACLE_DEPLOYMENT_PLAN.md`](ORACLE_DEPLOYMENT_PLAN.md).
+- [x] `backend/src/AmbientWeather.Api/Dockerfile` — multi-stage, ARM64-compatible
+- [x] `backend/src/AmbientWeather.Workers/Dockerfile` — multi-stage, ARM64-compatible
+- [x] CORS policy (`Cors:AllowedOrigin` config) added to `Program.cs`
+- [x] `appsettings.Production.json`
+- [x] `docker-compose.prod.yml` (repo root) — db, cache, api, workers, caddy services
+- [x] `Caddyfile` (repo root) — reverse proxy + automatic Let's Encrypt TLS via sslip.io
+- [x] `.env.prod.example` (repo root, committed; real `.env` stays VM-only, gitignored)
+- [x] `.github/workflows/deploy-backend.yml` — SSH deploy on push to `main`
+- [x] `VITE_API_BASE_URL` already wired in `pages.yml` (no change needed)
+- [x] `docker compose -f docker-compose.prod.yml config` validates locally
+- [ ] One-time Oracle VM provisioning and first manual deploy (manual, not automated — see plan)
+- [ ] End-to-end verification from a browser against the live GitHub Pages frontend
+
 ---
 
 ## Out of Scope (v1)
@@ -1253,3 +1269,4 @@ Detailed plan: `docs/PHASE_11_COMPLETION_PLAN.md`
 | [Open-Meteo Forecast API](https://open-meteo.com/en/docs) | Official forecast/current/hourly/daily field reference for Open-Meteo source support |
 | [`NEIGHBOR_DATA_RESEARCH.md`](NEIGHBOR_DATA_RESEARCH.md) | Ambient undocumented Open API findings and fallback provider strategy |
 | [aioambient OpenAPI](https://github.com/bachya/aioambient) | Ambient undocumented Open API reference |
+| [`ORACLE_DEPLOYMENT_PLAN.md`](ORACLE_DEPLOYMENT_PLAN.md) | Phase 13 backend hosting on Oracle Cloud Always Free |
