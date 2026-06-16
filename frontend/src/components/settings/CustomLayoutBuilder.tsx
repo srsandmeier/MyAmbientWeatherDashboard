@@ -395,7 +395,7 @@ function MetricBlockEditor({
 
       <div className="flex flex-wrap items-end gap-2" data-test-id="settings-custom-layout-metric-picker">
         {pickerDevices.length > 0 && (
-          <div className="flex flex-col gap-1">
+          <div className="flex min-w-0 flex-col gap-1">
             <label className="text-xs text-muted-foreground" htmlFor={`picker-station-${item.id}`}>
               Station
             </label>
@@ -408,7 +408,7 @@ function MetricBlockEditor({
                 setPickerMac(nextStation);
                 setPickerKey(nextKeys.includes(pickerKey) ? pickerKey : (nextKeys[0] ?? ALLOWED_METRIC_KEYS[0]));
               }}
-              className="h-8 rounded-md border border-input bg-background px-2 text-sm text-foreground"
+              className="h-8 w-full min-w-0 rounded-md border border-input bg-background px-2 text-sm text-foreground"
               data-test-id="settings-custom-layout-metric-picker-station"
             >
               {pickerDevices.map((device) => (
@@ -536,7 +536,7 @@ function TickerEditor({
 
   return (
     <div className="space-y-3 border-t border-border pt-3" data-test-id="settings-custom-layout-ticker-editor">
-      <div className="flex flex-col gap-1">
+      <div className="flex min-w-0 flex-col gap-1">
         <label className="text-xs text-muted-foreground" htmlFor={`ticker-channel-${item.id}`}>
           Channel source
         </label>
@@ -544,7 +544,7 @@ function TickerEditor({
           id={`ticker-channel-${item.id}`}
           value={channelId}
           onChange={(e) => { setChannel(e.target.value); }}
-          className="h-8 rounded-md border border-input bg-background px-2 text-sm text-foreground"
+          className="h-8 w-full min-w-0 rounded-md border border-input bg-background px-2 text-sm text-foreground"
           data-test-id="settings-custom-layout-ticker-channel"
         >
           <option value="">Own Station</option>

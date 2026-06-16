@@ -105,8 +105,26 @@ body {
 }
 
 select {
+  appearance: none;
   background-color: var(--background);
   color: var(--foreground);
+  /* Custom chevron — replaces the Windows-native square dropdown button */
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><polyline points='2,4 6,8 10,4' fill='none' stroke='%23666666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1em 1em;
+  /* Unlayered CSS overrides Tailwind's @layer utilities px-* so the arrow has room */
+  padding-right: 2rem;
+}
+
+.dark select {
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><polyline points='2,4 6,8 10,4' fill='none' stroke='%23aaaaaa' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+}
+
+select:focus {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: inherit;
 }
 
 select option {
