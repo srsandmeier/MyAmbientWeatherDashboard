@@ -4,8 +4,9 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   // Subpath required when deployed to GitHub Pages at /<repo-name>/.
-  // GITHUB_ACTIONS is set automatically in all Actions runners.
-  base: process.env.GITHUB_ACTIONS === 'true' ? '/MyAmbientWeatherDashboard/' : '/',
+  // Opt-in flag (set only by the Pages build step) — GITHUB_ACTIONS itself is set for
+  // every Actions job (including the E2E job's `npm run dev`) so it can't be used here.
+  base: process.env.VITE_GH_PAGES_BUILD === 'true' ? '/MyAmbientWeatherDashboard/' : '/',
   plugins: [react(), tailwindcss()],
   server: {
     port: 5173,

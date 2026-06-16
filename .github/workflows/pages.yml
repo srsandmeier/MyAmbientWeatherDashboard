@@ -37,6 +37,8 @@ jobs:
       - name: Build
         working-directory: frontend
         env:
+          # Tells vite.config.ts to use the /MyAmbientWeatherDashboard/ subpath base.
+          VITE_GH_PAGES_BUILD: 'true'
           # Auth0 SPA credentials — set these in repo Settings → Secrets → Actions.
           VITE_AUTH0_DOMAIN: ${{ secrets.VITE_AUTH0_DOMAIN }}
           VITE_AUTH0_CLIENT_ID: ${{ secrets.VITE_AUTH0_CLIENT_ID }}
