@@ -1,4 +1,4 @@
-# Ambient Weather Dashboard
+# [Ambient Weather Dashboard](https://srsandmeier.github.io/MyAmbientWeatherDashboard/)
 
 A full-stack web application for live and historical data from your
 [Ambient Weather](https://ambientweather.com) personal weather station or public sources.
