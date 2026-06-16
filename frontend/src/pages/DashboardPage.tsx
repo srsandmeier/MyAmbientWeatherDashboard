@@ -67,8 +67,12 @@ const UNIFORM_TILE_HEIGHT = 4;
 export function DashboardPage() {
   const { getAccessToken } = useAuth();
   const [dataSource, setDataSource] = useState<'own' | 'neighbors'>('own');
-  const [alertsAreaMode, setAlertsAreaMode] = useState<'station' | 'manual'>('station');
-  const [manualAlertsArea, setManualAlertsArea] = useState('');
+  const [alertsAreaMode, setAlertsAreaMode] = useState<'station' | 'manual'>(
+    () => (localStorage.getItem('dashboard.alertsAreaMode') as 'station' | 'manual' | null) ?? 'station',
+  );
+  const [manualAlertsArea, setManualAlertsArea] = useState(
+    () => localStorage.getItem('dashboard.manualAlertsArea') ?? '',
+  );
   const [neighborRadiusDraft, setNeighborRadiusDraft] = useState<string | null>(null);
   const [neighborRadiusStatus, setNeighborRadiusStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [neighborDrawerStations, setNeighborDrawerStations] = useState<readonly NeighborStationDto[]>([]);
@@ -423,7 +427,9 @@ export function DashboardPage() {
               id="dashboard-alerts-area-mode"
               value={alertsAreaMode}
               onChange={(event) => {
-                setAlertsAreaMode(event.target.value as 'station' | 'manual');
+                const mode = event.target.value as 'station' | 'manual';
+                setAlertsAreaMode(mode);
+                localStorage.setItem('dashboard.alertsAreaMode', mode);
               }}
               className="h-9 rounded-md border border-input bg-background px-2 text-foreground"
               aria-label="Weather alerts area"
@@ -435,7 +441,10 @@ export function DashboardPage() {
             {alertsAreaMode === 'manual' && (
               <input
                 value={manualAlertsArea}
-                onChange={(event) => { setManualAlertsArea(event.target.value); }}
+                onChange={(event) => {
+                  setManualAlertsArea(event.target.value);
+                  localStorage.setItem('dashboard.manualAlertsArea', event.target.value);
+                }}
                 placeholder="STATE/ZONE"
                 maxLength={12}
                 className="h-9 w-28 rounded-md border border-input bg-background px-2 uppercase text-foreground"
