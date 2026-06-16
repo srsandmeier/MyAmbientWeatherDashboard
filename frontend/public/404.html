@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      // GitHub Pages serves this page for any path that isn't a real file.
+      // Store the route (everything after the repo-name segment) in sessionStorage
+      // then redirect to the app root so React Router can handle it.
+      (function () {
+        var base = location.pathname.split('/').slice(0, 2).join('/');
+        var route = location.pathname.slice(base.length) + location.search + location.hash;
+        sessionStorage.setItem('spa-redirect', route || '/');
+        location.replace(location.origin + base + '/');
+      })();
+    </script>
+  </head>
+</html>

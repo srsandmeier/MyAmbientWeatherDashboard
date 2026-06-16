@@ -14,6 +14,9 @@ const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const MetricDetailPage = lazy(() => import('./pages/MetricDetailPage'));
 
+// Strip trailing slash so React Router receives '/MyAmbientWeatherDashboard' or '/'.
+const basename = import.meta.env.BASE_URL.replace(/\/$/, '') || '/';
+
 export const router = createBrowserRouter([
   {
     element: <AppShell />,
@@ -47,4 +50,4 @@ export const router = createBrowserRouter([
       { path: '*', element: <NotFoundPage /> },
     ],
   },
-]);
+], { basename });
