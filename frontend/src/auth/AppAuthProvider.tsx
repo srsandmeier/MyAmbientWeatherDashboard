@@ -20,7 +20,7 @@ export function AppAuthProvider({ children }: AppAuthProviderProps) {
       clientId={clientId}
       cacheLocation={cacheLocation}
       authorizationParams={{
-        redirect_uri: `${window.location.origin}/auth/callback`,
+        redirect_uri: `${window.location.origin}${import.meta.env.BASE_URL}auth/callback`,
         audience,
       }}
       onRedirectCallback={(appState) => {
