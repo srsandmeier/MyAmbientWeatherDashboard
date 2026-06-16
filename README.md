@@ -1,7 +1,7 @@
 # Ambient Weather Dashboard
 
 A full-stack web application for live and historical data from your
-[Ambient Weather](https://ambientweather.com) personal weather station.
+[Ambient Weather](https://ambientweather.com) personal weather station or public sources.
 
 
 > **Project name:** `AmbientWeatherDashboard` (display: *Ambient Weather Dashboard*).
