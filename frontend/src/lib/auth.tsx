@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useAuth0 } from '@auth0/auth0-react';
 import { createContext, useCallback, useContext, useMemo, type ReactNode } from 'react';
+import { getAppUrl } from './deploymentBase';
 
 export interface AuthUser {
   readonly sub: string;
@@ -57,7 +58,7 @@ export function Auth0AuthBridge({ children }: { readonly children: ReactNode }) 
   );
 
   const logout = useCallback(
-    () => { void auth0Logout({ logoutParams: { returnTo: window.location.origin } }); },
+    () => { void auth0Logout({ logoutParams: { returnTo: getAppUrl('/') } }); },
     [auth0Logout],
   );
 

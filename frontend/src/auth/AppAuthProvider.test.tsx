@@ -3,6 +3,10 @@ import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppAuthProvider } from './AppAuthProvider';
 
+const routerMocks = vi.hoisted(() => ({
+  navigate: vi.fn(),
+}));
+
 interface CapturedAuth0ProviderProps {
   readonly children: ReactNode;
   readonly domain: string;
@@ -38,7 +42,7 @@ vi.mock('../lib/auth', () => ({
 
 vi.mock('../router', () => ({
   router: {
-    navigate: vi.fn(),
+    navigate: routerMocks.navigate,
   },
 }));
 
@@ -47,6 +51,8 @@ describe('AppAuthProvider', () => {
 
   beforeEach(() => {
     capturedProps = null;
+    routerMocks.navigate.mockReset();
+    vi.unstubAllEnvs();
     Object.defineProperty(navigator, 'webdriver', {
       configurable: true,
       value: originalWebdriver,
@@ -70,6 +76,36 @@ describe('AppAuthProvider', () => {
         audience: 'https://ambient-weather-dashboard-api',
       },
     });
+  });
+
+  it('uses the GitHub Pages base path for Auth0 callback URLs', () => {
+    vi.stubEnv('BASE_URL', '/MyAmbientWeatherDashboard/');
+
+    render(
+      <AppAuthProvider>
+        <span>Dashboard</span>
+      </AppAuthProvider>,
+    );
+
+    expect(capturedProps?.authorizationParams?.redirect_uri).toBe(
+      'http://localhost:3000/MyAmbientWeatherDashboard/auth/callback',
+    );
+  });
+
+  it('normalizes Auth0 returnTo values before navigating with React Router', () => {
+    vi.stubEnv('BASE_URL', '/MyAmbientWeatherDashboard/');
+
+    render(
+      <AppAuthProvider>
+        <span>Dashboard</span>
+      </AppAuthProvider>,
+    );
+
+    capturedProps?.onRedirectCallback?.({
+      returnTo: '/MyAmbientWeatherDashboard/settings?tab=stations',
+    });
+
+    expect(routerMocks.navigate).toHaveBeenCalledWith('/settings?tab=stations');
   });
 
   it('uses memory cache in automated browsers so Playwright Auth0 mocks stay isolated', () => {
