@@ -1,8 +1,15 @@
 # [Ambient Weather Dashboard](https://srsandmeier.github.io/MyAmbientWeatherDashboard/)
+https://srsandmeier.github.io/MyAmbientWeatherDashboard Note: Back end is not yet hosted
+
 
 A full-stack web application for live and historical data from your
 [Ambient Weather](https://ambientweather.com) personal weather station or public sources.
 
+While applying for jobs, I have found that many ask for a Git Repo. Since all of my work in the last 10+ years has been private, proprietary, or just local Arduino builds, I did not have anything publicly available.
+
+I decided I needed to direct AI tools in the building of a Full application, including Security and testing. This way, I could demonstrate competency with AI tools and some of the industry's best tools that are free-ish to me.
+
+I figured I have a weather station, and I had played with it's API's before in Postman, why not build on that?
 
 > **Project name:** `AmbientWeatherDashboard` (display: *Ambient Weather Dashboard*).
 
