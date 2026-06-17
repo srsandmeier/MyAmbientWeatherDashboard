@@ -1,6 +1,7 @@
 import { Auth0Provider } from '@auth0/auth0-react';
 import type { ReactNode } from 'react';
 import { getAuthConfig } from '../config/app';
+import { getAppUrl, normalizeRouterPath } from '../lib/deploymentBase';
 import { Auth0AuthBridge } from '../lib/auth';
 import { router } from '../router';
 
@@ -20,11 +21,11 @@ export function AppAuthProvider({ children }: AppAuthProviderProps) {
       clientId={clientId}
       cacheLocation={cacheLocation}
       authorizationParams={{
-        redirect_uri: `${window.location.origin}${import.meta.env.BASE_URL}auth/callback`,
+        redirect_uri: getAppUrl('/auth/callback'),
         audience,
       }}
       onRedirectCallback={(appState) => {
-        void router.navigate(appState?.returnTo ?? '/');
+        void router.navigate(normalizeRouterPath(appState?.returnTo ?? '/'));
       }}
     >
       <Auth0AuthBridge>{children}</Auth0AuthBridge>
