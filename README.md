@@ -1,4 +1,5 @@
-# Ambient Weather Dashboard
+# [Ambient Weather Dashboard](https://srsandmeier.github.io/MyAmbientWeatherDashboard/)
+https://srsandmeier.github.io/MyAmbientWeatherDashboard Note: Back end is not yet hosted
 
 Frontend GitHub Pages deployments use the pattern `https://<github-user>.github.io/<repo-name>/`.
 The backend API must be hosted separately and configured with `VITE_API_BASE_URL`.
