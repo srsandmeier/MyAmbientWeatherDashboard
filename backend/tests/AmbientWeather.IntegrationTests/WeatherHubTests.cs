@@ -219,9 +219,9 @@ public sealed class WeatherHubTests : IClassFixture<WeatherHubTestFactory>
     public async Task WeatherHubShouldNotDeliverOtherUsersMessages()
     {
         var userAHash = UserSegmentHash.Compute(UserSubject);
-        var userBHash = UserSegmentHash.Compute(OtherSubject);
 
-        var userAReceived = new List<CurrentReadingDto>();
+        var userADelivered = new TaskCompletionSource<CurrentReadingDto>(
+            TaskCreationOptions.RunContinuationsAsynchronously);
         var userBReceived = new List<CurrentReadingDto>();
 
         var connA = BuildConnection(UserSubject);
@@ -229,7 +229,7 @@ public sealed class WeatherHubTests : IClassFixture<WeatherHubTestFactory>
 
         try
         {
-            connA.On<ReadingUpdatedEventDto>("ReadingUpdated", dto => userAReceived.Add(dto.Reading));
+            connA.On<ReadingUpdatedEventDto>("ReadingUpdated", dto => userADelivered.TrySetResult(dto.Reading));
             connB.On<ReadingUpdatedEventDto>("ReadingUpdated", dto => userBReceived.Add(dto.Reading));
 
             await connA.StartAsync();
@@ -243,13 +243,10 @@ public sealed class WeatherHubTests : IClassFixture<WeatherHubTestFactory>
                 ReceivedAtUtc = DateTime.UtcNow,
             };
 
-            // Push only to user A.
+            // Push only to user A; wait for confirmed delivery before asserting user B got nothing.
             await pusher.SendReadingUpdatedAsync(userAHash, new ReadingUpdatedEventDto { Reading = reading });
+            await userADelivered.Task.WaitAsync(TimeSpan.FromSeconds(5));
 
-            // Allow brief time for delivery.
-            await Task.Delay(200);
-
-            userAReceived.Count.ShouldBe(1);
             userBReceived.Count.ShouldBe(0, "user B must not receive user A's message");
         }
         finally
