@@ -357,20 +357,11 @@ function buildNeighborConfig(data: NeighborConfigDto | undefined): NeighborConfi
 const DEVICE_ROW_OPEN_STORAGE_KEY = 'ambient-weather.settings.deviceRowOpenByMac';
 
 async function hashDeviceRowPreferenceKey(macAddress: string): Promise<string> {
-  if (typeof window !== 'undefined' && window.crypto?.subtle) {
-    const bytes = new TextEncoder().encode(macAddress);
-    const digest = await window.crypto.subtle.digest('SHA-256', bytes);
-    return Array.from(new Uint8Array(digest))
-      .map((b) => b.toString(16).padStart(2, '0'))
-      .join('');
-  }
-
-  let hash = 0;
-  for (let i = 0; i < macAddress.length; i += 1) {
-    hash = ((hash << 5) - hash) + macAddress.charCodeAt(i);
-    hash |= 0;
-  }
-  return `fallback_${Math.abs(hash)}`;
+  const bytes = new TextEncoder().encode(macAddress);
+  const digest = await window.crypto.subtle.digest('SHA-256', bytes);
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
 }
 
 async function readDeviceRowOpenPreferencesForDevices(
@@ -1615,9 +1606,13 @@ export function DevicesCard({
   const [layoutSaveMessage, setLayoutSaveMessage] = useState<string | null>(null);
   const [isSourcesOpen, setIsSourcesOpen] = useState(true);
   const [isPublicNearbyOpen, setIsPublicNearbyOpen] = useState(false);
-  const [deviceRowOpenByMac, setDeviceRowOpenByMac] = useState<Record<string, boolean>>(
-    readDeviceRowOpenPreferences,
-  );
+  const [deviceRowOpenByMac, setDeviceRowOpenByMac] = useState<Record<string, boolean>>({});
+  const hasInitializedRowPrefs = useRef(false);
+  useEffect(() => {
+    if (!devices || hasInitializedRowPrefs.current) return;
+    hasInitializedRowPrefs.current = true;
+    void readDeviceRowOpenPreferencesForDevices(devices).then(setDeviceRowOpenByMac);
+  }, [devices]);
   const sourceDevices = (publicSources.data ?? [])
     .filter((source) => source.isEnabled)
     .map(sourceToDevice);
