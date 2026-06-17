@@ -356,26 +356,53 @@ function buildNeighborConfig(data: NeighborConfigDto | undefined): NeighborConfi
 
 const DEVICE_ROW_OPEN_STORAGE_KEY = 'ambient-weather.settings.deviceRowOpenByMac';
 
-function readDeviceRowOpenPreferences(): Record<string, boolean> {
+async function hashDeviceRowPreferenceKey(macAddress: string): Promise<string> {
+  if (typeof window !== 'undefined' && window.crypto?.subtle) {
+    const bytes = new TextEncoder().encode(macAddress);
+    const digest = await window.crypto.subtle.digest('SHA-256', bytes);
+    return Array.from(new Uint8Array(digest))
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
+  }
+
+  let hash = 0;
+  for (let i = 0; i < macAddress.length; i += 1) {
+    hash = ((hash << 5) - hash) + macAddress.charCodeAt(i);
+    hash |= 0;
+  }
+  return `fallback_${Math.abs(hash)}`;
+}
+
+async function readDeviceRowOpenPreferencesForDevices(
+  devices: readonly SettingsDeviceDto[],
+): Promise<Record<string, boolean>> {
   if (typeof window === 'undefined') return {};
   try {
     const raw = window.localStorage.getItem(DEVICE_ROW_OPEN_STORAGE_KEY);
     if (raw === null) return {};
     const parsed: unknown = JSON.parse(raw);
     if (typeof parsed !== 'object' || parsed === null) return {};
-    return Object.fromEntries(
+    const stored = Object.fromEntries(
       Object.entries(parsed)
         .filter((entry): entry is [string, boolean] => typeof entry[1] === 'boolean'),
     );
+
+    const mappedEntries = await Promise.all(
+      devices.map(async (device) => [device.macAddress, stored[await hashDeviceRowPreferenceKey(device.macAddress)] ?? false] as const),
+    );
+    return Object.fromEntries(mappedEntries);
   } catch {
     return {};
   }
 }
 
-function writeDeviceRowOpenPreferences(value: Record<string, boolean>) {
+async function writeDeviceRowOpenPreferences(value: Record<string, boolean>) {
   if (typeof window === 'undefined') return;
   try {
-    window.localStorage.setItem(DEVICE_ROW_OPEN_STORAGE_KEY, JSON.stringify(value));
+    const entries = await Promise.all(
+      Object.entries(value).map(async ([macAddress, isOpen]) => [await hashDeviceRowPreferenceKey(macAddress), isOpen] as const),
+    );
+    window.localStorage.setItem(DEVICE_ROW_OPEN_STORAGE_KEY, JSON.stringify(Object.fromEntries(entries)));
   } catch {
     // Ignore storage failures; row expansion still works for the current render.
   }
@@ -1868,7 +1895,7 @@ export function DevicesCard({
                       onRowOpenChange={(nextIsOpen) => {
                         setDeviceRowOpenByMac((current) => {
                           const next = { ...current, [device.macAddress]: nextIsOpen };
-                          writeDeviceRowOpenPreferences(next);
+                          void writeDeviceRowOpenPreferences(next);
                           return next;
                         });
                       }}
