@@ -23,6 +23,8 @@ jobs:
   backend:
     name: Build & Test Backend
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
@@ -56,6 +58,8 @@ jobs:
   frontend:
     name: Build & Test Frontend
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
@@ -94,6 +98,8 @@ jobs:
   e2e:
     name: E2E Tests (Playwright ${{ matrix.suite }})
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
