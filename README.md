@@ -1,5 +1,7 @@
-# [Ambient Weather Dashboard](https://srsandmeier.github.io/MyAmbientWeatherDashboard/)
-https://srsandmeier.github.io/MyAmbientWeatherDashboard Note: Back end is not yet hosted
+# Ambient Weather Dashboard
+
+Frontend GitHub Pages deployments use the pattern `https://<github-user>.github.io/<repo-name>/`.
+The backend API must be hosted separately and configured with `VITE_API_BASE_URL`.
 
 
 A full-stack web application for live and historical data from your
@@ -41,13 +43,17 @@ Built with free, open-source tools — no paid dependencies.
 | Database | PostgreSQL 16 for app-owned state; Ambient API + Redis cache for v1 history |
 | Cache / pub-sub | Redis 7 |
 | Auth | Auth0 Free Tier (or OpenIddict) |
-| Frontend | React 19, TypeScript, Vite, React Router v7, shadcn/ui, Tailwind CSS v4, TanStack Query v5 |
-| Realtime | SignalR (browser) ← Redis pub-sub ← server-side Socket.IO subscriber *(Phase 9)* |
-| Charts | Apache ECharts via `echarts-for-react` *(Phase 12)* |
+| External weather/location APIs | Ambient REST/realtime/Open API, Weather.gov/NWS, Open-Meteo, Nominatim geocoding |
+| Frontend | React 19, TypeScript, Vite, React Router v7, shadcn/ui/Radix primitives, Tailwind CSS v4, TanStack Query v5, Lucide icons |
+| Realtime | SignalR (browser) ← Redis pub-sub ← server-side Socket.IO subscriber |
+| Charts | Apache ECharts via `echarts-for-react` |
 | Layout editor | CSS Grid + structured Settings builder *(Phase 10)* |
 | Telemetry | Serilog structured logging; optional Azure Monitor OpenTelemetry (backend) + Application Insights React SDK (frontend) |
-| Testing | xUnit + Shouldly, Vitest + React Testing Library + jest-axe, Playwright Test TypeScript |
-| Code quality | .NET SDK analyzers, Meziantou.Analyzer, Roslynator.Analyzers, ESLint (React, a11y, Testing Library, Vitest plugins) |
+| API docs / contracts | Swashbuckle OpenAPI, Swagger UI in Development, OpenAPI snapshot tests |
+| Testing | xUnit + Shouldly + Moq + Bogus + Testcontainers, Vitest + React Testing Library + jest-axe, Playwright Test TypeScript |
+| Code quality | .NET SDK analyzers, Meziantou.Analyzer, Roslynator.Analyzers, ESLint (React, a11y, Testing Library, Vitest plugins), CodeQL |
+| CI/CD | GitHub Actions, GitHub Pages, Dependabot, deployment artifact workflows |
+| AI/code-assist tools | Claude, Codex, GitHub Copilot |
 
 See [`docs/DEVELOPMENT_PLAN.md`](docs/DEVELOPMENT_PLAN.md) for architecture, data model,
 API contract, and phased execution plan.
@@ -110,6 +116,13 @@ External references:
 # Restore local tools (dotnet-ef)
 dotnet tool restore
 
+# Install root orchestration dependencies
+npm install
+
+# Install frontend and E2E dependencies
+npm install --prefix frontend
+npm install --prefix tests/e2e
+
 # Initialize .NET User Secrets for the API and Workers projects
 dotnet user-secrets init --project backend/src/AmbientWeather.Api
 dotnet user-secrets init --project backend/src/AmbientWeather.Workers
@@ -151,8 +164,9 @@ email address or support URL for Weather.gov and Nominatim provider-policy compl
 # Start PostgreSQL and Redis
 docker compose up -d
 
-# Install frontend and E2E dependencies once
-cd frontend && npm install && cd ..
+# Install npm dependencies once if you did not do the one-time setup above
+npm install
+npm install --prefix frontend
 npm install --prefix tests/e2e
 
 # All commands below run from the repo root (package.json)
@@ -174,10 +188,13 @@ npm run lint:frontend  # ESLint only
 npm test               # backend + frontend tests; prints a pass/fail summary (both always run)
 npm run test:backend   # dotnet test only
 npm run test:frontend  # Vitest only
+npm run test:contract  # OpenAPI snapshot/TypeScript contract tests
 npm run test:e2e       # Playwright TypeScript tests — see "Running E2E tests" below for prerequisites
 npm run test:e2e:p0    # P0 Playwright TypeScript tests only
 npm run test:e2e:p1    # P1 Playwright TypeScript tests only
 npm run build          # frontend production build
+npm run swagger:generate # regenerate docs/openapi.json from backend contract
+npm run kill           # stop local dotnet/node dev processes
 ```
 
 #### Running E2E tests
@@ -202,9 +219,10 @@ timeout 60 bash -c 'until curl -sf http://localhost:5173 >/dev/null; do sleep 1;
 npm run test:e2e
 ```
 
-After the run, open the HTML report from the repo root:
+After the run, open the HTML report from the E2E package:
 ```bash
-npx playwright show-report
+cd tests/e2e
+npx playwright show-report ../../playwright-report
 ```
 
 Playwright trace, video, and screenshot artifacts are saved on failure for post-mortem debugging.
@@ -249,6 +267,13 @@ Supported Phase 8 history query options:
 - `granularity=auto|raw|hour|day`
 - `source=my` only; neighbor history remains deferred
 
+Device history endpoints (authenticated):
+
+| Endpoint | Purpose |
+|---|---|
+| `GET /api/v1/devices/{macAddress}/history` | Direct device history lookup with `limit` and optional `endDate`; capped at 288 readings |
+| `DELETE /api/v1/devices/{macAddress}/cache` | Invalidate the server-side history cache for an owned device |
+
 Phase 9 realtime and dashboard endpoints (authenticated):
 
 | Endpoint | Purpose |
@@ -263,6 +288,7 @@ Phase 10 dashboard layout and rainfall endpoints (authenticated):
 | Endpoint | Purpose |
 |---|---|
 | `GET /api/dashboard/rainfall` | Rainfall accumulation snapshot (event/day/week/month/year) — same cache path as `/current` |
+| `GET /api/dashboard/daily-extremes` | Today's outdoor and indoor temperature highs/lows for the primary station |
 | `GET /api/dashboard/layout` | Active dashboard layout (Default or Custom mode); seeds a Default layout on first access |
 | `PUT /api/dashboard/layout` | Save Default or Custom layout. Custom items validated: max 12, unique ids, metric keys in shared registry, station ownership, fill-mode constraints |
 
@@ -276,9 +302,13 @@ Phase 11 neighbor comparison endpoints (authenticated):
 | `PUT /api/neighbors/config` | Save neighbor settings, enabled providers, radius/age limits, and pinned stations |
 | `POST /api/neighbors/refresh` | Clear the cached neighbor station list and rediscover nearby public stations |
 | `GET /api/neighbors/stations/current?provider={provider}&sourceId={sourceId}` | Current reading for a pinned neighbor station from the user's cache |
+| `GET /api/neighbors/comparison-stations?macAddress={mac}` | Ambient stations contributing to neighbor comparison for an owned station; `macAddress` is optional |
 | `GET /api/dashboard/current?source=neighbors` | Aggregated neighbor current reading for the dashboard source toggle |
 | `GET /api/public-sources/discover?q={query}` | Search by zipcode or city/state for Weather.gov and Open-Meteo source candidates |
-| `GET/POST/PUT/DELETE /api/public-sources` | Manage user-selected Weather.gov/Open-Meteo source stations for Default and Custom layout selection |
+| `GET /api/public-sources` | List user-selected Weather.gov/Open-Meteo source stations |
+| `POST /api/public-sources` | Add a user-selected Weather.gov/Open-Meteo source station |
+| `PUT /api/public-sources/{id}` | Update a saved public source station |
+| `DELETE /api/public-sources/{id}` | Delete a saved public source station |
 | `GET /api/public-sources/{id}/current` | Current reading for a saved Weather.gov/Open-Meteo public source |
 | `GET /api/alerts/active?area={code}` | Active Weather.gov/NWS alerts for the user's default station area, or a selected NWS area/zone/state code |
 
@@ -337,10 +367,12 @@ Both default to off in local development — this is intentional.
 In your Auth0 dashboard → Application → Settings add to **Allowed Callback URLs**:
 ```
 http://localhost:5173/auth/callback
+https://<github-user>.github.io/<repo-name>/auth/callback
 ```
 And to **Allowed Logout URLs** and **Allowed Web Origins**:
 ```
 http://localhost:5173
+https://<github-user>.github.io/<repo-name>
 ```
 
 Copy `.env.example` to `.env` and adjust connection strings before starting Docker services.

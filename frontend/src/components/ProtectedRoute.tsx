@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from 'react';
+import { getCurrentRouterPath } from '../lib/deploymentBase';
 import { useAuth } from '../lib/auth';
 import { Skeleton } from './ui/skeleton';
 
@@ -12,7 +13,7 @@ export function ProtectedRoute({ children }: Props) {
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      login(window.location.pathname + window.location.search);
+      login(getCurrentRouterPath());
     }
   }, [isAuthenticated, isLoading, login]);
 
