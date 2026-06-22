@@ -17,7 +17,7 @@
     "test:watch": "node ./scripts/run-vitest.mjs"
   },
   "dependencies": {
-    "@auth0/auth0-react": "^2.18.0",
+    "@auth0/auth0-react": "^2.19.0",
     "@microsoft/applicationinsights-react-js": "^19.4.0",
     "@microsoft/applicationinsights-web": "^3.4.1",
     "@microsoft/signalr": "^10.0.0",
