@@ -17,14 +17,14 @@
     "test:watch": "node ./scripts/run-vitest.mjs"
   },
   "dependencies": {
-    "@auth0/auth0-react": "^2.18.0",
+    "@auth0/auth0-react": "^2.19.0",
     "@microsoft/applicationinsights-react-js": "^19.4.0",
     "@microsoft/applicationinsights-web": "^3.4.1",
     "@microsoft/signalr": "^10.0.0",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-label": "^2.1.8",
     "@radix-ui/react-slot": "^1.2.4",
-    "@radix-ui/react-tooltip": "^1.2.8",
+    "@radix-ui/react-tooltip": "^1.2.10",
     "@tailwindcss/vite": "^4.3.1",
     "@tanstack/react-query": "^5.100.14",
     "class-variance-authority": "^0.7.1",
@@ -52,13 +52,13 @@
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.1.1",
-    "eslint-plugin-react-refresh": "^0.5.2",
+    "eslint-plugin-react-refresh": "^0.5.3",
     "eslint-plugin-testing-library": "^7.16.2",
     "globals": "^17.6.0",
     "jest-axe": "^10.0.0",
-    "jsdom": "^26.0.0",
+    "jsdom": "^29.1.1",
     "typescript": "~5.7.2",
-    "typescript-eslint": "^8.60.0",
+    "typescript-eslint": "^8.61.1",
     "vite": "^8.0.16",
     "vitest": "^4.1.0"
   }
