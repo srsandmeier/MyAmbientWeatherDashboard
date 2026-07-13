@@ -1,0 +1,118 @@
+# docker-compose.prod.yml
+# Location: Root directory of the monorepo
+# Run on the Oracle Cloud VM only — see docs/ORACLE_DEPLOYMENT_PLAN.md.
+# Build context for api/workers is the repo root so project references resolve.
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: ambient_weather_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-AmbientWeatherDB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-AmbientWeatherDB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - backend_network
+
+  cache:
+    image: redis:7-alpine
+    container_name: ambient_weather_cache
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+    networks:
+      - backend_network
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/src/AmbientWeather.Api/Dockerfile
+    container_name: ambient_weather_api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Postgres: ${ConnectionStrings__Postgres}
+      ConnectionStrings__Redis: ${ConnectionStrings__Redis}
+      Authentication__Authority: ${Authentication__Authority}
+      Authentication__Audience: ${Authentication__Audience}
+      Cors__AllowedOrigin: ${Cors__AllowedOrigin}
+      UserAgent__Contact: ${UserAgent__Contact}
+      AllowedHosts: ${AllowedHosts}
+      DataProtection__KeyRingPath: /keys
+    volumes:
+      - dataprotection_keys:/keys
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - backend_network
+
+  workers:
+    build:
+      context: .
+      dockerfile: backend/src/AmbientWeather.Workers/Dockerfile
+    container_name: ambient_weather_workers
+    environment:
+      DOTNET_ENVIRONMENT: Production
+      ConnectionStrings__Postgres: ${ConnectionStrings__Postgres}
+      ConnectionStrings__Redis: ${ConnectionStrings__Redis}
+      HistorySync__Enabled: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - backend_network
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: ambient_weather_caddy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - api
+    restart: unless-stopped
+    networks:
+      - backend_network
+
+volumes:
+  postgres_data:
+    name: ambient_weather_postgres_data
+  redis_data:
+    name: ambient_weather_redis_data
+  dataprotection_keys:
+    name: ambient_weather_dataprotection_keys
+  caddy_data:
+    name: ambient_weather_caddy_data
+  caddy_config:
+    name: ambient_weather_caddy_config
+
+networks:
+  backend_network:
+    name: ambient_weather_network
+    driver: bridge

@@ -8,6 +8,11 @@ import testingLibrary from 'eslint-plugin-testing-library';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
+const quoteStyleRules = {
+  quotes: ['error', 'single', { avoidEscape: true }],
+  'jsx-quotes': ['error', 'prefer-double'],
+};
+
 export default tseslint.config(
   {
     ignores: ['coverage', 'dist', 'node_modules'],
@@ -20,6 +25,7 @@ export default tseslint.config(
       globals: globals.node,
       sourceType: 'module',
     },
+    rules: quoteStyleRules,
   },
   {
     files: ['*.config.ts'],
@@ -37,6 +43,7 @@ export default tseslint.config(
       },
       sourceType: 'module',
     },
+    rules: quoteStyleRules,
   },
   {
     files: ['src/**/*.{ts,tsx}'],
@@ -72,6 +79,7 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       '@typescript-eslint/switch-exhaustiveness-check': 'error',
       'no-console': 'error',
+      ...quoteStyleRules,
       // Reject hardcoded hex colours in JSX className strings — use Tailwind tokens instead.
       // For non-semantic Tailwind colour utilities (e.g. text-green-600) always pair them with
       // a dark: variant (e.g. dark:text-green-400) so they remain visible in both themes.

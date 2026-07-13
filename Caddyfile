@@ -1,0 +1,8 @@
+# Caddyfile
+# Location: Root directory of the monorepo
+# Replace {sslip-hostname} with the real sslip.io hostname (e.g. 203-0-113-10.sslip.io)
+# before copying this file to the VM. Caddy auto-issues a Let's Encrypt cert for it.
+
+{sslip-hostname} {
+	reverse_proxy api:8080
+}

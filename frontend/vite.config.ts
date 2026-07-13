@@ -20,7 +20,7 @@ export default defineConfig({
         "connect-src 'self' ws://localhost:* http://localhost:* https://*.auth0.com https://example.auth0.test",
         "img-src 'self' data: blob:",
         "font-src 'self'",
-        "frame-src https://*.auth0.com https://example.auth0.test",
+        'frame-src https://*.auth0.com https://example.auth0.test',
         "frame-ancestors 'none'",
         "form-action 'self'",
         "base-uri 'self'",
