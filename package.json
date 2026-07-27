@@ -27,6 +27,6 @@
     "kill": "powershell -Command \"$p = Get-Process dotnet,node -ErrorAction SilentlyContinue; if ($p) { $p | ForEach-Object { Write-Output \\\"Killed $($_.Name) (PID $($_.Id))\\\" }; $p | Stop-Process -Force } else { Write-Output 'Nothing to kill' }\""
   },
   "devDependencies": {
-    "concurrently": "^10.0.1"
+    "concurrently": "^10.0.4"
   }
 }
