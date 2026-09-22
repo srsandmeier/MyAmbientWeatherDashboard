@@ -64,7 +64,7 @@ const PUBLIC_PICKER_SOURCE: SettingsDeviceDto = {
 
 function itemTitles(): readonly string[] {
   return screen.getAllByTestId('settings-custom-layout-item').map((item) => (
-    within(item).getByTestId('settings-custom-layout-item-title').textContent ?? ''
+    within(item).getByTestId('settings-custom-layout-item-title').textContent
   ));
 }
 
