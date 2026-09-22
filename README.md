@@ -414,6 +414,17 @@ Ambient Open API (lightning.ambientweather.net)  ← neighbor discovery
 Ambient API keys never reach the browser. All outbound Ambient HTTP traffic passes
 through a server-side rate-limited client (1 req/s per user key).
 
+## Deployment
+
+- **Frontend**: GitHub Pages, deployed automatically by `.github/workflows/pages.yml` on
+  push to `main`. Built with `VITE_GH_PAGES_BUILD=true` so Vite serves under the
+  `/MyAmbientWeatherDashboard/` subpath.
+- **Backend**: Oracle Cloud Always Free tier (Docker Compose: API + Workers + PostgreSQL +
+  Redis + Caddy for automatic HTTPS). Deployed automatically by
+  `.github/workflows/deploy-backend.yml` on push to `main` when `backend/**` or compose/Caddy
+  files change. Full design, env vars, and one-time VM setup steps:
+  [`docs/ORACLE_DEPLOYMENT_PLAN.md`](docs/ORACLE_DEPLOYMENT_PLAN.md).
+
 ## Current phase status
 
 - Phases 1-11 are complete through the realtime pipeline, live dashboard tiles, Settings-managed layout editor, neighbor comparison, public source stations, public weather alerts, and layout ticker enhancements.

@@ -18,13 +18,13 @@ const mockFetch = vi.fn();
 const PIN_A: PinnedNeighborStationDto = {
   provider: 'WeatherGov',
   sourceId: `KGEN${faker.string.alphanumeric(3).toUpperCase()}`,
-  displayLabel: `Generated station A`,
+  displayLabel: 'Generated station A',
 };
 
 const PIN_B: PinnedNeighborStationDto = {
   provider: 'OpenMeteo',
   sourceId: `${faker.number.float({ min: 30, max: 45, fractionDigits: 4 }).toFixed(4)},${faker.number.float({ min: -100, max: -70, fractionDigits: 4 }).toFixed(4)}`,
-  displayLabel: `Generated station B`,
+  displayLabel: 'Generated station B',
 };
 
 function makeReading(deviceId: string): CurrentReadingDto {
