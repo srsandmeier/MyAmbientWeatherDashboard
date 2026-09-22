@@ -356,6 +356,9 @@ function buildNeighborConfig(data: NeighborConfigDto | undefined): NeighborConfi
 
 const DEVICE_ROW_OPEN_STORAGE_KEY = 'ambient-weather.settings.deviceRowOpenByMac';
 
+// Writes hash keys asynchronously; reads await the latest write so a remount never sees stale storage.
+let pendingDeviceRowOpenWrite: Promise<void> = Promise.resolve();
+
 async function hashDeviceRowPreferenceKey(macAddress: string): Promise<string> {
   const bytes = new TextEncoder().encode(macAddress);
   const digest = await window.crypto.subtle.digest('SHA-256', bytes);
@@ -368,6 +371,7 @@ async function readDeviceRowOpenPreferencesForDevices(
   devices: readonly SettingsDeviceDto[],
 ): Promise<Record<string, boolean>> {
   if (typeof window === 'undefined') return {};
+  await pendingDeviceRowOpenWrite;
   try {
     const raw = window.localStorage.getItem(DEVICE_ROW_OPEN_STORAGE_KEY);
     if (raw === null) return {};
@@ -387,16 +391,19 @@ async function readDeviceRowOpenPreferencesForDevices(
   }
 }
 
-async function writeDeviceRowOpenPreferences(value: Record<string, boolean>) {
-  if (typeof window === 'undefined') return;
-  try {
-    const entries = await Promise.all(
-      Object.entries(value).map(async ([macAddress, isOpen]) => [await hashDeviceRowPreferenceKey(macAddress), isOpen] as const),
-    );
-    window.localStorage.setItem(DEVICE_ROW_OPEN_STORAGE_KEY, JSON.stringify(Object.fromEntries(entries)));
-  } catch {
-    // Ignore storage failures; row expansion still works for the current render.
-  }
+function writeDeviceRowOpenPreferences(value: Record<string, boolean>): Promise<void> {
+  if (typeof window === 'undefined') return Promise.resolve();
+  pendingDeviceRowOpenWrite = pendingDeviceRowOpenWrite.then(async () => {
+    try {
+      const entries = await Promise.all(
+        Object.entries(value).map(async ([macAddress, isOpen]) => [await hashDeviceRowPreferenceKey(macAddress), isOpen] as const),
+      );
+      window.localStorage.setItem(DEVICE_ROW_OPEN_STORAGE_KEY, JSON.stringify(Object.fromEntries(entries)));
+    } catch {
+      // Ignore storage failures; row expansion still works for the current render.
+    }
+  });
+  return pendingDeviceRowOpenWrite;
 }
 
 function WeatherAlertsLocationSetting({
