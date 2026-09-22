@@ -87,7 +87,7 @@ export function Navigation() {
 
       const token = await getAccessToken();
 
-      const current = await queryClient.fetchQuery<UserPreferencesDto>({
+      const current = await queryClient.query<UserPreferencesDto>({
         queryKey: queryKeys.settings.preferences(),
         queryFn: async () => {
           const result = await getPreferences(token);
