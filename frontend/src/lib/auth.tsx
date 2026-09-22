@@ -63,7 +63,11 @@ export function Auth0AuthBridge({ children }: { readonly children: ReactNode }) 
   );
 
   const getAccessToken = useCallback(
-    () => getAccessTokenSilently(),
+    async () => {
+      const token = await getAccessTokenSilently();
+      if (token === undefined) throw new Error('Auth0 returned no access token');
+      return token;
+    },
     [getAccessTokenSilently],
   );
 
