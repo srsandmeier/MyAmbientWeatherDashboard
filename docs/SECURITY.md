@@ -348,6 +348,18 @@ See Phase 7 and Phase 12 in [`DEVELOPMENT_PLAN.md`](DEVELOPMENT_PLAN.md).
 
 ---
 
+## Dependency security pins
+
+Transitive packages with open advisories are pinned explicitly until an upstream
+dependency ships a fixed version. Remove a pin once `dotnet list package --vulnerable
+--include-transitive` stays clean without it.
+
+| Pin | Location | Advisories | Notes |
+|---|---|---|---|
+| `System.Security.Cryptography.Xml` 10.0.10 | `AmbientWeather.Infrastructure.csproj` | CVE-2026-47302, -47304, -50525, -50527, -50648 | Flows to Workers and test projects via NuGet. **Api does not consume the package** — `Microsoft.NET.Sdk.Web` resolves it from the `Microsoft.AspNetCore.App` shared framework, and the Api is published framework-dependent. The hosting environment must run ASP.NET Core runtime **10.0.10 or later**. |
+
+---
+
 ## Related documentation
 
 | Doc | Topic |

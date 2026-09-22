@@ -15,8 +15,7 @@ namespace AmbientWeather.IntegrationTests;
 /// </summary>
 public sealed class WeatherStationRepositoryFixture : IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder()
-        .WithImage("postgres:16-alpine")
+    private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder("postgres:16-alpine")
         .Build();
 
     /// <summary>Gets the Postgres connection string for test contexts.</summary>
