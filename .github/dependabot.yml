@@ -8,6 +8,10 @@ updates:
       # MediatR 13+ is commercially licensed; violates the free-license rule in CLAUDE.md.
       - dependency-name: "MediatR"
         versions: [">= 13.0.0"]
+      # Swashbuckle.AspNetCore 10.x is compiled against Microsoft.OpenApi 2.x; 3.x throws
+      # MissingMethodException during Swagger generation. Remove once Swashbuckle supports 3.x.
+      - dependency-name: "Microsoft.OpenApi"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "npm"
     directory: "/frontend"
