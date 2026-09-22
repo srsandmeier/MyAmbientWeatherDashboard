@@ -70,7 +70,7 @@ describe('WindTile', () => {
     );
 
     const values = screen.getAllByTestId('dashboard-wind-value');
-    const speedValue = values.find((el) => el.textContent?.includes('km/h'));
+    const speedValue = values.find((el) => el.textContent.includes('km/h'));
     expect(speedValue).toBeDefined();
   });
 
@@ -151,10 +151,10 @@ describe('WindTile', () => {
 
     const values = screen.getAllByTestId('dashboard-wind-value');
     expect(values).toHaveLength(3);
-    expect(values.some((v) => v.textContent?.includes('18.5'))).toBe(true);
-    expect(values.some((v) => v.textContent?.includes('25.0'))).toBe(true);
+    expect(values.some((v) => v.textContent.includes('18.5'))).toBe(true);
+    expect(values.some((v) => v.textContent.includes('25.0'))).toBe(true);
     // dominant direction rendered as compass + degrees
-    expect(values.some((v) => v.textContent?.includes('270'))).toBe(true);
+    expect(values.some((v) => v.textContent.includes('270'))).toBe(true);
   });
 
   it('shows — for null Open-Meteo wind forecast values', () => {

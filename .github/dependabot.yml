@@ -24,6 +24,10 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "@eslint/js"
         update-types: ["version-update:semver-major"]
+      # typescript-eslint 8.x peers on typescript ">=4.8.4 <6.1.0"; newer TypeScript fails
+      # peer resolution. Raise this bound once typescript-eslint widens its range.
+      - dependency-name: "typescript"
+        versions: [">= 6.1.0"]
 
   - package-ecosystem: "github-actions"
     directory: "/"

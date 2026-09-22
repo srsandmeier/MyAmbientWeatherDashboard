@@ -870,7 +870,7 @@ describe('DashboardPage', () => {
     expect(await screen.findAllByText(`Open-Meteo - ${sourceName}`)).not.toHaveLength(0);
     expect(screen.getAllByTestId('dashboard-source-heading').map((heading) => heading.textContent))
       .toContain(`Open-Meteo - ${sourceName}`);
-    expect(screen.getAllByTestId('dashboard-temperature-value').some((value) => value.textContent?.includes('63.8')))
+    expect(screen.getAllByTestId('dashboard-temperature-value').some((value) => value.textContent.includes('63.8')))
       .toBe(true);
   });
 
