@@ -10,8 +10,7 @@ namespace AmbientWeather.IntegrationTests;
 /// </summary>
 public sealed class MigrationTests : IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder()
-        .WithImage("postgres:16-alpine")
+    private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder("postgres:16-alpine")
         .Build();
 
     /// <inheritdoc />

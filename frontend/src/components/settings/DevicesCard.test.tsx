@@ -253,7 +253,10 @@ describe('DevicesCard', () => {
     renderCard();
 
     await screen.findByTestId(`settings-device-row-${testDeviceRowId}`);
-    expect(screen.queryByTestId(`settings-device-nickname-input-${testDeviceRowId}`)).not.toBeInTheDocument();
+    // Stored row preferences load asynchronously (hashed keys), so wait for them to apply.
+    await waitFor(() => {
+      expect(screen.queryByTestId(`settings-device-nickname-input-${testDeviceRowId}`)).not.toBeInTheDocument();
+    });
   });
 
   it('keeps non-primary device rows collapsed by default', async () => {

@@ -32,8 +32,7 @@ public sealed class WeatherHubRealtimePipelineTests : IAsyncLifetime
 {
     private const string UserSubject = "auth0|redis-pipeline-test-user";
 
-    private readonly RedisContainer _redis = new RedisBuilder()
-        .WithImage("redis:7-alpine")
+    private readonly RedisContainer _redis = new RedisBuilder("redis:7-alpine")
         .Build();
 
     private WeatherHubRedisTestFactory? _factory;
