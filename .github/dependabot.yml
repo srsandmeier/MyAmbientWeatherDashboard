@@ -4,11 +4,22 @@ updates:
     directory: "/backend"
     schedule:
       interval: "weekly"
+    ignore:
+      # MediatR 13+ is commercially licensed; violates the free-license rule in CLAUDE.md.
+      - dependency-name: "MediatR"
+        versions: [">= 13.0.0"]
 
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
       interval: "weekly"
+    ignore:
+      # eslint-plugin-react and eslint-plugin-jsx-a11y peer ranges stop at ESLint 9.
+      # Remove once both plugins support the next ESLint major.
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@eslint/js"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
