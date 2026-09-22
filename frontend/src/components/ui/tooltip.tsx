@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 import { type ComponentPropsWithoutRef, type ComponentRef, forwardRef } from 'react';
 import { cn } from '../../lib/utils';
