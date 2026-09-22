@@ -1,7 +1,27 @@
-import { render, screen } from '@testing-library/react';
+import { useAuth0 } from '@auth0/auth0-react';
+import { render, renderHook, screen } from '@testing-library/react';
 import { axe } from 'jest-axe';
-import { describe, expect, it } from 'vitest';
-import { MockAuthProvider, useAuth } from './auth';
+import type { ReactNode } from 'react';
+import { describe, expect, it, vi } from 'vitest';
+import { Auth0AuthBridge, MockAuthProvider, useAuth } from './auth';
+
+vi.mock('@auth0/auth0-react', () => ({ useAuth0: vi.fn() }));
+
+function mockAuth0Token(token: string | undefined) {
+  vi.mocked(useAuth0).mockReturnValue({
+    isAuthenticated: true,
+    isLoading: false,
+    error: undefined,
+    user: undefined,
+    loginWithRedirect: vi.fn(),
+    logout: vi.fn(),
+    getAccessTokenSilently: vi.fn().mockResolvedValue(token),
+  } as unknown as ReturnType<typeof useAuth0>);
+}
+
+function bridgeWrapper({ children }: { readonly children: ReactNode }) {
+  return <Auth0AuthBridge>{children}</Auth0AuthBridge>;
+}
 
 function UserDisplay() {
   const { isAuthenticated, user } = useAuth();
@@ -54,5 +74,19 @@ describe('useAuth', () => {
     console.error = () => undefined;
     expect(() => render(<UserDisplay />)).toThrow('useAuth must be used within an auth provider');
     console.error = consoleError;
+  });
+});
+
+describe('Auth0AuthBridge', () => {
+  it('returns the access token from Auth0', async () => {
+    mockAuth0Token('access-token');
+    const { result } = renderHook(() => useAuth(), { wrapper: bridgeWrapper });
+    await expect(result.current.getAccessToken()).resolves.toBe('access-token');
+  });
+
+  it('rejects when Auth0 returns no access token', async () => {
+    mockAuth0Token(undefined);
+    const { result } = renderHook(() => useAuth(), { wrapper: bridgeWrapper });
+    await expect(result.current.getAccessToken()).rejects.toThrow('Auth0 returned no access token');
   });
 });

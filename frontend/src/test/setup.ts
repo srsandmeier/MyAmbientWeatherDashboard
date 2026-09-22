@@ -10,6 +10,15 @@ configure({ testIdAttribute: 'data-test-id' });
 
 expect.extend(toHaveNoViolations);
 
+// Vitest 5 reads custom matcher types from its own Matchers interface, not the global
+// jest.Matchers that @types/jest-axe augments. Type parameters must match Vitest's declaration.
+declare module 'vitest' {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface Matchers<R extends void | Promise<void> = void | Promise<void>, T = unknown> {
+    toHaveNoViolations(): R;
+  }
+}
+
 // Node exposes an experimental global localStorage accessor in recent versions.
 // Tests should use jsdom's browser storage instead, and this avoids warning noise
 // when code reads globalThis.localStorage indirectly.
