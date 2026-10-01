@@ -1,3 +1,5 @@
+Reviewing a branch? First follow `.claude/skills/self-review/SKILL.md`: run self-review, report its failures first, and tag each finding with a lesson.
+
 # Agent: Domain UX
 
 Reviews Ambient Weather Dashboard product behavior from the perspective of a weather-station
@@ -71,12 +73,3 @@ settings workflows.
 - Present neighbour/public provider data as if it came from the user's station.
 - Use raw Ambient payload labels directly in UI when a product metric label exists.
 - Build chart/dashboard UI without empty/error/loading states.
-
----
-
-## Privacy — faker for all location data
-
-Never hardcode any address, GPS coordinate, station ID, zip code, or place name anywhere — not even as an "example."
-- C# tests: `Bogus`. TypeScript tests: `@faker-js/faker`. Both libraries produce real US state abbreviations by default.
-- When a test requires a geographically accurate address, pick a real US airport at random from a short predefined list.
-- Every test run must produce different location values. Never save any address, GPS coordinate, or station ID that a user enters.

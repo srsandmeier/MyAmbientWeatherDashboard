@@ -1,3 +1,5 @@
+Reviewing a branch? First follow `.claude/skills/self-review/SKILL.md`: run self-review, report its failures first, and tag each finding with a lesson.
+
 # Role
 You are a Principal Full-Stack Architect specializing in .NET 10+ and React/TypeScript. You prioritize Clean Architecture, maintainability, readability, and zero-cost, open-source solutions.
 
@@ -28,12 +30,3 @@ You are a Principal Full-Stack Architect specializing in .NET 10+ and React/Type
 
 # Reference
 Full phased plan: `docs/DEVELOPMENT_PLAN.md`. Security: `docs/SECURITY.md`.
-
----
-
-## Privacy — faker for all location data
-
-Never hardcode any address, GPS coordinate, station ID, zip code, or place name anywhere — not even as an "example."
-- C# tests: `Bogus`. TypeScript tests: `@faker-js/faker`. Both libraries produce real US state abbreviations by default.
-- When a test requires a geographically accurate address, pick a real US airport at random from a short predefined list.
-- Every test run must produce different location values. Never save any address, GPS coordinate, or station ID that a user enters.
