@@ -1248,7 +1248,7 @@ Detailed plan: `docs/PHASE_11_COMPLETION_PLAN.md`
 | [`SECURITY.md`](SECURITY.md) | Web auth, credential encryption, rate limiting |
 | [`PHASE_12_COMPLETION_PLAN.md`](PHASE_12_COMPLETION_PLAN.md) | Phase 12 charting, contracts, accessibility, and production hardening |
 | [`CONTEXT_COST_PLAN.md`](CONTEXT_COST_PLAN.md) | Complete (2026-10-01): lower Claude Code session cost (project settings and hooks, per-folder `CLAUDE.md` and its check, quiet test output). Confirmed in a live session; the `/context` figures are in its "Order and verification" |
-| [`QUALITY_PROCESS_PLAN.md`](QUALITY_PROCESS_PLAN.md) | P1 to P3 delivered 2026-10-01: lessons-learned file with its report and checks, `npm run self-review` and its skill, pull request template, CI step. P4 is optional later work |
+| [`QUALITY_PROCESS_PLAN.md`](QUALITY_PROCESS_PLAN.md) | P1 to P3 delivered 2026-10-01: lessons-learned file with its report and checks, `npm run self-review` and its skill, pull request template, CI step. From P4, `npm run pre-pr` (the pre-PR gate) and the review-rounds line are delivered; the rest of P4 is optional later work |
 | [`LESSONS_LEARNED.md`](LESSONS_LEARNED.md) | Misses with their cause and prevention, and the process checklist. Read one section, not the file; `node scripts/lessons-report.mjs` ranks the weak checklist items |
 | [`e2e-specs/e2e-test-flows.md`](e2e-specs/e2e-test-flows.md) | Extracted user journeys and E2E scenario plan, including Phase 12 Playwright Test TS migration |
 | [Ambient Apiary](https://ambientweather.docs.apiary.io/) | Official REST docs + helper libraries |

@@ -1,7 +1,7 @@
 # Frontend rules
 
 Loaded when Claude works on files under `frontend/`. Repo-wide rules (privacy, licences, secrets,
-phase closeout, shell safety, test tooling, commit format) are in the root `CLAUDE.md`.
+shell safety, commit format) are in the root `CLAUDE.md`; phase closeout steps are in `docs/CLAUDE.md`.
 BFF routes: read the table in `backend/src/AmbientWeather.Api/CLAUDE.md` (or `docs/openapi.json`) before
 adding or changing a function in `src/api/` or a type in `src/types/`.
 
@@ -51,6 +51,10 @@ cd frontend && npx vitest  # Vitest watch mode for TDD
   that is likely to change.
 
 ### Frontend tests
+Tools: components and hooks use Vitest + React Testing Library + jest-axe; the API contract is the OpenAPI snapshot ↔ TypeScript types; lint is the ESLint flat config + React/a11y/test/Vitest plugins.
+
+Location fields in fixtures come from `@faker-js/faker`: `faker.location.latitude()`, `faker.location.longitude()`, `faker.location.buildingNumber()`, `faker.location.street()`, `faker.location.city()`, `faker.location.state({ abbreviated: true })`, `faker.location.zipCode()` (root `CLAUDE.md`, "Privacy"). The E2E fixtures use the same calls.
+
 Frontend HTTP mocking: use `vi.stubGlobal('fetch', vi.fn())` returning typed `Response` objects. MSW is not installed; do not add it without a deliberate decision.
 
 ---

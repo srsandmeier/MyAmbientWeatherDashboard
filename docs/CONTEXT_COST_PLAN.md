@@ -170,6 +170,20 @@ What differs from the plan as first written:
   `RateLimitedApiClient`), and replacing those with links is a rewording, so it is left for a separate
   change.
 
+Second split (2026-10-01, branch `chore/pre-pr-gate`): the root had grown to 13,967 of 14,000 bytes, so
+three area-specific parts moved out. No rule heading left the root.
+
+| Moved | From the root's | To |
+|---|---|---|
+| The closeout steps and the plan-sanitizing rule | "Phase closeout documentation", which keeps a four-line summary and a pointer | a new `docs/CLAUDE.md` (1,481 bytes), loaded for work under `docs/` |
+| The `Bogus` and `@faker-js/faker` call lists | "Privacy", which keeps the rule and names both libraries | "Backend tests" in `backend/CLAUDE.md` and "Frontend tests" in `frontend/CLAUDE.md`; `tests/e2e/CLAUDE.md` points to the frontend list |
+| The layer and tool table | "Test everything", which keeps the rule and a pointer | one "Tools:" line in each of the same two sections; the E2E tools were already in `tests/e2e/CLAUDE.md` |
+
+The root is 12,431 bytes, `backend/CLAUDE.md` 12,425 and `frontend/CLAUDE.md` 5,893. The area table has
+a `docs/` row, `scripts/claude-md-tasks.json` expects `docs/CLAUDE.md` for a doc edit, and the live check
+passed for all 8 tasks. The cost: a task that only reads a file under `docs/` now loads 1.5 KB more,
+and the closeout steps depend on the root's pointer when a phase is closed without opening `docs/`.
+
 ## C3. Guard the split
 
 Without a guard the root grows back. Add `scripts/check-claude-md.mjs` and run it in the `frontend` CI

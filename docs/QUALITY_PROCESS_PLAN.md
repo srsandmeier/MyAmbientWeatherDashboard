@@ -1,7 +1,8 @@
 # Quality Process Tooling Plan
 
 Status: P1, P2 and P3 delivered (2026-10-01, one branch, `chore/quality-process`, at the owner's
-request; the plan had one branch for each). P4 stays optional. Each item below ends with a "Delivered"
+request; the plan had one branch for each). From P4, the pre-PR gate and the review-rounds line are
+delivered (2026-10-01, branch `chore/pre-pr-gate`); the rest of P4 stays optional. Each item below ends with a "Delivered"
 note. Revised the same day, after the context plan was completed, to use what that plan delivered and
 to keep this tooling cheap to run and free of repeated text (see "Cost and reuse limits").
 
@@ -331,11 +332,40 @@ one place and not copied into each agent?
 | Item | What | When |
 |---|---|---|
 | Prove-tests | Port `scripts/prove-tests.mjs`: put an old bug back, run the test that should catch it, restore the file. The `cmd` form already runs any command, so it works for `dotnet test --filter` and Vitest | When "new checks proven" has been missed once |
-| Review rounds | A `Review rounds: N` line in the template and a script that reads merged pull requests with `gh` | When there are enough pull requests after P3 to compare |
-| Pre-PR gate | One command for self-review, lint, the test suites and E2E P0, with a summary file. Built as more suites in `scripts/test-all.mjs --quiet` (the context plan's C4, delivered), not as a second runner | After P2 |
+| Review rounds | A `Review rounds: N` line in the template (**delivered**, see below) and a script that reads merged pull requests with `gh` (not built) | The script: when there are enough pull requests after P3 to compare |
+| Pre-PR gate | One command for self-review, lint, the test suites and E2E P0, with a summary file. Built as more suites in `scripts/test-all.mjs --quiet` (the context plan's C4, delivered), not as a second runner | **Delivered**, see below |
 | Pre-commit hook | Self-review's required checks only; no build or tests, so it stays under a few seconds | Only if required checks keep failing in CI |
 | Copy-paste detector | A duplicate-code report for `backend/src` and `frontend/src`, advisory. A candidate is `jscpd` (MIT); it is a new dev dependency, so check the licence and maintenance and get confirmation first ("Keep it free") | When the lessons file holds two or more misses caused by duplicated code |
 | Quarterly prune | Merge duplicate entries; retire ones whose enforced check has not fired | When the file nears its cap |
+
+Delivered (2026-10-01, branch `chore/pre-pr-gate`):
+
+- **Pre-PR gate:** `npm run pre-pr` is `scripts/test-all.mjs --pre-pr`: self-review and lint, the three
+  `test:quiet` suites, then E2E P0, each one line in `test-results/summary.txt`. A self-review `WARN`
+  is printed under its line although it does not fail the run. The parsers for the three new outputs
+  are in `scripts/lib/test-summary.mjs` with the others. A passing run prints seven lines and takes
+  about two minutes here.
+- **E2E without a second terminal:** `tests/e2e/playwright.config.ts` has a `webServer` entry, so
+  Playwright starts Vite when nothing answers on 5173, stops it after the run, and uses a server that
+  is already running (CI starts its own). This applies to every `npm run test:e2e*` command.
+- **Proven on broken input:** a controller without its rate-limit attribute and with a misplaced
+  brace, a hand-built query key and a failing P0 test gave a `FAIL` and a `WARN` under self-review,
+  the `dotnet format` line under lint, and the failing test with its message under e2e; exit code 1.
+- **Found while testing, not fixed:** on the development machine the first test on each of the four
+  workers timed out in `page.goto` in about half the runs, also against a dev server that was already
+  running, so it is older than this change. It is not in the app, the specs or Vite: a plain Node HTTP
+  server on another port, probed while Playwright ran, had whole bursts of requests stall for 10, 20,
+  30 or 40 seconds in two of three runs, and none in 960 requests with Playwright not running. Local
+  connections freeze in ten-second steps while Playwright starts its browsers. Security software on
+  that machine is the likely cause; this is not confirmed. The gate runs E2E with one retry, as CI
+  does: in four runs with a retry, one had four flaky tests and none failed. The summary line counts
+  flaky tests.
+- **Review rounds:** the pull request template ends with `Review rounds: 0` and a comment saying when
+  to add one. The `gh` script waits for pull requests to read.
+- **Template:** the "lint and `test:quiet` pass" line is now "`npm run pre-pr` passes"; still six lines.
+- **Root `CLAUDE.md`:** one command line added and the E2E line shortened. That left 33 bytes under the
+  limit, so three area-specific parts were moved out in the same branch (`CONTEXT_COST_PLAN.md`, C2,
+  "Second split"); the root is 12,431 bytes.
 
 ---
 

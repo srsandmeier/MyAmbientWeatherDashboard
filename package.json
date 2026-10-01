@@ -15,6 +15,7 @@
     "test": "node scripts/test-all.mjs",
     "test:backend": "dotnet test backend/AmbientWeather.slnx --configuration Release",
     "test:quiet": "node scripts/test-all.mjs --quiet",
+    "pre-pr": "node scripts/test-all.mjs --pre-pr",
     "test:frontend": "npm test --prefix frontend",
     "test:scripts": "node --test \"scripts/**/*.test.mjs\"",
     "test:e2e": "npm --prefix tests/e2e run test",

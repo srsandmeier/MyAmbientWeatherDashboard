@@ -41,9 +41,10 @@ npm run start:all
 npm run lint          # CLAUDE.md split check + backend + frontend lint
 npm run test:quiet    # backend + frontend + script tests: totals only, failing tests named (use in sessions)
 npm test              # the same suites with full output
+npm run pre-pr        # before a PR: self-review + lint + those suites + E2E P0, same summary file
 
 # One stack (run, lint, test, single test): backend/CLAUDE.md and frontend/CLAUDE.md, "Commands"
-# E2E: npm run test:e2e (needs the Vite dev server on 5173, not the backend) — details in tests/e2e/CLAUDE.md
+# E2E: npm run test:e2e (starts Vite on 5173 if needed; no backend) — details in tests/e2e/CLAUDE.md
 # Database migrations: npm run db:update · npm run db:migrate -- AddMigrationName — details in backend/CLAUDE.md
 
 # Utilities
@@ -65,6 +66,7 @@ nothing when the work is elsewhere. Read the file for an area before changing it
 | `backend/src/AmbientWeather.Api/` | Controllers, middleware, logging, telemetry | `backend/src/AmbientWeather.Api/CLAUDE.md` — BFF route table, Swagger and health endpoints |
 | `frontend/src/` | api · components · hooks · lib · pages · telemetry · types | `frontend/CLAUDE.md` — frontend architecture, frontend test rules, folder map |
 | `tests/e2e/` | Playwright TS — playwright.config.ts, fixtures/, pages/, specs/ | `tests/e2e/CLAUDE.md` — Playwright standards, E2E commands and prerequisites |
+| `docs/` | Development plan, phase plans, lessons, security and API docs | `docs/CLAUDE.md` — phase planning and closeout steps, sanitizing plans |
 
 `npm run lint:claude-md` keeps this table, the files and their sizes (14 KB each) in step. A new
 folder `CLAUDE.md` needs a row here; a rule heading (`###`) lives in one file only. After changing which
@@ -88,12 +90,9 @@ Rules that cross areas (detail in the area files):
 - **Never hardcode** any address, GPS coordinate, station ID, zip code, or place name
   anywhere — in code, tests, documentation, plan files, or memory — not even as
   a "placeholder" or "example" value.
-- **Test fixtures must use faker libraries** to generate all location fields at runtime:
-  - C# tests: `Bogus` (`new Bogus.Faker()`) — use `F.Address.Latitude()`, `F.Address.Longitude()`,
-    `F.Address.StreetAddress()`, `F.Address.City()`, `F.Address.StateAbbr()`, `F.Address.ZipCode()`.
-  - TypeScript tests: `@faker-js/faker` (`faker.location.*`) — `faker.location.latitude()`,
-    `faker.location.longitude()`, `faker.location.buildingNumber()`, `faker.location.street()`,
-    `faker.location.city()`, `faker.location.state({ abbreviated: true })`, `faker.location.zipCode()`.
+- **Test fixtures must use faker libraries** to generate all location fields at runtime: `Bogus` in
+  C# tests, `@faker-js/faker` in TypeScript tests. The calls to use are in the test rules of
+  `backend/CLAUDE.md` and `frontend/CLAUDE.md`.
   - Every test run must produce different values — no hardcoded values of any kind.
 - **Never save** any address, GPS coordinate, station ID, or place name that a user enters or
   that is associated with a user's real deployment — not in memory, plans, or agent prompts.
@@ -130,19 +129,10 @@ Prefer free-tier cloud services (Auth0 Free Tier) or self-hosted open-source (Op
 - All I/O is async (`async`/`await`).
 
 ### Phase closeout documentation
-When planning or completing any phase, keep the documentation chain in sync:
-- Update `README.md` for newly implemented features, commands, setup steps, endpoints, or tooling.
-- Update `docs/DEVELOPMENT_PLAN.md` with final status, verification, and deferrals.
-- Update the immediately previous phase plan/closeout when carry-in work is completed, moved, or reclassified.
-- Update the current phase plan before closeout so its checklist, verification, and deferred-work ledger match the code.
-- When adding provider-specific plan items or integrations, include the official provider documentation link
-  in the relevant phase plan and related-docs table. For Open-Meteo source fields, reference
-  `https://open-meteo.com/en/docs`.
-- Sanitize plans as they are created or updated: use placeholders or clearly dummy local-only values for
-  tenant domains, client IDs, passwords, tokens, addresses, station IDs, personal paths, and deployment-specific
-  identifiers. Do not add real or reusable local values to plans with the intent to clean them later.
-- Include a final **Check EF migrations** step in every phase closeout going forward:
-  `dotnet ef migrations list --project backend/src/AmbientWeather.Infrastructure --startup-project backend/src/AmbientWeather.Api`.
+When planning or completing any phase, keep the documentation chain in sync: `README.md`,
+`docs/DEVELOPMENT_PLAN.md`, the previous phase plan and the current one. Plans never hold real tenant
+domains, client IDs, tokens, addresses, station IDs or personal paths. Every closeout ends with the EF
+migration check. The steps are in `docs/CLAUDE.md`; read it before planning or closing a phase.
 
 ### No plain-text secrets
 Ambient `apiKey` and `applicationKey` are stored **server-side only**, encrypted with
@@ -186,19 +176,8 @@ Same checks, less usage: most session cost is reading and printing.
 
 ### Test everything
 Every component, hook, handler, validator, and service gets tests before its phase is complete.
-No phase is done until CI passes with new tests included.
-
-| Layer | Tool |
-|---|---|
-| Backend handlers / validators | xUnit + Shouldly (+ `WebApplicationFactory` for integration) |
-| Backend services / workers | xUnit + Moq or Testcontainers |
-| Frontend components / hooks | Vitest + React Testing Library + jest-axe |
-| E2E critical flows | Playwright Test TypeScript (`tests/e2e/`) — fixtures, page objects, `expect.poll` |
-| API contract | OpenAPI snapshot ↔ TypeScript types |
-| Backend lint | .NET SDK analyzers + Meziantou.Analyzer + Roslynator.Analyzers |
-| Frontend lint | ESLint flat config + React/a11y/test/Vitest plugins |
-
-See the **qa-engineer** agent.
+No phase is done until CI passes with new tests included. The tools for each layer are in the test
+rules of `backend/CLAUDE.md`, `frontend/CLAUDE.md` and `tests/e2e/CLAUDE.md`. See the **qa-engineer** agent.
 
 ### Line endings
 All files use **LF** (`\n`) line endings — never CRLF. `.editorconfig` and `.gitattributes` enforce this. Git is configured with `core.autocrlf=false` and `core.eol=lf`.

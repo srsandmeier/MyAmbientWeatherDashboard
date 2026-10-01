@@ -94,8 +94,8 @@ Archived phase closeouts remain public build-history artifacts under `docs/archi
 ### Build-process transparency
 
 This repository intentionally keeps its agent guidance and improvement-planning files public
-(`AGENTS.md`, `CLAUDE.md` and the per-folder `CLAUDE.md` files under `backend/`, `frontend/` and
-`tests/e2e/`, `.claude/agents/*`, `.claude/settings.json` and its hooks under `scripts/hooks/`, `.cursorrules`, and
+(`AGENTS.md`, `CLAUDE.md` and the per-folder `CLAUDE.md` files under `backend/`, `frontend/`,
+`tests/e2e/` and `docs/`, `.claude/agents/*`, `.claude/settings.json` and its hooks under `scripts/hooks/`, `.cursorrules`, and
 `docs/archive/plans/CODEBASE_IMPROVEMENT_PLAN.md`) to show how the project was designed, reviewed, and built.
 These files should not contain secrets; public-release readiness includes a final scan of them.
 
@@ -194,6 +194,7 @@ npm run lint:backend   # dotnet format whitespace only
 npm run lint:frontend  # ESLint only
 npm test               # backend + frontend + repo-script tests; prints a pass/fail summary (all always run)
 npm run test:quiet     # same suites; prints totals and failing tests only, full logs in test-results/
+npm run pre-pr         # before a PR: self-review, lint, the test:quiet suites, then E2E P0; one summary in test-results/summary.txt
 npm run test:scripts   # node --test for scripts/ (hooks, CLAUDE.md check, test summary) only
 npm run test:backend   # dotnet test only
 npm run test:frontend  # Vitest only
@@ -209,24 +210,23 @@ npm run kill           # stop local dotnet/node dev processes
 #### Running E2E tests
 
 Auth0 and all BFF calls are mocked by Playwright — the backend is **not** required. Only the
-frontend dev server needs to be running.
+frontend dev server is needed: Playwright uses the one on port 5173 if it is running, and otherwise
+starts Vite for the run and stops it afterwards.
 
 **One-time browser install** (re-run after updating `@playwright/test`):
 ```bash
 cd tests/e2e && npm run install:browsers
 ```
 
-**Terminal A:**
 ```bash
-npm run dev
-```
-
-**Terminal B** (once the Vite server is ready on port 5173):
-```bash
-# Optional: wait for Vite before running
-timeout 60 bash -c 'until curl -sf http://localhost:5173 >/dev/null; do sleep 1; done'
 npm run test:e2e
 ```
+
+If the first test on each worker times out in `page.goto`, suspect the machine before the specs. On
+one Windows machine, local connections froze in ten-second steps while Playwright started its
+browsers, on a plain Node server as well as on Vite. Security software is the likely cause (not
+confirmed); try excluding the Playwright browsers and local traffic from its scanning. CI and
+`npm run pre-pr` allow one retry, which reports such a test as flaky and does not fail the run.
 
 After the run, open the HTML report from the E2E package:
 ```bash

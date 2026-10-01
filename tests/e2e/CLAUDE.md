@@ -2,6 +2,8 @@
 
 Loaded when Claude works on files under `tests/e2e/`. Repo-wide rules (privacy and faker fixtures,
 shell safety, commit format) and the `data-test-id` naming pattern are in the root `CLAUDE.md`.
+Location fields in fixtures come from `@faker-js/faker` (`faker.location.*`); the calls are listed in
+`frontend/CLAUDE.md`, "Frontend tests".
 
 ---
 
@@ -10,14 +12,15 @@ shell safety, commit format) and the `data-test-id` naming pattern are in the ro
 Run from the repo root.
 
 ```bash
-# E2E — requires frontend dev server running on port 5173 (npm run dev).
+# E2E — Playwright uses the frontend dev server on port 5173 if one is running; otherwise it starts
+# Vite for the run and stops it afterwards (`webServer` in playwright.config.ts).
 # Backend is NOT required: Auth0 and all BFF calls are mocked by Playwright route handlers.
-# Wait for Vite before running: timeout 60 bash -c 'until curl -sf http://localhost:5173 >/dev/null; do sleep 1; done'
 # One-time browser install (matches @playwright/test version): cd tests/e2e && npm run install:browsers
 # Auth0 domain is read from frontend/.env.local at runtime — keep that file present for E2E to work.
 npm run test:e2e      # Playwright TypeScript suite (tests/e2e) — primary CI suite
 npm run test:e2e:p0   # P0 smoke tests only
 npm run test:e2e:p1   # P1 tests only
+npm run pre-pr        # runs P0 last, with one retry as in CI; totals in test-results/summary.txt
 npx playwright show-report              # open HTML report (run from repo root after test:e2e)
 ```
 
