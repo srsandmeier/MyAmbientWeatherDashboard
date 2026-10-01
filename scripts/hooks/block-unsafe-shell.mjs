@@ -8,12 +8,11 @@
 
 import { fileURLToPath } from 'url';
 
-// A command name counts only where a command can start: line start, after ; & | (, or run by xargs / -exec.
-const COMMAND_START = String.raw`(?:^|[;&|(]|\bxargs\s+(?:-\S+\s+)*|\s-exec\s)\s*`;
+import { COMMAND_START, QUOTED } from './command-text.mjs';
+
 const SED_CALL = new RegExp(String.raw`${COMMAND_START}sed\s+([^;&|\n]*)`, 'gm');
 const IN_PLACE_FLAG = /(?:^|\s)(?:-[a-zA-Z]*i[a-zA-Z.~]*|--in-place(?:=\S*)?)(?=\s|$)/;
 const PYTHON3_CALL = new RegExp(String.raw`${COMMAND_START}python3(?:\.exe)?(?=\s|$)`, 'm');
-const QUOTED = /'[^']*'|"(?:[^"\\]|\\.)*"/g;
 
 export function usesSedInPlace(command) {
   // Quoted arguments are the sed script or file names, not flags.

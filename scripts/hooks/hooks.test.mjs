@@ -94,11 +94,32 @@ test('rebase, pull and force-push are risky; other git commands are not', () => 
     'git push --force-with-lease origin HEAD',
     'git push -f origin HEAD',
     'git fetch origin && git rebase origin/main',
+    'MSYS_NO_PATHCONV=1 git pull',
+    'echo $(git pull)',
+    'git commit -m "wip: notes" && git pull',
+    'git status\ngit rebase origin/main',
+    "cat <<'EOF' > notes.txt\nnotes\nEOF\ngit pull",
   ]) {
     assert.equal(isRisky(command), true, command);
   }
   for (const command of ['git push', 'git push -u origin HEAD', 'git status', 'git log --oneline -5', 'npm run lint', '', undefined]) {
     assert.equal(isRisky(command), false, String(command));
+  }
+});
+
+test('a command that only mentions rebase, pull or force-push is not risky', () => {
+  for (const command of [
+    'gh pr create --title "x" --body "Run git rebase origin/main; git pull is not needed"',
+    "gh pr comment 7 --body 'after a rebase: git push --force-with-lease'",
+    'git commit -m "docs: say when git pull is safe"',
+    'grep -rn "git rebase" docs/',
+    'echo git pull',
+    "git commit -F - <<'EOF'\ndocs: rebase notes\n\ngit pull merges the old commits back in.\ngit push --force is not the fix.\nEOF",
+    "gh pr create --body \"$(cat <<'EOF'\nIt's done.\ngit rebase origin/main\nEOF\n)\"",
+    "gh pr create --body @'\nIt's done.\ngit rebase origin/main\n'@",
+    'git push origin HEAD && echo "--force was not used"',
+  ]) {
+    assert.equal(isRisky(command), false, command);
   }
 });
 

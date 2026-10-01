@@ -12,12 +12,12 @@ import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
 const REPO = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const ROOT_FILE = 'CLAUDE.md';
-const MAX_BYTES = 14_000;
-const AREA_TABLE_HEADING = '## Where the rest of the rules live';
+export const ROOT_FILE = 'CLAUDE.md';
+export const MAX_BYTES = 14_000;
+export const AREA_TABLE_HEADING = '## Where the rest of the rules live';
 
 // Rules every task must see, whatever folder it works in. They stay in the root.
-const ROOT_RULE_HEADINGS = [
+export const ROOT_RULE_HEADINGS = [
   'Privacy — never hardcode or persist any address, GPS coordinate, or station ID',
   'Keep it free',
   'No deprecated dependencies or APIs',
@@ -84,59 +84,69 @@ function areaTableFiles(rootText) {
   return files;
 }
 
-const problems = [];
-const files = findClaudeMdFiles();
-const texts = new Map(files.map((file) => [file, readFileSync(resolve(REPO, file), 'utf8')]));
+/** The problems in a set of CLAUDE.md files (a Map of repo-relative path to text); empty when the split holds. */
+export function findProblems(texts) {
+  const problems = [];
+  const files = [...texts.keys()];
 
-if (!texts.has(ROOT_FILE)) {
-  problems.push(`${ROOT_FILE} not found at the repo root`);
-}
-
-for (const [file, text] of texts) {
-  const bytes = Buffer.byteLength(text, 'utf8');
-  if (bytes > MAX_BYTES) {
-    problems.push(`${file} is ${String(bytes)} bytes; the limit is ${String(MAX_BYTES)}. Move area rules to a folder CLAUDE.md or a doc under docs/.`);
+  if (!texts.has(ROOT_FILE)) {
+    problems.push(`${ROOT_FILE} not found at the repo root`);
   }
-}
 
-if (texts.has(ROOT_FILE)) {
-  const rootText = texts.get(ROOT_FILE);
-  const folderFiles = files.filter((file) => file !== ROOT_FILE);
-  const listed = areaTableFiles(rootText);
-  if (listed === null) {
-    problems.push(`${ROOT_FILE} has no "${AREA_TABLE_HEADING}" section`);
-  } else {
-    for (const file of folderFiles.filter((f) => !listed.includes(f))) {
-      problems.push(`${file} exists but is not in the area table in ${ROOT_FILE}`);
-    }
-    for (const file of listed.filter((f) => !folderFiles.includes(f))) {
-      problems.push(`${ROOT_FILE} area table lists ${file}, which does not exist`);
+  for (const [file, text] of texts) {
+    const bytes = Buffer.byteLength(text, 'utf8');
+    if (bytes > MAX_BYTES) {
+      problems.push(`${file} is ${String(bytes)} bytes; the limit is ${String(MAX_BYTES)}. Move area rules to a folder CLAUDE.md or a doc under docs/.`);
     }
   }
 
-  const rootHeadings = ruleHeadings(rootText);
-  for (const heading of ROOT_RULE_HEADINGS.filter((h) => !rootHeadings.includes(h))) {
-    problems.push(`${ROOT_FILE} is missing the repo-wide rule heading "### ${heading}"`);
+  if (texts.has(ROOT_FILE)) {
+    const rootText = texts.get(ROOT_FILE);
+    const folderFiles = files.filter((file) => file !== ROOT_FILE);
+    const listed = areaTableFiles(rootText);
+    if (listed === null) {
+      problems.push(`${ROOT_FILE} has no "${AREA_TABLE_HEADING}" section`);
+    } else {
+      for (const file of folderFiles.filter((f) => !listed.includes(f))) {
+        problems.push(`${file} exists but is not in the area table in ${ROOT_FILE}`);
+      }
+      for (const file of listed.filter((f) => !folderFiles.includes(f))) {
+        problems.push(`${ROOT_FILE} area table lists ${file}, which does not exist`);
+      }
+    }
+
+    const rootHeadings = ruleHeadings(rootText);
+    for (const heading of ROOT_RULE_HEADINGS.filter((h) => !rootHeadings.includes(h))) {
+      problems.push(`${ROOT_FILE} is missing the repo-wide rule heading "### ${heading}"`);
+    }
   }
+
+  const headingOwners = new Map();
+  for (const [file, text] of texts) {
+    for (const heading of ruleHeadings(text)) {
+      headingOwners.set(heading, [...(headingOwners.get(heading) ?? []), file]);
+    }
+  }
+  for (const [heading, owners] of headingOwners) {
+    if (owners.length > 1) {
+      problems.push(`"### ${heading}" appears more than once: ${owners.join(', ')}. Keep each rule in one file.`);
+    }
+  }
+
+  return problems;
 }
 
-const headingOwners = new Map();
-for (const [file, text] of texts) {
-  for (const heading of ruleHeadings(text)) {
-    headingOwners.set(heading, [...(headingOwners.get(heading) ?? []), file]);
-  }
-}
-for (const [heading, owners] of headingOwners) {
-  if (owners.length > 1) {
-    problems.push(`"### ${heading}" appears more than once: ${owners.join(', ')}. Keep each rule in one file.`);
-  }
-}
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+  const files = findClaudeMdFiles();
+  const texts = new Map(files.map((file) => [file, readFileSync(resolve(REPO, file), 'utf8')]));
+  const problems = findProblems(texts);
 
-if (problems.length > 0) {
-  console.error(`CLAUDE.md check failed (${String(problems.length)}):`);
-  for (const problem of problems) console.error(` - ${problem}`);
-  process.exit(1);
-}
+  if (problems.length > 0) {
+    console.error(`CLAUDE.md check failed (${String(problems.length)}):`);
+    for (const problem of problems) console.error(` - ${problem}`);
+    process.exit(1);
+  }
 
-const sizes = [...texts].map(([file, text]) => `${file} ${String(Buffer.byteLength(text, 'utf8'))}`).join(', ');
-console.log(`CLAUDE.md check passed: ${String(files.length)} files within ${String(MAX_BYTES)} bytes (${sizes}).`);
+  const sizes = [...texts].map(([file, text]) => `${file} ${String(Buffer.byteLength(text, 'utf8'))}`).join(', ');
+  console.log(`CLAUDE.md check passed: ${String(files.length)} files within ${String(MAX_BYTES)} bytes (${sizes}).`);
+}

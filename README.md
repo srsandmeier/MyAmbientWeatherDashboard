@@ -192,7 +192,7 @@ npm run lint:backend   # dotnet format whitespace only
 npm run lint:frontend  # ESLint only
 npm test               # backend + frontend + repo-script tests; prints a pass/fail summary (all always run)
 npm run test:quiet     # same suites; prints totals and failing tests only, full logs in test-results/
-npm run test:scripts   # node --test for scripts/ (hooks, test summary) only
+npm run test:scripts   # node --test for scripts/ (hooks, CLAUDE.md check, test summary) only
 npm run test:backend   # dotnet test only
 npm run test:frontend  # Vitest only
 npm run test:contract  # OpenAPI snapshot/TypeScript contract tests
