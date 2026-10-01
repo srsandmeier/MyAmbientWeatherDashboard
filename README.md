@@ -69,7 +69,8 @@ API contract, and phased execution plan.
 | [`docs/ACCESSIBILITY.md`](docs/ACCESSIBILITY.md) | WCAG 2.2 AA target, current coverage, and known limitations |
 | [`docs/PHASE_12_COMPLETION_PLAN.md`](docs/PHASE_12_COMPLETION_PLAN.md) | Metric detail charts, contracts, accessibility, and production hardening |
 | [`docs/CONTEXT_COST_PLAN.md`](docs/CONTEXT_COST_PLAN.md) | Lower Claude Code session cost: project settings and hooks, per-folder `CLAUDE.md` and its check, quiet test output |
-| [`docs/QUALITY_PROCESS_PLAN.md`](docs/QUALITY_PROCESS_PLAN.md) | Planned: self-review step before review, lessons-learned file and its checks |
+| [`docs/QUALITY_PROCESS_PLAN.md`](docs/QUALITY_PROCESS_PLAN.md) | Lessons-learned file and its checks, the self-review step before review, the pull request template |
+| [`docs/LESSONS_LEARNED.md`](docs/LESSONS_LEARNED.md) | Misses with their cause and prevention, and the process checklist; `node scripts/lessons-report.mjs` ranks the weak checklist items, `--check` holds the format and size limits |
 | [`docs/e2e-specs/e2e-test-flows.md`](docs/e2e-specs/e2e-test-flows.md) | Extracted user journeys and E2E scenario plan across dashboard, settings, layouts, neighbors, public sources, alerts, and charts |
 | [`docs/AMBIENT_HISTORY_API_RESEARCH.md`](docs/AMBIENT_HISTORY_API_RESEARCH.md) | Research notes on Ambient REST history API pagination and caching |
 | [`docs/NEIGHBOR_DATA_RESEARCH.md`](docs/NEIGHBOR_DATA_RESEARCH.md) | Ambient Open API neighbor research and fallback-provider notes |
@@ -188,6 +189,7 @@ npm run db:migrate -- <Name>        # add a new migration (e.g. npm run db:migra
 
 npm run lint           # CLAUDE.md split check + backend dotnet format + frontend ESLint
 npm run lint:claude-md # per-folder CLAUDE.md sizes, area table and rule headings only
+npm run self-review    # before a review or a PR: checks the branch against docs/LESSONS_LEARNED.md (add -- --quiet on reruns)
 npm run lint:backend   # dotnet format whitespace only
 npm run lint:frontend  # ESLint only
 npm test               # backend + frontend + repo-script tests; prints a pass/fail summary (all always run)

@@ -1,8 +1,9 @@
 # Quality Process Tooling Plan
 
-Status: planned (2026-10-01). Nothing below is implemented yet. Revised the same day, after the context
-plan was completed, to use what that plan delivered and to keep this tooling cheap to run and free of
-repeated text (see "Cost and reuse limits").
+Status: P1, P2 and P3 delivered (2026-10-01, one branch, `chore/quality-process`, at the owner's
+request; the plan had one branch for each). P4 stays optional. Each item below ends with a "Delivered"
+note. Revised the same day, after the context plan was completed, to use what that plan delivered and
+to keep this tooling cheap to run and free of repeated text (see "Cost and reuse limits").
 
 Goal: fewer review rounds and no repeated misses. A branch is checked against the mistakes we already
 know we make before anyone reviews it, and every miss a review does find is recorded with its cause and
@@ -82,7 +83,11 @@ be measured.
   description.** The root has 272 bytes free under the 14,000-byte limit; the line is at most 200 bytes
   and the detail lives in the skill, which loads only when it runs. The skill description is one
   sentence.
-- **The lessons file is read by section**, never whole, and is capped at 24 KB.
+- **The lessons file is read by section**, never whole, and is capped at 24 KB, with 6,000 bytes a
+  section and 600 bytes an entry.
+- **The checklist is filtered, not printed whole.** Each item carries the areas it applies to, and
+  self-review prints only the items for the areas the branch changed. The checklist holds at most 12
+  items of at most 200 characters; an item that a check now covers in full is removed.
 - **Self-review runs no build and no tests.** Tests for the tooling run in `npm run test:scripts`, which
   `npm run test:quiet` and CI already call. Each branch is verified with `npm run test:quiet`, not
   `npm test`.
@@ -129,6 +134,43 @@ Frontend, Tests and E2E, Docs and drift, and Process.
 Exit: the report runs and lists no unknown citation; each test was seen to fail on a broken file; no
 entry restates a rule that `CLAUDE.md` holds.
 
+Delivered (2026-10-01, branch `chore/quality-process`; the counts are as P1 left them, before P2 added
+two entries and removed one checklist item):
+
+- **`docs/LESSONS_LEARNED.md`:** 23 entries and 9 checklist items, 12.4 KB of the 24 KB cap. Sources:
+  the pitfalls in the root, backend and frontend `CLAUDE.md` files (9 entries), the Phase 3 fix plan
+  (5), the carry-in sections of the Phase 8 and Phase 10 plans (3), and the context plan's delivery
+  notes (5), plus one for the loop itself. The Phase 6, 9, 11 and 12 plans were read and gave no entry:
+  their carry-in lists are deferred work and decisions, not misses with a recorded cause.
+- **Checklist differs from the candidates.** Kept: new checks proven, failures reproduced, migration,
+  contract, test factory, reuse, misses logged. Added because two or more entries back them: "Docs
+  match the code" and "Nothing secret logged". Left out because no recorded miss backs them: "one
+  change per branch" and "diff and file list read before every commit". P2's branch-scope check does
+  not depend on a checklist item.
+- **`scripts/lessons-report.mjs`** is the reference script with single quotes and this repo's path.
+  Two changes from "as is". The rails moved into an exported `findProblems(text)`, the shape
+  `check-claude-md.mjs` uses, so `--check` covers format, citations, sizes and markers and each rail is
+  tested on synthetic text. And `--checklist <areas>` prints the checklist items for those areas.
+- **Kept lean and usable in self-review** (asked for during the work). Limits held by `--check`:
+  6,000 bytes a section (the unit a session reads), 600 bytes an entry, 12 checklist items, 200
+  characters an item so it prints on one line. Every item is a yes-or-no question about the branch and
+  carries an area tag (`all`, `backend`, `frontend`, `e2e`, `docs`). For a docs-only branch
+  `--checklist docs` prints 4 of the 9 items.
+- **Tests:** `scripts/lessons-report.test.mjs`, 17 tests, run by `npm run test:scripts`. No package,
+  script or CI step was added.
+- **Seen to fail:** `findProblems` was run on twelve broken copies of the real file (cause removed,
+  ending removed, unknown citation, start marker removed, loop item removed, area tag removed, unknown
+  area, file over 24 KB, section over 6,000 bytes, entry over 600 bytes, 13 items, an item over 200
+  characters). Each was reported; the unchanged file passed. The tests found two defects in the first
+  version: the entry size counted a trailing newline, and the label of an entry with no cause ran on
+  into its prevention.
+- **Report now:** 9 entries cite no checklist item; 4 of those are not fully enforced (the E2E text
+  locator, PowerShell quoting, Git Bash path rewriting, and the nested `<main>` on routes without an
+  axe audit). The weakest item is "Docs match the code" (3 manual entries).
+- **Causes are read from the record.** Where a fix plan gave only the fix, the cause is what the fix
+  implies and no more; misses whose cause could not be read from the record were left out (for
+  example the Phase 3 development-identity fix and the Phase 8 primary-station fix).
+
 ## P2. Self-review script and skill
 
 Add `scripts/self-review.mjs`, `npm run self-review`, and `.claude/skills/self-review/SKILL.md`.
@@ -140,8 +182,12 @@ slice of history. Rules that take a file list live as pure functions in
 It must stay fast: no `dotnet build`, no test run. It checks only what nothing else catches early.
 
 Output follows the quiet test runner: one line for each `WARN` or `FAIL`, one totals line for the checks
-that passed, then the top three weak items and the checklist. `--quiet` skips those last two; the skill
-uses it on every run after the first on a branch. The skill's description, which loads in every session,
+that passed, then the top three weak items and the checklist. The checklist is not printed whole: the
+script maps the changed files to areas (`backend`, `frontend`, `e2e`, `docs`) and prints
+`checklistFor(text, areas)` from `scripts/lessons-report.mjs`, so a docs-only branch sees 4 items, and
+it names the lessons section to read for each area. An item whose advisory check ran on the branch
+(migration, contract) is replaced by that check's line. `--quiet` skips the weak items and the
+checklist; the skill uses it on every run after the first on a branch. The skill's description, which loads in every session,
 is one sentence; the instructions are in its body.
 
 | Check | Level | Why here |
@@ -149,7 +195,7 @@ is one sentence; the instructions are in its body.
 | No control characters in changed files | Required | A `\b` written through a script becomes a backspace; ported as is |
 | `lessons-report --check` passes | Required | Keeps P1's rails on every branch. The lessons tests are not run here; `npm run test:scripts` runs them |
 | Every controller has a class-level `[EnableRateLimiting]` | Required | `CLAUDE.md` says never leave one without, and there is no global fallback. No test checks it today. Needs an allow-list if any controller is exempt by design; settle that on the first run |
-| Branch scope: over 25 files, or many areas | Advisory | One change per branch |
+| Branch scope: over 25 files (the "many areas" half was dropped after the trial; see "Delivered") | Advisory | One change per branch |
 | Entity or `DbContext` configuration changed, nothing new under `Infrastructure/Migrations/` | Advisory | Integration tests catch it, but only after a full Testcontainers run |
 | A DTO changed, nothing under `frontend/src/types/` or `docs/openapi.json` changed | Advisory | "Every public API change updates backend DTO + frontend TypeScript type + tests" |
 | `docs/openapi.json` changed with no backend change | Advisory | It is generated (`npm run swagger:generate`); a hand edit is lost on the next run |
@@ -157,6 +203,7 @@ is one sentence; the instructions are in its body.
 | Review-fix commits on the branch, lessons file unchanged | Advisory | The lessons loop |
 | Commits name a phase, nothing under `docs/` changed | Advisory | Phase closeout documentation |
 | A `CLAUDE.md` added, moved or deleted | Advisory | Prints a reminder to run the live loading check (`node scripts/check-instructions-loading.mjs --all`), which makes model calls and so is not in lint. It does not re-check the area table or sizes; `npm run lint:claude-md` does that |
+| A line of 60 or more characters that is in three or more `.claude/agents/*.md` files, or in a skill file and an agent file | Required | Shared text has one home: the root `CLAUDE.md`, an area `CLAUDE.md` or a skill. A line that only points to a file is exempt. See "Agents and skills audit" |
 | An added `queryKey: [` that does not start from `queryKeys`, in a frontend file that is not a test | Advisory | The DRY rule: query keys come from `frontend/src/lib/queryKeys.ts`. An array that spreads a shared key (`[...queryKeys.x(), …]`) is fine. No line in `frontend/src` breaks this today |
 
 The query-key check is the one DRY rule cheap enough to check from a diff. The other centralised
@@ -177,6 +224,45 @@ Exit: under 20 seconds on a typical branch; a passing run prints under 20 lines 
 rule function seen to fail on synthetic input; run on three past branches with `SELF_REVIEW_BASE`, with
 any false warning fixed or the check dropped.
 
+Delivered (2026-10-01, branch `chore/quality-process`):
+
+- **Files:** `scripts/self-review.mjs`, `npm run self-review`, the rules in
+  `scripts/lib/self-review-rules.mjs` with 17 tests next to them, and
+  `.claude/skills/self-review/SKILL.md` (the repo's first skill; its description is one sentence).
+- **Cost:** 0.3 seconds on this branch. `--quiet` prints one line when everything passes. A passing
+  check prints nothing. The first run on a docs and scripts branch prints 12 lines: the totals, the three
+  weakest items, and 4 of the 8 checklist items.
+- **Checks:** the four required and nine advisory checks in the table, plus one more advisory check
+  from the location trial below. `--required` runs the required four over the whole repo and needs no
+  git history, so CI can run it on a shallow checkout.
+- **Rate limiting, settled on the first run:** seven controllers carry the attribute.
+  `HealthController` is the one exemption (an anonymous liveness probe) and is named in
+  `RATE_LIMIT_EXEMPT`.
+- **Checklist filtering:** the script maps changed files to areas and prints `checklistFor`. The
+  "Migration scaffolded" item was removed from the checklist, because the migration check answers it
+  in full; this replaces the planned "item replaced by its check's line", with no list to keep in step.
+- **Seen to fail:** each rule was broken in a temporary copy of `scripts/` and the tests re-run: 27 of
+  28 changes were caught. The one not caught does not change behaviour (a deleted file adds no
+  lines). One more was dead code, now removed. The run also showed that `--required` passed outside a
+  git repository with nothing checked; it now exits 1 there. The three required checks other than the
+  lessons rail were also seen to fail on temporary files in this repo, then pass once those were
+  removed.
+- **Trial on past branches, short of the exit:** this repo's history starts at one squashed commit, so
+  only four pull requests could be replayed (#138, #144, #145 and #34), and none changes an entity, a
+  DTO or a hook. The rules ran on their ranges from a scratch script (`SELF_REVIEW_BASE` moves the base,
+  not the working tree). Result: #144 got the `CLAUDE.md` loading reminder, which is right. #144 and
+  #145 got a "many top-level folders" scope warning; that half of the scope check was dropped, because a
+  change that follows the rules (DTO, TypeScript type, tests and docs together) spans five folders. The
+  file-count half stays. The migration, DTO, test and query-key checks have run on synthetic input only.
+- **Location scan, kept as advisory:** over the last 150 commits (72,778 added lines) 79 lines held a
+  coordinate-shaped number and 9 a postcode-shaped one. Unit-conversion constants were the false hits,
+  so the check also needs the line to mention a latitude, longitude, coordinate, zip or postal code. It
+  names files and never prints the value. Most of the 79 are in backend tests and look like fixed
+  coordinates in fixtures; they were not changed here and are worth a separate look against the
+  privacy rule.
+- **Not built:** the review-agent exit in P3 (an agent reports a self-review failure first) needs a
+  live agent run and was not done in this branch.
+
 ## P3. Put it in the path of every review
 
 - **Pull request template** (`.github/pull_request_template.md`): what and why; self-review passes;
@@ -195,6 +281,50 @@ any false warning fixed or the check dropped.
 
 Exit: a review agent started on a branch that fails self-review reports that first; the root
 `CLAUDE.md` is inside its limit with nothing moved out; the review step is described in one file.
+
+Delivered (2026-10-01, branch `chore/quality-process`):
+
+- **Pull request template:** `.github/pull_request_template.md`, six check lines.
+- **Review agents:** the same one-line pointer to the skill file is the first line of `architect`,
+  `security`, `performance`, `domain-ux` and `qa-engineer`. The review step is written only in the skill
+  file. The copy check lets the line through because it points to a Markdown file.
+- **Root `CLAUDE.md`:** one bullet under "Rules that cross areas", 149 bytes. The root is 13,877 of
+  14,000 bytes with nothing moved out.
+- **CI:** a "Self-Review Required Checks" step in the `frontend` job runs
+  `node scripts/self-review.mjs --required`.
+- **Open:** the first exit criterion. No review agent was started on a failing branch; the skill and
+  the pointer are in place, and the first review on a real branch will show whether an agent follows
+  them.
+
+## Agents and skills audit (2026-10-01)
+
+Asked for while P1 was built: are the agent files and skills still useful, and is shared text kept in
+one place and not copied into each agent?
+
+- **Skills:** the repo has none (`.claude/skills/` does not exist), so nothing is copied yet. P2 adds
+  the first, `self-review`, and P3 keeps its review step in that one file with a one-line pointer in
+  five agent files.
+- **Agent files:** twelve role files under `.claude/agents/`, 72 KB, with no frontmatter. They are
+  read on demand and are not registered subagents, so they cost nothing until read.
+- **Copied text, removed:** every agent file ended with a "Privacy — faker for all location data"
+  section (five wordings, about 7 KB in all) that repeated the root rule, which already says it
+  applies to every agent. Eleven files lost the section. `qa-engineer.md` keeps the two lines the root
+  does not have and points to the root for the rest. No other line of 45 or more characters is in two
+  agent files or in an agent file and a `CLAUDE.md`. With the stale text below gone, the agent files
+  are 64.7 KB.
+- **Stale text, corrected:** `qa-engineer.md` and `devops.md` still described the C# Playwright suite
+  as current and the TypeScript one as a Phase 12 target; the C# project is no longer in the repo.
+  `frontend.md` told tests to use MSW, which `frontend/CLAUDE.md` says is not installed. `data.md` named
+  an interfaces folder that does not exist. Every other path the agent files name exists.
+- **Airport line, kept (decided 2026-10-01):** one of the two lines kept in `qa-engineer.md` says a
+  test that needs a geographically accurate address picks "a real US airport at random from a short
+  predefined list". It reads against the root privacy rule's "no place name anywhere", but the rule
+  protects a user's own location and deployment, and a public airport picked at random is neither. The
+  line was in nine agent files; it is now in one, unchanged.
+- **Kept from growing back:** the P2 check above. Rules that agent files paraphrase from a `CLAUDE.md`
+  (`data-test-id` in three files, `RateLimitedApiClient` in four, `AsNoTracking` in three) are not
+  line-for-line copies and are left; replacing them with pointers is a rewording for a later change.
+- **`AGENTS.md`** (the Codex copy of the rules, 15.6 KB) is unchanged; Claude Code does not load it.
 
 ## P4. Later, if the first three prove useful
 
@@ -220,6 +350,12 @@ counted by hand for the first few pull requests after P3. The target is at most 
 `/context` at session start after P3 with the figures in the context plan's "Order and verification"
 (`MSYS_NO_PATHCONV=1 claude -p "/context"`): memory files and skills together should grow by no more
 than the one root line and the one skill description.
+
+**`/context` after P3** (2026-10-01, branch `chore/quality-process`, same headless command): total
+22.5k tokens against 22.4k before. The `self-review` skill description is about 50 tokens (skills 4k
+against 3.9k), and the root `CLAUDE.md` still shows as 5.4k with its one new line. The memory index grew
+from 66 to 112 tokens for a reason outside this plan (a second memory note). Review rounds are not yet
+counted: no pull request has gone through the new path.
 
 Each branch: `npm run lint` and `npm run test:quiet` (which includes the script tests). No application code, schema or
 public API changes, so no EF migration and no DTO or TypeScript type updates are expected. Closeout

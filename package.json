@@ -9,6 +9,7 @@
     "start:all": "node scripts/start-all.mjs",
     "lint": "npm run lint:claude-md && npm run lint:backend && npm run lint:frontend",
     "lint:claude-md": "node scripts/check-claude-md.mjs",
+    "self-review": "node scripts/self-review.mjs",
     "lint:backend": "dotnet format whitespace backend/AmbientWeather.slnx --verify-no-changes --verbosity minimal",
     "lint:frontend": "npm run lint --prefix frontend",
     "test": "node scripts/test-all.mjs",

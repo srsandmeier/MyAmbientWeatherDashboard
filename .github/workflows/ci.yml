@@ -86,6 +86,9 @@ jobs:
       - name: Check CLAUDE.md Split
         run: node scripts/check-claude-md.mjs
 
+      - name: Self-Review Required Checks
+        run: node scripts/self-review.mjs --required
+
       - name: Test Repo Scripts
         run: npm run test:scripts
 
