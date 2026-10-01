@@ -1,4 +1,31 @@
 {
+  "env": {
+    "PYTHONUTF8": "1"
+  },
+  "bashOutputMaxChars": 10000,
+  "skillOverrides": {
+    "update-config": "user-invocable-only"
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "input=$(cat); case \"$input\" in *sed*|*python3*) printf '%s' \"$input\" | node \"${CLAUDE_PROJECT_DIR:-.}/scripts/hooks/block-unsafe-shell.mjs\";; esac; exit 0",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "input=$(cat); case \"$input\" in *'git rebase'*|*'git pull'*|*'git push'*) printf '%s' \"$input\" | node \"${CLAUDE_PROJECT_DIR:-.}/scripts/hooks/before-rebase.mjs\";; esac; exit 0",
+            "timeout": 20,
+            "statusMessage": "Checking the branch on GitHub..."
+          }
+        ]
+      }
+    ]
+  },
   "enabledPlugins": {
     "vercel@claude-plugins-official": false
   }

@@ -7,10 +7,19 @@ phase closeout, shell safety, test tooling, commit format) are in the root `CLAU
 
 ## Commands
 
-Run from the repo root. Day-to-day commands (`npm run api`, `test:backend`, `lint:backend`) are in the
+Run from the repo root. Commands for all stacks (`npm run lint`, `test:quiet`, `start:all`) are in the
 root `CLAUDE.md`.
 
 ```bash
+# Backend
+npm run api           # dotnet run — http://localhost:5080
+npm run api:watch     # dotnet watch — hot reload
+npm run lint:backend  # dotnet format whitespace (verify no changes)
+npm run test:backend  # dotnet test all backend projects (Release)
+
+# Run a single backend test class or method
+dotnet test backend/AmbientWeather.slnx -c Release --filter "FullyQualifiedName~ClassName"
+
 # Database migrations
 npm run db:update                         # apply pending migrations
 npm run db:migrate -- AddMigrationName    # add new migration

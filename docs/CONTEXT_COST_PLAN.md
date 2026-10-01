@@ -1,8 +1,10 @@
 # Context and Usage Cost Plan
 
-Status: in progress (2026-10-01). Branch: `chore/context-cost`. Implemented so far: the Vercel plugin
-is turned off for this project (part of C1) and `CLAUDE.md` is split by folder (C2). Everything else is
-planned.
+Status: implemented (2026-10-01), with one measurement open (the `/context` figures, see "Order and
+verification"). The Vercel plugin setting and the `CLAUDE.md` split (part of C1, C2) merged in PR #144.
+The guard for the split (C3), the rest of the project settings and the blocking hooks (C1), the quiet
+test runner (C4), the "Keep context lean" rules (C5) and the pre-rebase hook (C6) are on branch
+`chore/claude-md-check`. Each item below ends with a "Delivered" note.
 
 Goal: lower the tokens every Claude Code session and subagent spends in this repo, without removing or
 weakening any rule or check. Source: the context-cost work in the `inclusive-travel-navigator` repo (its
@@ -67,6 +69,25 @@ Check each one, and confirm the effect in a fresh session (a long command is tru
 Exit: a new session in this repo lists no Vercel skills or tools; `.claude/settings.json` is committed
 and `settings.local.json` stays ignored.
 
+Delivered (2026-10-01, branch `chore/claude-md-check`):
+
+- **Vercel plugin:** the session after PR #144 listed no Vercel skills. Three `vercel:*` agent types
+  were still offered, so the setting removes the skills but not every trace of the plugin.
+- **Key names checked** against the [settings reference](https://code.claude.com/docs/en/settings-reference):
+  `bashOutputMaxChars`, `skillOverrides` (value `user-invocable-only`), `env` and `enabledPlugins` are
+  all documented keys. All four are now in `.claude/settings.json`.
+- **Blocking hook:** `scripts/hooks/block-unsafe-shell.mjs` denies `sed -i` (every spelling, also
+  behind `xargs` and `find -exec`) and, on Windows only, `python3`. It reads the command from the
+  hook's JSON with Node. A command that only mentions `sed -i` (a commit message, a `grep`) is allowed.
+- **What it replaces:** the hook `CLAUDE.md` described did not work. The user-level hook parsed its
+  input with `jq`, which is not installed on the machine it was written for, so it never denied
+  anything, and there was no `python3` hook at all. That user-level hook is unchanged; it is harmless
+  and now redundant in this repo.
+- **Not yet seen in a live session:** settings and hooks are read at session start. The hook command
+  lines were run through `bash` with the hook's JSON on stdin (deny for `sed -i` and `python3`, nothing
+  for `sed -n`), but a real denial, the 10,000-character output preview and the `update-config`
+  override have to be confirmed in the next session.
+
 ## C2. Split `CLAUDE.md` by folder
 
 Claude Code loads a folder's `CLAUDE.md` only when it works on files in that folder. Move area rules
@@ -106,8 +127,8 @@ one-line pointer) and the `tests/e2e/` line of the folder map (now a row of the 
 | `backend/` outside the Api project | root + `backend/CLAUDE.md` (11.5 KB) | 24.2 KB | 77% |
 | `backend/src/AmbientWeather.Api/` | the two above + its own `CLAUDE.md` (2.9 KB) | 27.1 KB | 86% |
 
-These are file sizes. Which files Claude Code really loads for a task is not yet confirmed; that is the
-live check in C3.
+These are file sizes. The live check in C3 confirmed that Claude Code loads exactly these files for each
+kind of task.
 
 What differs from the plan as first written:
 
@@ -152,6 +173,31 @@ handler, a React component, a Playwright spec, an EF migration, a repo script, a
 Exit: the offline check fails when a section is copied back into the root (seen to fail once, then
 reverted); the live check passes for every sample task.
 
+Delivered (2026-10-01, branch `chore/claude-md-check`):
+
+- `scripts/check-claude-md.mjs` runs as `npm run lint:claude-md`, as the first step of `npm run lint`,
+  and as its own step after lint in the CI `frontend` job. The limit is 14,000 bytes per file. It lists
+  files with `git ls-files` (tracked plus untracked and not ignored), so a new folder file is checked
+  before it is committed. The repo-wide headings it requires in the root are the eleven `###` headings
+  under "Non-negotiable rules".
+- Seen to fail, then restored, for five changes: "Backend architecture" copied back into the root
+  (reported twice: over the size limit, and the heading in two files), an area table row removed, a
+  table row for a file that does not exist, a repo-wide heading renamed, and a new folder `CLAUDE.md`
+  with no table row.
+- `scripts/check-instructions-loading.mjs` and `scripts/claude-md-tasks.json` are ported from the
+  reference repo. Eight tasks: a MediatR handler, a React component, a BFF controller (the nested Api
+  file), a Playwright spec, an EF migration, a backend integration test, a repo script, a doc under
+  `docs/`. Run with `--all` on Claude Code 2.1.286: all eight loaded exactly the expected files, and
+  nothing else from the repo.
+
+The root is now 13,171 bytes (the two command lines and the note under the area table added 422), which
+leaves 829 bytes under the limit. C5 adds a section to the root, so it has to make room first (move
+something to an area file or a doc) rather than raise the limit.
+
+Not done here: the check has no automated test of its own (the reference repo runs the same rules as a
+Jest test). The five failures above were produced by hand. C4 added a root test runner
+(`npm run test:scripts`), so a test for this check can now be written; it is not written yet.
+
 ## C4. Quiet test and build output
 
 Add a quiet mode to `scripts/test-all.mjs` and expose it as `npm run test:quiet`:
@@ -170,6 +216,27 @@ Check before building: whether `dotnet test --verbosity quiet` plus a minimal co
 Playwright already writes only the HTML report.
 
 Exit: a passing `npm run test:quiet` prints under 20 lines; a failing run names each failing test.
+
+Delivered (2026-10-01, branch `chore/claude-md-check`):
+
+- `scripts/test-all.mjs --quiet` (`npm run test:quiet`) writes `test-results/<suite>.log` and
+  `test-results/summary.txt`; the parsing is in `scripts/lib/test-summary.mjs`. `test-results/` was
+  already ignored by git.
+- **Passing run:** 4 lines (one per suite and a pointer to the logs), against about 1,170 lines from
+  `npm test`. Measured with Docker running: 611 unit, 166 integration, 526 frontend and 20 script tests.
+- **Failing run:** with Docker stopped, 26 integration tests failed and the summary was 38 lines. Every
+  failing test is named. Tests that share a message (a fixture that could not start) are listed
+  together with the first three lines of that message printed once, and no stack trace.
+- **Backend** totals and failures are read from the `dotnet test` console output. **Frontend** results
+  come from Vitest's JSON reporter (`test-results/frontend.json`), checked against a real failing test.
+  Build errors (`error CS0103` and the like) are printed once each.
+- **A third suite, `scripts`:** `npm run test:scripts` runs `node --test` over `scripts/**/*.test.mjs`
+  (the two hooks and the summary parser, 20 tests). It is part of `npm test`, `npm run test:quiet` and
+  the CI `frontend` job. Node's built-in runner adds no dependency.
+- **The flag-only route was not measured.** `--verbosity quiet` and the `dot` reporter would not write
+  the log files or the summary file, so the script was needed either way.
+- `scripts/test-all.sh`, the older shell version of `npm test`, is unchanged and does not run the
+  scripts suite; nothing calls it.
 
 ## C5. "Keep context lean" working rules
 
@@ -193,6 +260,22 @@ the reference repo:
 The existing "Phase closeout documentation" rule already covers keeping the plan in sync; this adds
 only the `/clear` step and the read-by-section habit.
 
+Delivered (2026-10-01, branch `chore/claude-md-check`): "### Keep context lean" in the root, after
+"Shell commands — platform safety", with all eight points (the last two share a bullet). The heading is
+on the list `check-claude-md.mjs` requires in the root.
+
+To make room under the 14,000-byte limit, the single-stack commands moved line for line to their area
+files: the backend group (`api`, `api:watch`, `lint:backend`, `test:backend`, single test class) to
+`backend/CLAUDE.md`, and the frontend group (`dev`, `build`, `lint:frontend`, `test:frontend`, single
+file, `lint:fix`, watch mode) to a new "Commands" section in `frontend/CLAUDE.md`. The root keeps the
+all-stack commands and a pointer. This goes one step past C2, which kept the day-to-day commands in the
+root: a task that touches only docs or scripts no longer sees `npm run test:backend`, and uses
+`npm run test:quiet` instead. One moved line was corrected: `lint:fix` is a frontend script, so the
+command is `cd frontend && npm run lint:fix`; `npm run lint:fix` from the root never existed.
+
+Sizes after this branch: root 13,728 bytes, `backend/CLAUDE.md` 11,870, `frontend/CLAUDE.md` 5,327. The
+root has 272 bytes left, so the next rule added to it has to move something out first.
+
 ## C6. Pre-rebase hook
 
 Port `scripts/hooks/before-rebase.mjs` and its `PreToolUse` entry in `.claude/settings.json`. Before
@@ -204,6 +287,14 @@ Changes needed: the default branch is `main`, not `master`, in the message text.
 `gh`, both already required here.
 
 Exit: a rebase on a branch with an open pull request shows the note; any other command shows nothing.
+
+Delivered (2026-10-01, branch `chore/claude-md-check`): `scripts/hooks/before-rebase.mjs` and its entry
+in `.claude/settings.json`, for both the Bash and PowerShell tools. Run through `bash` with the hook's
+JSON on stdin: `git rebase origin/main` and `git push --force-with-lease` printed the note ("branch
+... is at ... locally. It is not on origin. No pull request uses this branch."); `git status`,
+`npm run lint` and the other samples printed nothing. The wording for an open and a merged pull request
+is covered by `scripts/hooks/hooks.test.mjs`. Not yet seen: the note on a branch that really has an
+open pull request, in a live session (this branch was not pushed when the hook was written).
 
 ---
 
@@ -223,11 +314,13 @@ Exit: a rebase on a branch with an open pull request shows the note; any other c
 
 ## Order and verification
 
-Remaining, in this order: C3 (the guard for the split already made), the rest of C1, C4, C5, C6. The
-Vercel change already made removes the largest fixed cost.
+All six items are implemented. Still open:
 
-Measure before C1 and after C2 in a fresh session with `/context`, and record both figures here:
-total at session start, and the split between memory files, skills and tools.
+- **`/context` figures.** Measure in a fresh session and record here: total at session start, and the
+  split between memory files, skills and tools. The "before" figure can no longer be measured on this
+  machine (the split and the plugin setting are merged); the file sizes in C2 stand in for it.
+- **Live confirmation of C1 and C6** in the next session started in this repo (listed under each item).
+- **A test for `check-claude-md.mjs`** (listed under C3).
 
 Each branch: `npm run lint`, `npm test`. No application code, schema or public API changes, so no EF
 migration and no DTO or TypeScript type updates are expected. Closeout still runs the migration check:

@@ -1,0 +1,10 @@
+[
+  { "task": "change a MediatR handler", "read": "backend/src/AmbientWeather.Application/Features/Alerts/Queries/GetActiveAlertsQueryHandler.cs", "loads": ["CLAUDE.md", "backend/CLAUDE.md"] },
+  { "task": "change a React component", "read": "frontend/src/components/ErrorBoundary.tsx", "loads": ["CLAUDE.md", "frontend/CLAUDE.md"] },
+  { "task": "change a BFF controller", "read": "backend/src/AmbientWeather.Api/Controllers/AlertsController.cs", "loads": ["CLAUDE.md", "backend/CLAUDE.md", "backend/src/AmbientWeather.Api/CLAUDE.md"] },
+  { "task": "write a Playwright spec", "read": "tests/e2e/specs/axe-audits.spec.ts", "loads": ["CLAUDE.md", "tests/e2e/CLAUDE.md"] },
+  { "task": "add an EF migration", "read": "backend/src/AmbientWeather.Infrastructure/Migrations/20260529055719_InitialCreate.cs", "loads": ["CLAUDE.md", "backend/CLAUDE.md"] },
+  { "task": "write a backend integration test", "read": "backend/tests/AmbientWeather.IntegrationTests/AlertsApiTests.cs", "loads": ["CLAUDE.md", "backend/CLAUDE.md"] },
+  { "task": "edit a repo script", "read": "scripts/test-all.mjs", "loads": ["CLAUDE.md"] },
+  { "task": "edit a doc", "read": "docs/SECURITY.md", "loads": ["CLAUDE.md"] }
+]
