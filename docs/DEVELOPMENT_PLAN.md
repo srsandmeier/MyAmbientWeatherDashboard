@@ -1247,7 +1247,7 @@ Detailed plan: `docs/PHASE_11_COMPLETION_PLAN.md`
 | [`AMBIENT_HISTORY_API_RESEARCH.md`](AMBIENT_HISTORY_API_RESEARCH.md) | Ambient history endpoint behavior and v1 caching strategy |
 | [`SECURITY.md`](SECURITY.md) | Web auth, credential encryption, rate limiting |
 | [`PHASE_12_COMPLETION_PLAN.md`](PHASE_12_COMPLETION_PLAN.md) | Phase 12 charting, contracts, accessibility, and production hardening |
-| [`CONTEXT_COST_PLAN.md`](CONTEXT_COST_PLAN.md) | Implemented (2026-10-01): lower Claude Code session cost (project settings and hooks, per-folder `CLAUDE.md` and its check, quiet test output). One measurement is still open, see its "Order and verification" |
+| [`CONTEXT_COST_PLAN.md`](CONTEXT_COST_PLAN.md) | Complete (2026-10-01): lower Claude Code session cost (project settings and hooks, per-folder `CLAUDE.md` and its check, quiet test output). Confirmed in a live session; the `/context` figures are in its "Order and verification" |
 | [`QUALITY_PROCESS_PLAN.md`](QUALITY_PROCESS_PLAN.md) | Planned: self-review step before review, lessons-learned file and its checks |
 | [`e2e-specs/e2e-test-flows.md`](e2e-specs/e2e-test-flows.md) | Extracted user journeys and E2E scenario plan, including Phase 12 Playwright Test TS migration |
 | [Ambient Apiary](https://ambientweather.docs.apiary.io/) | Official REST docs + helper libraries |

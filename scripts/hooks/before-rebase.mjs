@@ -4,14 +4,22 @@
 //
 // Reads the hook's JSON on stdin; prints hookSpecificOutput.additionalContext for git rebase, git pull and
 // git push --force / -f; prints nothing otherwise. Never blocks the command and never fails it.
+// A command that only mentions one of these in text (a commit message, a pull request body, a search
+// pattern) gets no note.
 
 import { spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
 
-const RISKY = /\bgit\s+(rebase\b|pull\b|push\b[^;&|]*\s(--force(-with-lease)?|-f)\b)/;
+import { COMMAND_START, withoutText } from './command-text.mjs';
+
+// git as a command (after any VAR=value prefixes), not as a word in an argument.
+const RISKY = new RegExp(
+  String.raw`${COMMAND_START}(?:\w+=\S*\s+)*git(?:\.exe)?\s+(?:rebase\b|pull\b|push\b[^;&|\n]*\s(?:--force(?:-with-lease)?|-f)\b)`,
+  'm',
+);
 
 export function isRisky(command) {
-  return RISKY.test(command ?? '');
+  return RISKY.test(withoutText(command));
 }
 
 const run = (cmd, args) => {

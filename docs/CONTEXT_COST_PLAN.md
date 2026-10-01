@@ -1,10 +1,11 @@
 # Context and Usage Cost Plan
 
-Status: implemented (2026-10-01), with one measurement open (the `/context` figures, see "Order and
-verification"). The Vercel plugin setting and the `CLAUDE.md` split (part of C1, C2) merged in PR #144.
-The guard for the split (C3), the rest of the project settings and the blocking hooks (C1), the quiet
-test runner (C4), the "Keep context lean" rules (C5) and the pre-rebase hook (C6) are on branch
-`chore/claude-md-check`. Each item below ends with a "Delivered" note.
+Status: complete (2026-10-01). The Vercel plugin setting and the `CLAUDE.md` split (part of C1, C2)
+merged in PR #144. The guard for the split (C3), the rest of the project settings and the blocking hooks
+(C1), the quiet test runner (C4), the "Keep context lean" rules (C5) and the pre-rebase hook (C6) merged
+in PR #145. The closeout (branch `chore/context-cost-closeout`) confirmed the settings and hooks in a
+fresh session, recorded the `/context` figures, added the test for the split guard and narrowed what the
+pre-rebase hook reacts to. Each item below ends with a "Delivered" note; nothing is open.
 
 Goal: lower the tokens every Claude Code session and subagent spends in this repo, without removing or
 weakening any rule or check. Source: the context-cost work in the `inclusive-travel-navigator` repo (its
@@ -87,6 +88,21 @@ Delivered (2026-10-01, branch `chore/claude-md-check`):
   lines were run through `bash` with the hook's JSON on stdin (deny for `sed -i` and `python3`, nothing
   for `sed -n`), but a real denial, the 10,000-character output preview and the `update-config`
   override have to be confirmed in the next session.
+
+Confirmed live (2026-10-01, branch `chore/context-cost-closeout`, the first session started after PR
+#145 merged, Claude Code 2.1.287):
+
+- **Denials:** a `sed -i` on a scratch file and `python3 --version` were both refused before they ran,
+  with the hook's reason shown.
+- **Output cap:** a command that printed 14.8 KB (over the 10,000-character cap, under Claude Code's
+  default) was saved to a file and shown as a 2 KB preview. The preview is 2 KB, not 10,000 characters;
+  10,000 is the size above which output is saved and previewed.
+- **`update-config`:** the skill is not in the list of skills the model can start by itself.
+- **Vercel agent types:** `enabledPlugins: false` left the plugin's three agent types on offer.
+  `permissions.deny` in `.claude/settings.json` now names them (`Agent(vercel:ai-architect)`,
+  `Agent(vercel:deployment-expert)`, `Agent(vercel:performance-optimizer)`, the form the
+  [subagents page](https://code.claude.com/docs/en/sub-agents) documents). The running session dropped
+  all three as soon as the file was saved. A new agent type added by the plugin would need a new line.
 
 ## C2. Split `CLAUDE.md` by folder
 
@@ -194,9 +210,13 @@ The root is now 13,171 bytes (the two command lines and the note under the area 
 leaves 829 bytes under the limit. C5 adds a section to the root, so it has to make room first (move
 something to an area file or a doc) rather than raise the limit.
 
-Not done here: the check has no automated test of its own (the reference repo runs the same rules as a
-Jest test). The five failures above were produced by hand. C4 added a root test runner
-(`npm run test:scripts`), so a test for this check can now be written; it is not written yet.
+Test added (2026-10-01, branch `chore/context-cost-closeout`): `scripts/check-claude-md.test.mjs`, run
+by `npm run test:scripts`. The rules moved into an exported `findProblems(texts)`, which takes the files
+as a map of path to text, so each rule is tested without touching the repo's own files: a clean split,
+a missing root, the size limit (at the limit, one byte over, and bytes rather than characters), a folder
+file with no table row, a table row with no file, a missing table section, a renamed repo-wide heading,
+a heading in two files, and headings or rows inside a fenced code block. One more test runs the script
+on this repo. The five failures above were produced by hand before this test existed.
 
 ## C4. Quiet test and build output
 
@@ -296,6 +316,21 @@ JSON on stdin: `git rebase origin/main` and `git push --force-with-lease` printe
 is covered by `scripts/hooks/hooks.test.mjs`. Not yet seen: the note on a branch that really has an
 open pull request, in a live session (this branch was not pushed when the hook was written).
 
+Confirmed live and narrowed (2026-10-01, branch `chore/context-cost-closeout`):
+
+- **Seen live:** a `git pull` on the unpushed branch showed "It is not on origin. No pull request uses
+  this branch." After PR #146 was opened, `git push --force-with-lease` showed "It is on origin at ...
+  (same commit). PR #146 is OPEN." with the advice to push with `--force-with-lease` and not pull.
+- **Narrower match:** the note used to appear for any command that mentioned a rebase, a pull or a
+  force-push in text, such as a pull request body or a commit message. `isRisky` now matches only where
+  git is run as a command (line start, after `;`, `&`, `|` or `(`, or after `VAR=value` prefixes), and
+  first empties quoted arguments, here-document bodies and PowerShell here-strings. Seen live: an
+  `echo` of text naming both commands, and the `gh pr create` whose body described this change, showed
+  no note. The cost: a git command passed as a quoted string (`bash -c "git pull"`) gets no note.
+- **Shared code:** `scripts/hooks/command-text.mjs` holds the command-start pattern and the text
+  stripping for both hooks. The blocking hook matches exactly what it did before; it does not strip
+  here-documents, because a guard against data loss should err towards denying.
+
 ---
 
 ## Considered and not carried over
@@ -314,13 +349,29 @@ open pull request, in a live session (this branch was not pushed when the hook w
 
 ## Order and verification
 
-All six items are implemented. Still open:
+All six items are implemented and confirmed; nothing is open. The live confirmation of C1 and C6 and
+the test for `check-claude-md.mjs` are recorded under each item.
 
-- **`/context` figures.** Measure in a fresh session and record here: total at session start, and the
-  split between memory files, skills and tools. The "before" figure can no longer be measured on this
-  machine (the split and the plugin setting are merged); the file sizes in C2 stand in for it.
-- **Live confirmation of C1 and C6** in the next session started in this repo (listed under each item).
-- **A test for `check-claude-md.mjs`** (listed under C3).
+**`/context` figures** (2026-10-01, `main` at `32bd907`, Claude Code 2.1.287). Measured with
+`MSYS_NO_PATHCONV=1 claude -p "/context"` from the repo root: a new headless session, before any message. It reads the same
+settings and memory files as an interactive session; the tool and skill lists of an interactive session
+differ a little, so its total will not match to the token.
+
+| Category | Tokens at session start |
+|---|---|
+| Total | 22.4k |
+| System tools | 9k |
+| Memory files | 5.4k (root `CLAUDE.md`; the memory index adds 66 tokens) |
+| Skills | 3.9k (21 skills, none from the Vercel plugin) |
+| System prompt | 2.7k |
+| MCP tools and server instructions | 1.3k |
+
+Deferred tools (26.2k, loaded only when a tool is fetched) are listed by `/context` but are not part of
+the total. The "before" figure can no longer be measured on this machine (the split and the plugin
+setting are merged); the file sizes in C2 stand in for it. The root measures about 2.5 bytes per token
+(13,728 bytes, 5.4k tokens), not the 4 assumed in "Where this repo stands". At that rate the old 31.6 KB
+root would have been about 12k tokens (an estimate, not a measurement) where 5.4k load now, before the
+Vercel plugin's skill descriptions are counted.
 
 Each branch: `npm run lint`, `npm test`. No application code, schema or public API changes, so no EF
 migration and no DTO or TypeScript type updates are expected. Closeout still runs the migration check:
