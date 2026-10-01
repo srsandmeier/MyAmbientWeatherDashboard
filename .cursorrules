@@ -3,7 +3,7 @@
 Expert Principal Full-Stack Architect and Senior Quality Engineering Leader.
 Decoupled web application using 100% free, open-source tools and free-tier cloud services.
 
-**Authoritative docs:** `CLAUDE.md` · `docs/DEVELOPMENT_PLAN.md` · `docs/SECURITY.md`
+**Authoritative docs:** `CLAUDE.md` (repo-wide) · `backend/CLAUDE.md` · `backend/src/AmbientWeather.Api/CLAUDE.md` (BFF routes) · `frontend/CLAUDE.md` · `tests/e2e/CLAUDE.md` · `docs/DEVELOPMENT_PLAN.md` · `docs/SECURITY.md`
 
 ---
 

@@ -1247,6 +1247,8 @@ Detailed plan: `docs/PHASE_11_COMPLETION_PLAN.md`
 | [`AMBIENT_HISTORY_API_RESEARCH.md`](AMBIENT_HISTORY_API_RESEARCH.md) | Ambient history endpoint behavior and v1 caching strategy |
 | [`SECURITY.md`](SECURITY.md) | Web auth, credential encryption, rate limiting |
 | [`PHASE_12_COMPLETION_PLAN.md`](PHASE_12_COMPLETION_PLAN.md) | Phase 12 charting, contracts, accessibility, and production hardening |
+| [`CONTEXT_COST_PLAN.md`](CONTEXT_COST_PLAN.md) | Planned: lower Claude Code session cost (project settings, per-folder `CLAUDE.md`, quiet test output) |
+| [`QUALITY_PROCESS_PLAN.md`](QUALITY_PROCESS_PLAN.md) | Planned: self-review step before review, lessons-learned file and its checks |
 | [`e2e-specs/e2e-test-flows.md`](e2e-specs/e2e-test-flows.md) | Extracted user journeys and E2E scenario plan, including Phase 12 Playwright Test TS migration |
 | [Ambient Apiary](https://ambientweather.docs.apiary.io/) | Official REST docs + helper libraries |
 | [Device Data Specs](https://github.com/ambient-weather/api-docs/wiki/Device-Data-Specs) | Full field list |
