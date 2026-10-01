@@ -45,7 +45,7 @@ frontend/src/
 ├── lib/
 │   ├── queryKeys.ts     Centralized TanStack Query key factory
 │   └── units.ts         Display unit conversion (mirrors backend logic)
-└── test/                Shared test utilities, MSW handlers
+└── test/                Shared test utilities and test data
 ```
 
 ---
@@ -130,11 +130,11 @@ Every component gets a co-located `*.test.tsx`:
 |---|---|
 | Tiles | RTL: renders value, unit, loading/error states |
 | Settings forms | RTL: validation messages; credentials never echoed back |
-| Hooks | Vitest + MSW or mock query client |
+| Hooks | Vitest + stubbed `fetch` or mock query client |
 | Layout editor | RTL: drag handler callbacks (mock react-grid-layout) |
 | Unit converters | Pure function tests in `lib/units.test.ts` |
 
-Use MSW to mock BFF responses in component tests — never call Ambient from frontend tests.
+Mock BFF responses as `frontend/CLAUDE.md`, "Frontend tests" says (MSW is not installed) — never call Ambient from frontend tests.
 
 ## Linting
 
@@ -156,13 +156,3 @@ Use MSW to mock BFF responses in component tests — never call Ambient from fro
 - Ship an interactive or dynamic element without a `data-test-id`.
 - Use dynamic values (array index, database ID, timestamp) as a `data-test-id` value.
 - Locate elements in tests by CSS class, XPath, or display text when a `data-test-id` is available.
-
----
-
-## Privacy — faker for all location data
-
-Never hardcode any address, GPS coordinate, station ID, zip code, or place name in code or tests — not even as an "example."
-- TypeScript tests: use `@faker-js/faker` — `faker.location.latitude()`, `faker.location.longitude()`, `faker.location.buildingNumber()`, `faker.location.street()`, `faker.location.city()`, `faker.location.state({ abbreviated: true })`, `faker.location.zipCode()`. State output must be real US state abbreviations (faker default).
-- When a test requires a geographically accurate address, pick a real US airport at random from a short predefined list — never hardcode a single airport every time.
-- Every test run must produce different location values. No hardcoded addresses, coordinates, or station IDs anywhere.
-- Never save any address, GPS coordinate, or station ID that a user enters.

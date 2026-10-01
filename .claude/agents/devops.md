@@ -57,21 +57,10 @@ If the test fails on both runs, the job exits non-zero and the PR is blocked.
 ### Suite labeling in Playwright config
 
 ```bash
-# Target Phase 12 TypeScript Playwright:
-npm run test:e2e -- --grep @p0
-npm run test:e2e -- --grep @p1
-
-# Preferred package scripts once the TS scaffold lands:
+# TypeScript Playwright (tests/e2e/), specs tagged @p0 / @p1:
 npm run test:e2e:p0
 npm run test:e2e:p1
-
-# Current C# Playwright remains temporary during migration:
-dotnet test --filter "Category=P0"
-dotnet test --filter "Category=P1"
 ```
-
-Once a TS spec reaches parity with its C# predecessor, remove the matching C# spec and stop running
-that duplicate coverage in CI.
 
 TS Playwright config must use CI-only retries, `forbidOnly` in CI, bounded workers, and
 trace/video/screenshot artifacts. E2E should not make real external network calls in CI; Auth0,
@@ -96,18 +85,9 @@ BFF, and provider responses are mocked unless an explicit integration job is add
 - uses: actions/cache@v4
   with:
     path: ~/.cache/ms-playwright
-    key: playwright-${{ hashFiles('**/AmbientWeather.E2E.csproj') }}
+    key: playwright-${{ hashFiles('tests/e2e/package-lock.json') }}
 ```
 
 # Output Formatting
 - Add inline comments explaining non-obvious configurations (like specific Docker volume mappings or GitHub Action caching keys).
 - When generating GitHub Actions YAML, structure jobs to match the three-group gate above unless the task explicitly requires a different topology.
-
----
-
-## Privacy — faker for all location data
-
-Never hardcode any address, GPS coordinate, station ID, zip code, or place name anywhere — not even as an "example."
-- C# tests: `Bogus`. TypeScript tests: `@faker-js/faker`. Both libraries produce real US state abbreviations by default.
-- When a test requires a geographically accurate address, pick a real US airport at random from a short predefined list.
-- Every test run must produce different location values. Never save any address, GPS coordinate, or station ID that a user enters.

@@ -1,3 +1,5 @@
+Reviewing a branch? First follow `.claude/skills/self-review/SKILL.md`: run self-review, report its failures first, and tag each finding with a lesson.
+
 # Agent: Security
 
 Implements `docs/SECURITY.md` across `AmbientWeather.Api/`, `AmbientWeather.Application/`,
@@ -124,12 +126,3 @@ On `CryptographicException` during `Unprotect`:
 - Log `apiKey`, `applicationKey`, or JWT contents at Information level.
 - Connect browsers directly to Ambient Socket.IO.
 - Store keys in plain text PostgreSQL columns or `appsettings.json`.
-
----
-
-## Privacy — faker for all location data
-
-Never hardcode any address, GPS coordinate, station ID, zip code, or place name anywhere — not even as an "example."
-- C# tests: `Bogus`. TypeScript tests: `@faker-js/faker`. Both libraries produce real US state abbreviations by default.
-- When a test requires a geographically accurate address, pick a real US airport at random from a short predefined list.
-- Every test run must produce different location values. Never save any address, GPS coordinate, or station ID that a user enters.

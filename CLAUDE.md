@@ -76,6 +76,8 @@ Rules that cross areas (detail in the area files):
 - Every interactive or data-driven element carries a stable, kebab-case `data-test-id`
   (`<area>-<element>[-<qualifier>]`), and tests locate elements by it (`frontend/CLAUDE.md`,
   `tests/e2e/CLAUDE.md`).
+- Before review agents or `/code-review`, run `npm run self-review`; log each miss a review finds in
+  `docs/LESSONS_LEARNED.md` in the same branch.
 
 ---
 

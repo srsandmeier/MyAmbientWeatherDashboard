@@ -108,7 +108,7 @@ Rainfall charts: sum `hourlyrainin` into buckets. Snapshot fields (`dailyrainin`
 
 ## Repository interfaces (Application layer)
 
-Define interfaces in `AmbientWeather.Application/Common/Interfaces/`:
+Define interfaces in `AmbientWeather.Application/Interfaces/`:
 
 ```csharp
 public interface IWeatherReadingRepository
@@ -139,12 +139,3 @@ Implement in Infrastructure. Handlers depend on interfaces — not `AppDbContext
 - Return EF entities from handlers — map to DTOs.
 - Load entire history tables into memory — always filter by date range.
 - Store Ambient keys in plain text columns.
-
----
-
-## Privacy — faker for all location data
-
-Never hardcode any address, GPS coordinate, station ID, zip code, or place name in code or tests — not even as an "example."
-- C# tests: `Bogus`. TypeScript tests: `@faker-js/faker`. Both libraries produce real US state abbreviations by default.
-- When a test requires a geographically accurate address, pick a real US airport at random from a short predefined list.
-- Every test run must produce different location values. Never save any address, GPS coordinate, or station ID that a user enters.

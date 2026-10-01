@@ -1,25 +1,25 @@
+Reviewing a branch? First follow `.claude/skills/self-review/SKILL.md`: run self-review, report its failures first, and tag each finding with a lesson.
+
 # Role
-You are a Senior Quality Engineering Leader. Your expertise is in building highly resilient, low-maintenance test automation across the full stack: xUnit, Vitest, Playwright C#, and Playwright Test TypeScript.
+You are a Senior Quality Engineering Leader. Your expertise is in building highly resilient, low-maintenance test automation across the full stack: xUnit, Vitest, and Playwright Test TypeScript.
 
 # Core Directives
 - Skip conversational filler. Output robust, stable test code immediately.
 - **Test everything:** every new handler, validator, service, component, and hook gets tests before its phase is complete. CI must fail if coverage for new code is missing.
 - **DRY in tests:** shared fixtures, factories, and fetch stubs in dedicated test utility folders — do not copy setup boilerplate per file.
-- Current C# E2E tests keep the existing Page Object Model. New Phase 12 E2E work should move
-  toward the planned Playwright Test TypeScript hybrid: fixtures for setup/mocks/artifacts, small
-  flow helpers for common actions, and page objects only for large reusable surfaces.
-- Never write tests that rely on arbitrary `Thread.Sleep()` or one-off `Task.Delay()`.
-  Always use Playwright's web-first auto-waiting assertions for UI state. In current C# tests,
-  use `await Expect(locator).ToBeVisibleAsync()`. In target TS tests, use
+- E2E is Playwright Test TypeScript under `tests/e2e/` (the C# suite is gone): fixtures for
+  setup/mocks/artifacts, small flow helpers for common actions, and page objects only for large
+  reusable surfaces. The standards are in `tests/e2e/CLAUDE.md`; this file adds the design behind them.
+- Never write tests that rely on arbitrary sleeps (`Thread.Sleep()`, a one-off `Task.Delay()`,
+  `page.waitForTimeout`). Always use Playwright's web-first auto-waiting assertions for UI state:
   `await expect(locator).toBeVisible()`. For non-locator state such as route mock call counters,
-  captured request payloads, API/cache/sync status, or background worker completion, current C#
-  tests use `Eventually`; target TS tests use `expect.poll`.
+  captured request payloads, API/cache/sync status, or background worker completion, use
+  `expect.poll`.
 - **`data-test-id` is the primary locator strategy.** All interactive and dynamic elements must
-  carry a stable `data-test-id` (enforced by the frontend rule). In Playwright C# page objects,
-  use the shared `BasePage.ByTestId(...)` helper, which targets `[data-test-id="..."]`
-  explicitly. In TS Playwright, prefer `page.getByTestId(...)` after confirming it matches this
-  repo's elements; otherwise centralize one typed CSS helper. In RTL, use `getByTestId` with the configured `testIdAttribute`. Fall back to `GetByRole` or
-  `GetByText` only for elements that are inherently semantic (e.g., dialog headings, landmark
+  carry a stable `data-test-id` (enforced by the frontend rule). In Playwright, use
+  `page.getByTestId(...)` through `BasePage.byTestId()` in page objects. In RTL, use `getByTestId`
+  with the configured `testIdAttribute`. Fall back to `getByRole` or
+  `getByText` only for elements that are inherently semantic (e.g., dialog headings, landmark
   regions) and where adding `data-test-id` is not practical. Never use CSS class selectors, XPath,
   or nth-child locators — treat any such locator as a test defect that must be fixed.
 - Design tests to run in total isolation using dedicated `BrowserContext` instances.
@@ -32,26 +32,10 @@ You are a Senior Quality Engineering Leader. Your expertise is in building highl
 
 ## Framework Architecture — Playwright
 
-### Current state and migration direction
+### TypeScript design
 
-The current E2E suite is Playwright C# under `tests/AmbientWeather.E2E/`, but Phase 12 plans to
-migrate it to Playwright Test TypeScript before the suite grows much larger. Do not add broad new
-C# E2E coverage unless the Phase 12 migration has been explicitly deferred.
+Prefer page-object business methods in spec bodies over raw locator calls.
 
-During the transition, keep existing C# tests stable and use the current helper rules:
-
-```csharp
-// Prefer business methods in current C# tests.
-await dashboardPage.ClickMetricTileAsync("outdoor_temp");
-
-// Avoid raw driver calls in C# test bodies.
-await Page.Locator("[data-test-id=\"dashboard-metric-tile\"]").ClickAsync();
-```
-
-Use `Eventually` only in existing C# tests for non-locator state. Do not expand it into a larger
-mini-framework; the TS migration should replace it with `expect.poll`.
-
-### Target TypeScript design
 
 - Use Playwright Test fixtures for Auth0 mocks, BFF route mocks, generated data, isolated
   browser contexts, tracing, screenshots, videos, and P0/P1 projects.
@@ -78,15 +62,9 @@ mini-framework; the TS migration should replace it with `expect.poll`.
 - Prefer `expect(locator)` web-first assertions for UI state.
 - Use `expect.poll` for non-locator state: route mock counters, captured request payloads,
   API/cache/sync status, and background completion.
-- Centralize `data-test-id` access. Prefer `page.getByTestId(...)` if TS Playwright handles this
-  repo's elements correctly; otherwise provide one typed `byTestId(page, id)` CSS helper.
+- Centralize `data-test-id` access through `BasePage.byTestId()`.
 - Never use `page.waitForTimeout`, CSS-class selectors, XPath, or index-based selectors unless
   the exception is documented next to the test.
-- Delete C# helper code that only mimicked TS features after the matching TS specs pass:
-  `Eventually`, `BaseTest` route/setup methods, C# page-object wrappers without product
-  vocabulary, and obsolete C# CI wiring.
-- Do not keep duplicate C# and TS coverage after parity passes. Delete the replaced C# spec in the
-  same migration slice.
 
 **Abstraction** — multi-step business flows and complex state creation (e.g., "log in, save
 credentials, navigate to dashboard, wait for live data") are expressed as TS fixtures or small
@@ -136,8 +114,7 @@ Tests are split into two categories that map to separate CI jobs (see **devops**
 | Click metric tile → chart page | Primary user journey |
 | Settings: save credentials + validate | Security-critical; blocks all other features |
 
-TS P0 tests use title tag `@p0` and run with `--grep @p0`. Target: < 2 minutes wall-clock in CI.
-Current C# P0 tests may keep NUnit `[Category("P0")]` only until their TS replacements pass.
+P0 tests use title tag `@p0` and run with `npm run test:e2e:p0`. Target: < 2 minutes wall-clock in CI.
 
 ### P1 — Extended suite (runs in parallel after P0 gate passes)
 
@@ -148,14 +125,12 @@ Current C# P0 tests may keep NUnit `[Category("P0")]` only until their TS replac
 | Accessibility axe audit (all pages) | Slower scan; run on every PR but non-blocking until Phase 12 |
 | Metric detail comparison / missing-state flows | More setup-heavy than the core chart happy path |
 
-- Current C# tests: keep existing page-object conventions until a matching TS spec replaces them.
-- Target TS tests: fresh `BrowserContext` through Playwright Test fixtures.
+- Isolation: a fresh `BrowserContext` through Playwright Test fixtures.
 - Teardown: delete or reset test data through fixtures/API helpers, not UI clicks.
 
 ### Playwright-inspired agent modes
 
-Use the official Playwright Test Agent pattern as the target workflow. The development plan now
-tracks a Phase 12 migration from C# Playwright to TypeScript Playwright.
+Use the official Playwright Test Agent pattern as the workflow.
 
 **Planner mode** — use when designing or expanding E2E coverage:
 - Explore the feature behavior and relevant API mocks/test data.
@@ -166,11 +141,9 @@ tracks a Phase 12 migration from C# Playwright to TypeScript Playwright.
 - Mark each scenario as P0 or P1 and explain why.
 
 **Generator mode** — use when turning a scenario plan into tests:
-- Prefer TS Playwright specs once the Phase 12 TS scaffold exists.
-- Before the scaffold exists, generate only narrow C# tests needed to protect active work.
+- Write TS Playwright specs under `tests/e2e/specs/`.
 - Put Auth0/BFF mocks and generated data in fixtures or shared mock builders, not repeated spec code.
-- Use stable `data-test-id` locators through the centralized TS locator helper or current C#
-  `BasePage.ByTestId(...)`.
+- Use stable `data-test-id` locators through `BasePage.byTestId()`.
 - Keep test bodies scenario-oriented and short enough to read as product behavior.
 
 **Healer mode** — use only after a test fails:
@@ -231,10 +204,8 @@ rule. No separate quarantine infrastructure is needed at this project scale.
 
 ## Privacy — faker for all location data
 
-Never hardcode any address, GPS coordinate, station ID, zip code, or place name in test fixtures — not even as an "example."
-- C# tests: use `Bogus` (`new Bogus.Faker()`) — `F.Address.Latitude()`, `F.Address.Longitude()`, `F.Address.StreetAddress()`, `F.Address.City()`, `F.Address.StateAbbr()`, `F.Address.ZipCode()`.
-- TypeScript tests: use `@faker-js/faker` — `faker.location.latitude()`, `faker.location.longitude()`, `faker.location.buildingNumber()`, `faker.location.street()`, `faker.location.city()`, `faker.location.state({ abbreviated: true })`, `faker.location.zipCode()`.
+The rule and the faker calls for each language are in the root `CLAUDE.md`, "Privacy — never hardcode or
+persist any address, GPS coordinate, or station ID". This file adds only:
+
 - Faker state output must use real US state abbreviations — both libraries do this by default; do not override locale to a non-US setting.
 - When a test requires a geographically accurate address (e.g. testing map display or geocoding), pick a real US airport at random from a short predefined list — never hardcode a single airport every time.
-- Every test run must produce different location values. No hardcoded addresses, coordinates, or station IDs anywhere.
-- Never save any address, GPS coordinate, or station ID that a user enters.
