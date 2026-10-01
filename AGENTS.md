@@ -45,8 +45,9 @@ cd frontend && npx vitest run src/path/to/Component.test.tsx  # single file
 npm run lint          # CLAUDE.md split check + backend + frontend lint
 npm test              # backend + frontend + repo-script tests
 npm run test:quiet    # the same suites: totals only, failing tests named; full logs in test-results/
+npm run pre-pr        # before a PR: self-review + lint + those suites + E2E P0, same summary file
 
-# E2E (requires app running)
+# E2E (Playwright starts Vite on 5173 if it is not running; no backend)
 npm run test:e2e      # Playwright TypeScript tests
 npm run test:e2e:p0   # P0 Playwright TypeScript tests only
 npm run test:e2e:p1   # P1 Playwright TypeScript tests only

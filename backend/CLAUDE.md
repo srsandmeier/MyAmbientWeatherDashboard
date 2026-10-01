@@ -1,7 +1,7 @@
 # Backend rules
 
 Loaded when Claude works on files under `backend/`. Repo-wide rules (privacy, licences, secrets,
-phase closeout, shell safety, test tooling, commit format) are in the root `CLAUDE.md`.
+shell safety, commit format) are in the root `CLAUDE.md`; phase closeout steps are in `docs/CLAUDE.md`.
 
 ---
 
@@ -82,6 +82,10 @@ See the **realtime** agent for connection lifecycle, backoff, and teardown detai
 Multiple users can each configure the same physical MAC address — the routing table fans out to all of them. One user owning multiple API/application key pairs simultaneously is out of scope for v1.
 
 ### Backend tests
+Tools: handlers and validators use xUnit + Shouldly (+ `WebApplicationFactory` for integration); services and workers use xUnit + Moq or Testcontainers; the API contract is the OpenAPI snapshot ↔ TypeScript types; lint is the .NET SDK analyzers + Meziantou.Analyzer + Roslynator.Analyzers.
+
+Location fields in fixtures come from `Bogus` (`new Bogus.Faker()`): `F.Address.Latitude()`, `F.Address.Longitude()`, `F.Address.StreetAddress()`, `F.Address.City()`, `F.Address.StateAbbr()`, `F.Address.ZipCode()` (root `CLAUDE.md`, "Privacy").
+
 **xUnit test method naming — no underscores (CA1707 is enforced).** Use PascalCase: `FormatCloudLayersWithNullInputReturnsNull`, not `FormatCloudLayers_NullInput_ReturnsNull`. This applies to both `[Fact]` and `[Theory]` methods.
 
 Integration test factories (`WebApplicationFactory` subclasses like `MetricsTestFactory`, `DashboardTestFactory`) mock individual services via `ConfigureTestServices`. When a handler gains a new injected dependency (e.g. `IUserPreferencesStore`), the corresponding test factory must also register a mock for it — otherwise the handler resolves from the real DI graph, hits a missing DB, and returns 500 instead of the expected status.

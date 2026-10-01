@@ -6,5 +6,5 @@
   { "task": "add an EF migration", "read": "backend/src/AmbientWeather.Infrastructure/Migrations/20260529055719_InitialCreate.cs", "loads": ["CLAUDE.md", "backend/CLAUDE.md"] },
   { "task": "write a backend integration test", "read": "backend/tests/AmbientWeather.IntegrationTests/AlertsApiTests.cs", "loads": ["CLAUDE.md", "backend/CLAUDE.md"] },
   { "task": "edit a repo script", "read": "scripts/test-all.mjs", "loads": ["CLAUDE.md"] },
-  { "task": "edit a doc", "read": "docs/SECURITY.md", "loads": ["CLAUDE.md"] }
+  { "task": "edit a doc", "read": "docs/SECURITY.md", "loads": ["CLAUDE.md", "docs/CLAUDE.md"] }
 ]
