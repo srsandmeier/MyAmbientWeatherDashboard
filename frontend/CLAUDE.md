@@ -7,6 +7,24 @@ adding or changing a function in `src/api/` or a type in `src/types/`.
 
 ---
 
+## Commands
+
+Run from the repo root unless noted. Commands for all stacks (`npm run lint`, `test:quiet`, `start:all`)
+are in the root `CLAUDE.md`.
+
+```bash
+# Frontend (http://localhost:5173 — proxies /api and /hubs to backend)
+npm run dev           # Vite dev server
+npm run build         # tsc type-check + Vite production build
+npm run lint:frontend # ESLint (zero warnings)
+npm run test:frontend # Vitest run (all)
+cd frontend && npx vitest run src/path/to/Component.test.tsx  # single file
+cd frontend && npm run lint:fix  # ESLint auto-fix (not enforced in CI)
+cd frontend && npx vitest  # Vitest watch mode for TDD
+```
+
+---
+
 ## Rules
 
 ### Frontend architecture

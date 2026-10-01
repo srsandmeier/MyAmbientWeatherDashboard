@@ -83,6 +83,12 @@ jobs:
         working-directory: frontend
         run: npm run lint
 
+      - name: Check CLAUDE.md Split
+        run: node scripts/check-claude-md.mjs
+
+      - name: Test Repo Scripts
+        run: npm run test:scripts
+
       - name: Run Frontend Tests
         working-directory: frontend
         run: npm test

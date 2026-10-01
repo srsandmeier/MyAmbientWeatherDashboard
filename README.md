@@ -68,7 +68,7 @@ API contract, and phased execution plan.
 | [`docs/SECURITY.md`](docs/SECURITY.md) | Authentication, credential encryption, rate limiting |
 | [`docs/ACCESSIBILITY.md`](docs/ACCESSIBILITY.md) | WCAG 2.2 AA target, current coverage, and known limitations |
 | [`docs/PHASE_12_COMPLETION_PLAN.md`](docs/PHASE_12_COMPLETION_PLAN.md) | Metric detail charts, contracts, accessibility, and production hardening |
-| [`docs/CONTEXT_COST_PLAN.md`](docs/CONTEXT_COST_PLAN.md) | Planned: lower Claude Code session cost (project settings, per-folder `CLAUDE.md`, quiet test output) |
+| [`docs/CONTEXT_COST_PLAN.md`](docs/CONTEXT_COST_PLAN.md) | Lower Claude Code session cost: project settings and hooks, per-folder `CLAUDE.md` and its check, quiet test output |
 | [`docs/QUALITY_PROCESS_PLAN.md`](docs/QUALITY_PROCESS_PLAN.md) | Planned: self-review step before review, lessons-learned file and its checks |
 | [`docs/e2e-specs/e2e-test-flows.md`](docs/e2e-specs/e2e-test-flows.md) | Extracted user journeys and E2E scenario plan across dashboard, settings, layouts, neighbors, public sources, alerts, and charts |
 | [`docs/AMBIENT_HISTORY_API_RESEARCH.md`](docs/AMBIENT_HISTORY_API_RESEARCH.md) | Research notes on Ambient REST history API pagination and caching |
@@ -94,7 +94,7 @@ Archived phase closeouts remain public build-history artifacts under `docs/archi
 
 This repository intentionally keeps its agent guidance and improvement-planning files public
 (`AGENTS.md`, `CLAUDE.md` and the per-folder `CLAUDE.md` files under `backend/`, `frontend/` and
-`tests/e2e/`, `.claude/agents/*`, `.cursorrules`, and
+`tests/e2e/`, `.claude/agents/*`, `.claude/settings.json` and its hooks under `scripts/hooks/`, `.cursorrules`, and
 `docs/archive/plans/CODEBASE_IMPROVEMENT_PLAN.md`) to show how the project was designed, reviewed, and built.
 These files should not contain secrets; public-release readiness includes a final scan of them.
 
@@ -186,10 +186,13 @@ npm run dev            # Vite dev server — frontend on http://localhost:5173
 npm run db:update                   # apply EF Core migrations to local Postgres
 npm run db:migrate -- <Name>        # add a new migration (e.g. npm run db:migrate -- AddUserTable)
 
-npm run lint           # backend dotnet format + frontend ESLint
+npm run lint           # CLAUDE.md split check + backend dotnet format + frontend ESLint
+npm run lint:claude-md # per-folder CLAUDE.md sizes, area table and rule headings only
 npm run lint:backend   # dotnet format whitespace only
 npm run lint:frontend  # ESLint only
-npm test               # backend + frontend tests; prints a pass/fail summary (both always run)
+npm test               # backend + frontend + repo-script tests; prints a pass/fail summary (all always run)
+npm run test:quiet     # same suites; prints totals and failing tests only, full logs in test-results/
+npm run test:scripts   # node --test for scripts/ (hooks, test summary) only
 npm run test:backend   # dotnet test only
 npm run test:frontend  # Vitest only
 npm run test:contract  # OpenAPI snapshot/TypeScript contract tests

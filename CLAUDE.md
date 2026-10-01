@@ -37,32 +37,16 @@ npm install --prefix tests/e2e           # install TS Playwright dependencies
 # Unified dev start (concurrently: api:watch + Vite frontend)
 npm run start:all
 
-# Backend
-npm run api           # dotnet run — http://localhost:5080
-npm run api:watch     # dotnet watch — hot reload
-npm run lint:backend  # dotnet format whitespace (verify no changes)
-npm run test:backend  # dotnet test all backend projects (Release)
+# All stacks
+npm run lint          # CLAUDE.md split check + backend + frontend lint
+npm run test:quiet    # backend + frontend + script tests: totals only, failing tests named (use in sessions)
+npm test              # the same suites with full output
 
-# Run a single backend test class or method
-dotnet test backend/AmbientWeather.slnx -c Release --filter "FullyQualifiedName~ClassName"
-
-# Frontend (http://localhost:5173 — proxies /api and /hubs to backend)
-npm run dev           # Vite dev server
-npm run build         # tsc type-check + Vite production build
-npm run lint:frontend # ESLint (zero warnings)
-npm run test:frontend # Vitest run (all)
-cd frontend && npx vitest run src/path/to/Component.test.tsx  # single file
-
-# Both stacks
-npm run lint          # backend + frontend lint
-npm test              # backend + frontend tests
-
+# One stack (run, lint, test, single test): backend/CLAUDE.md and frontend/CLAUDE.md, "Commands"
 # E2E: npm run test:e2e (needs the Vite dev server on 5173, not the backend) — details in tests/e2e/CLAUDE.md
 # Database migrations: npm run db:update · npm run db:migrate -- AddMigrationName — details in backend/CLAUDE.md
 
 # Utilities
-npm run lint:fix      # ESLint auto-fix (frontend only; not enforced in CI)
-cd frontend && npx vitest  # Vitest watch mode for TDD
 npm run kill          # Kill background dotnet/node processes (Windows; useful after crashes)
 ```
 
@@ -81,6 +65,10 @@ nothing when the work is elsewhere. Read the file for an area before changing it
 | `backend/src/AmbientWeather.Api/` | Controllers, middleware, logging, telemetry | `backend/src/AmbientWeather.Api/CLAUDE.md` — BFF route table, Swagger and health endpoints |
 | `frontend/src/` | api · components · hooks · lib · pages · telemetry · types | `frontend/CLAUDE.md` — frontend architecture, frontend test rules, folder map |
 | `tests/e2e/` | Playwright TS — playwright.config.ts, fixtures/, pages/, specs/ | `tests/e2e/CLAUDE.md` — Playwright standards, E2E commands and prerequisites |
+
+`npm run lint:claude-md` keeps this table, the files and their sizes (14 KB each) in step. A new
+folder `CLAUDE.md` needs a row here; a rule heading (`###`) lives in one file only. After changing which
+files exist, run the live check: `node scripts/check-instructions-loading.mjs --all` (Haiku calls).
 
 Rules that cross areas (detail in the area files):
 - Browsers must **not** connect directly to Ambient Socket.IO; live data reaches the browser only
@@ -166,7 +154,7 @@ incident). Use the `Edit` tool with `replace_all: true` for bulk in-place substi
 
 **On Windows, use `python` not `python3`** — the `python3` command is intercepted by a Windows
 app execution alias that redirects to the Microsoft Store instead of the installed interpreter.
-A `PreToolUse` hook in `~/.claude/settings.json` blocks this automatically.
+A `PreToolUse` hook in `.claude/settings.json` blocks both (`scripts/hooks/block-unsafe-shell.mjs`).
 
 **PowerShell via Bash — always use single quotes around the `-Command` argument:**
 ```bash
@@ -176,6 +164,23 @@ Double-quoted `-Command` strings cause Bash to expand `$null` (and any other `$v
 PowerShell sees them, producing quoting errors. Single quotes prevent Bash expansion entirely.
 If a PowerShell string literal inside the command itself needs single quotes, escape the dollar
 sign instead: `"... 2>\$null ..."`, but prefer the single-quote outer form.
+
+### Keep context lean
+Same checks, less usage: most session cost is reading and printing.
+- **Never print long output.** Run `npm run test:quiet` and read `test-results/summary.txt`; send build
+  and migration logs to a file. In long-line files (`docs/openapi.json`, lock files) search for counts
+  or match-only first. `.claude/settings.json` caps inline command output at 10,000 characters.
+- **Read in ranges.** Outline first (`grep -n "^## "` for `docs/DEVELOPMENT_PLAN.md`; class and method
+  lines for large source files), then read only the part needed.
+- **No edit retry loops.** Use the Edit tool for anything with backslashes; a scripted edit asserts its
+  search string is found exactly once.
+- **Git Bash rewrites path-like arguments.** Prefix `MSYS_NO_PATHCONV=1` when an argument is not a
+  path (`git show origin/main:path`, `/api/health`).
+- **Before a rebase, pull or force-push** a hook reports whether the branch is on `origin` and has a
+  PR. After rebasing a pushed branch, `git push --force-with-lease`; never pull.
+- **Settings:** read and edit `.claude/settings.json` directly.
+- **One session per branch.** After each PR, update the status in `docs/DEVELOPMENT_PLAN.md`, then
+  `/clear`. Stop at 80% context usage rather than chaining into the next task.
 
 ### Test everything
 Every component, hook, handler, validator, and service gets tests before its phase is complete.

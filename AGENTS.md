@@ -42,8 +42,9 @@ npm run test:frontend # Vitest run (all)
 cd frontend && npx vitest run src/path/to/Component.test.tsx  # single file
 
 # Both stacks
-npm run lint          # backend + frontend lint
-npm test              # backend + frontend tests
+npm run lint          # CLAUDE.md split check + backend + frontend lint
+npm test              # backend + frontend + repo-script tests
+npm run test:quiet    # the same suites: totals only, failing tests named; full logs in test-results/
 
 # E2E (requires app running)
 npm run test:e2e      # Playwright TypeScript tests
