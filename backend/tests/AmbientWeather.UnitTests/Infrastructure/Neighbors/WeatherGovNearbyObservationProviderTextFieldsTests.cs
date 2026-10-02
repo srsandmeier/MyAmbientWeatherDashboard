@@ -2,6 +2,7 @@ using System.Net;
 using System.Text;
 using AmbientWeather.Domain.Neighbors;
 using AmbientWeather.Infrastructure.Neighbors;
+using AmbientWeather.UnitTests.TestData;
 using Microsoft.Extensions.Logging.Abstractions;
 using Shouldly;
 using Xunit;
@@ -18,18 +19,19 @@ public sealed class WeatherGovNearbyObservationProviderTextFieldsTests
     [Fact]
     public async Task TextFieldsAreMappedFromNwsObservation()
     {
+        var rawMessage = $"{WeatherTestData.Airport().Icao} 091753Z 18015G20KT 10SM -RA BR OVC020 22/14 A2992 RMK AO2";
         var stations = await DiscoverAsync(
             cloudLayersJson: """[{"coverage":"overcast","baseHeight":{"value":609}}]""",
             presentWeatherJson: """[{"rawString":"Light Rain"},{"rawString":"Mist"}]""",
             textDescription: "Overcast with light rain and mist.",
-            rawMessage: "KORD 091753Z 18015G20KT 10SM -RA BR OVC020 22/14 A2992 RMK AO2");
+            rawMessage: rawMessage);
 
         stations.Count.ShouldBe(1);
         // cloud layer: OVC @ 609m × 3.28084 ≈ 1998ft → rounded to 2,000
         stations[0].SkyConditions.ShouldBe("OVC @ 2,000ft");
         stations[0].PresentWeather.ShouldBe("Light Rain, Mist");
         stations[0].TextDescription.ShouldBe("Overcast with light rain and mist.");
-        stations[0].RawMetar.ShouldBe("KORD 091753Z 18015G20KT 10SM -RA BR OVC020 22/14 A2992 RMK AO2");
+        stations[0].RawMetar.ShouldBe(rawMessage);
     }
 
     [Fact]
@@ -75,6 +77,9 @@ public sealed class WeatherGovNearbyObservationProviderTextFieldsTests
             $"\"textDescription\":{textDescJson}," +
             $"\"rawMessage\":{rawMsgJson}" +
             "}}";
+        var latitude = WeatherTestData.Latitude();
+        var longitude = WeatherTestData.Longitude();
+        var airport = WeatherTestData.Airport();
 
         var handler = new StubHttpMessageHandler(request =>
         {
@@ -82,7 +87,7 @@ public sealed class WeatherGovNearbyObservationProviderTextFieldsTests
             if (url.StartsWith("/points/", StringComparison.Ordinal))
                 return Ok("""{"properties":{"observationStations":"https://api.weather.gov/stations"}}""");
             if (url.Contains("/stations", StringComparison.Ordinal) && !url.Contains("/observations", StringComparison.Ordinal))
-                return Ok("""{"features":[{"geometry":{"coordinates":[-90.0,40.0]},"properties":{"stationIdentifier":"KORD","name":"Chicago OHare"}}]}""");
+                return Ok($$$"""{"features":[{"geometry":{"coordinates":[{{{WeatherTestData.Coordinate(longitude)}}},{{{WeatherTestData.Coordinate(latitude)}}}]},"properties":{"stationIdentifier":"{{{airport.Icao}}}","name":"{{{airport.Name}}}"}}]}""");
             if (url.Contains("/observations/latest", StringComparison.Ordinal))
                 return Ok(obsJson);
             return new HttpResponseMessage(HttpStatusCode.NotFound);
@@ -99,8 +104,8 @@ public sealed class WeatherGovNearbyObservationProviderTextFieldsTests
         return await provider.DiscoverAsync(new NeighborConfig
         {
             IsEnabled = true,
-            UserLatitude = 40.0,
-            UserLongitude = -90.0,
+            UserLatitude = latitude,
+            UserLongitude = longitude,
             RadiusMiles = 25,
             MaxAgeMinutes = 60,
             MinStations = 1,

@@ -4,7 +4,7 @@ import { MemoryRouter } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
 import { CustomDashboardRenderer } from './CustomDashboardRenderer';
 import type { UseDashboardCurrentResult } from '../../hooks/useDashboardCurrent';
-import { testDeviceId, testDeviceIdColon, testDeviceName, testDeviceTz } from '../../test/weatherTestData';
+import { testAirport, testDeviceId, testDeviceIdColon, testDeviceName, testDeviceTz } from '../../test/weatherTestData';
 import type { CustomLayoutItem } from '../../types/customLayout';
 import type { CurrentReadingDto } from '../../types/dashboard';
 import type { SettingsDeviceDto, UserPreferencesDto } from '../../types/settings';
@@ -240,7 +240,7 @@ describe('CustomDashboardRenderer — metric block rows', () => {
   });
 
   it('uses pinned-station readings ahead of public-source readings for pinned metric refs', () => {
-    const pinnedId = 'pinned:WeatherGov:KGEN';
+    const pinnedId = `pinned:WeatherGov:${testAirport.icao}`;
     const pinnedReading: CurrentReadingDto = {
       ...READING,
       deviceId: pinnedId,
@@ -782,7 +782,7 @@ describe('CustomDashboardRenderer — ticker channel reading', () => {
   });
 
   it('uses pinned station reading when channelStationId matches a pinned key', () => {
-    const pinnedId = 'pinned:WeatherGov:KGEN';
+    const pinnedId = `pinned:WeatherGov:${testAirport.icao}`;
     const pinnedReadings = new Map([[pinnedId, CHANNEL_READING]]);
 
     render(

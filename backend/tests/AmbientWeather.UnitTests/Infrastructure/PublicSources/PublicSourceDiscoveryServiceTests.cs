@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using AmbientWeather.Infrastructure.Neighbors;
 using AmbientWeather.Infrastructure.Services;
+using AmbientWeather.UnitTests.TestData;
 using Bogus;
 using Microsoft.Extensions.Logging.Abstractions;
 using Shouldly;
@@ -19,7 +20,7 @@ public sealed class PublicSourceDiscoveryServiceTests
     {
         var latitude = F.Address.Latitude(min: 25, max: 49);
         var longitude = F.Address.Longitude(min: -124, max: -67);
-        var locationName = $"{F.Address.City()}, {F.Address.StateAbbr()}";
+        var locationName = WeatherTestData.Airport().CityState;
         var timezone = "Etc/GMT+6";
         var handler = new CapturingHttpMessageHandler(request =>
         {
@@ -78,7 +79,7 @@ public sealed class PublicSourceDiscoveryServiceTests
         var cityLongitude = F.Address.Longitude(min: -124, max: -67);
         var countyLatitude = cityLatitude + 0.1;
         var countyLongitude = cityLongitude - 0.1;
-        var cityName = $"Generated City {F.Random.AlphaNumeric(4)}, Generated State, United States";
+        var cityName = $"{WeatherTestData.Airport().CityState}, United States";
         var countyName = $"Generated County {F.Random.AlphaNumeric(4)}, Generated State, United States";
         var handler = CreateMultiPlaceDiscoveryHandler(
             cityLatitude,

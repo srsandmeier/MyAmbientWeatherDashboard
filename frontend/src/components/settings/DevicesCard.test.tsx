@@ -10,6 +10,7 @@ import * as dashboardApi from '../../api/dashboard';
 import * as publicSourcesApi from '../../api/publicSources';
 import * as neighborsApi from '../../api/neighbors';
 import {
+  testAirportCityState,
   testDeviceId,
   testDeviceName,
   testDeviceRowId,
@@ -708,12 +709,12 @@ describe('DevicesCard', () => {
     renderCard();
 
     const alertLocation = await screen.findByTestId('settings-weather-alerts-location-input');
-    fireEvent.change(alertLocation, { target: { value: 'Austin, TX' } });
+    fireEvent.change(alertLocation, { target: { value: testAirportCityState } });
     fireEvent.blur(alertLocation);
 
     await waitFor(() => {
       expect(neighborsApi.putNeighborsConfig).toHaveBeenCalledWith(
-        expect.objectContaining({ municipality: 'Austin, TX' }),
+        expect.objectContaining({ municipality: testAirportCityState }),
         'mock-token',
       );
     });

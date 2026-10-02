@@ -3,10 +3,11 @@ import { MemoryRouter } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
 import { PinnedStationTileGroup } from './PinnedStationTileGroup';
 import { DEFAULT_USER_PREFERENCES } from '../../lib/defaultPreferences';
+import { testAirport } from '../../test/weatherTestData';
 import type { CurrentReadingDto } from '../../types/dashboard';
 
 const mockReading: CurrentReadingDto = {
-  deviceId: 'WeatherGov:KGEN',
+  deviceId: `WeatherGov:${testAirport.icao}`,
   deviceName: 'Generated pinned station',
   timestampUtc: '2026-06-09T12:00:00Z',
   receivedAtUtc: '2026-06-09T12:00:01Z',
@@ -32,7 +33,7 @@ const mockReading: CurrentReadingDto = {
   nwsSkyConditions: 'FEW @ 1,800ft',
   nwsPresentWeather: 'Light rain',
   nwsTextDescription: 'Generated weather description.',
-  nwsRawMetar: 'KGEN 091200Z 18008KT 10SM -RA FEW018',
+  nwsRawMetar: `${testAirport.icao} 091200Z 18008KT 10SM -RA FEW018`,
   hourlyRainIn: null,
   eventRainIn: null,
   dailyRainIn: null,
@@ -65,7 +66,7 @@ describe('PinnedStationTileGroup', () => {
         <PinnedStationTileGroup
           pin={{
             provider: 'WeatherGov',
-            sourceId: 'KGEN',
+            sourceId: testAirport.icao,
             displayLabel: 'Generated pinned station',
             selectedMetricKeys: ['outdoor_temp', 'nws_sky_conditions'],
           }}
@@ -86,7 +87,7 @@ describe('PinnedStationTileGroup', () => {
         <PinnedStationTileGroup
           pin={{
             provider: 'WeatherGov',
-            sourceId: 'KGEN',
+            sourceId: testAirport.icao,
             displayLabel: 'Generated pinned station',
             selectedMetricKeys: ['outdoor_temp'],
           }}
@@ -119,7 +120,7 @@ describe('PinnedStationTileGroup', () => {
         <PinnedStationTileGroup
           pin={{
             provider: 'WeatherGov',
-            sourceId: 'KGEN',
+            sourceId: testAirport.icao,
             displayLabel: 'Generated pinned station',
             selectedMetricKeys: [],
           }}

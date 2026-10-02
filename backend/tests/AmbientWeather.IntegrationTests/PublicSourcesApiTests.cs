@@ -75,13 +75,14 @@ public sealed class PublicSourcesApiTests : IClassFixture<PublicSourcesTestFacto
     [Fact]
     public async Task DiscoverShouldReturn200WithListFromService()
     {
+        var airport = WeatherTestData.Airport();
         var discovered = new List<DiscoveredPublicSourceDto>
         {
             new()
             {
                 Provider = "WeatherGov",
-                SourceId = $"KGEN{F.Random.AlphaNumeric(3).ToUpperInvariant()}",
-                DisplayLabel = $"Generated Station {F.Random.AlphaNumeric(4)}",
+                SourceId = airport.Icao,
+                DisplayLabel = airport.Name,
                 Latitude = F.Address.Latitude(),
                 Longitude = F.Address.Longitude(),
                 Timezone = null,
@@ -92,7 +93,7 @@ public sealed class PublicSourcesApiTests : IClassFixture<PublicSourcesTestFacto
             .ReturnsAsync(discovered);
 
         using var client = _factory.CreateAuthenticatedClient(UserASubject);
-        var response = await client.GetAsync("/api/public-sources/discover?q=Generated+City+ST");
+        var response = await client.GetAsync($"/api/public-sources/discover?q={Uri.EscapeDataString(airport.CityState)}");
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         var list = await response.Content.ReadFromJsonAsync<List<DiscoveredPublicSourceDto>>();

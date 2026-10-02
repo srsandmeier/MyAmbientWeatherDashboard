@@ -140,8 +140,10 @@ public sealed class NeighborsRefreshApiTests : IClassFixture<NeighborsRefreshTes
     [Fact]
     public async Task RefreshShouldUseDiscoveryLocationWhenOwnedStationCoordinatesAreMissing()
     {
-        var query = $"Generated City {F.Random.AlphaNumeric(4)}, KS";
+        var query = WeatherTestData.Airport().CityState;
         var displayName = $"{query}, United States";
+        var latitude = WeatherTestData.Latitude();
+        var longitude = WeatherTestData.Longitude();
         _factory.PrefStoreMock
             .Setup(s => s.GetOrCreateAsync(UserSubject, It.IsAny<string?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new UserPreferences
@@ -156,7 +158,7 @@ public sealed class NeighborsRefreshApiTests : IClassFixture<NeighborsRefreshTes
 
         _factory.GeocodingServiceMock
             .Setup(g => g.GeocodeAsync(query, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GeocodedLocation(39.0483, -95.6780, displayName));
+            .ReturnsAsync(new GeocodedLocation(latitude, longitude, displayName));
 
         NeighborConfig? discoveredWithConfig = null;
         _factory.DiscoveryServiceMock
@@ -173,15 +175,17 @@ public sealed class NeighborsRefreshApiTests : IClassFixture<NeighborsRefreshTes
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         discoveredWithConfig.ShouldNotBeNull();
-        discoveredWithConfig.UserLatitude.ShouldBe(39.0483);
-        discoveredWithConfig.UserLongitude.ShouldBe(-95.6780);
+        discoveredWithConfig.UserLatitude.ShouldBe(latitude);
+        discoveredWithConfig.UserLongitude.ShouldBe(longitude);
         discoveredWithConfig.UserLocationLabel.ShouldBe(displayName);
     }
 
     [Fact]
     public async Task RefreshShouldPreferOwnedStationCoordinatesOverDiscoveryLocationQuery()
     {
-        var query = $"Generated Area {F.Random.AlphaNumeric(4)}, KS";
+        var query = WeatherTestData.Airport().CityState;
+        var latitude = WeatherTestData.Latitude();
+        var longitude = WeatherTestData.Longitude();
         _factory.PrefStoreMock
             .Setup(s => s.GetOrCreateAsync(UserSubject, It.IsAny<string?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new UserPreferences
@@ -196,8 +200,8 @@ public sealed class NeighborsRefreshApiTests : IClassFixture<NeighborsRefreshTes
             {
                 MacAddress = WeatherTestData.Mac,
                 Name = "Owned Station",
-                Latitude = 41.0000,
-                Longitude = -101.0000,
+                Latitude = latitude,
+                Longitude = longitude,
             });
 
         _factory.CredentialStoreMock
@@ -221,8 +225,8 @@ public sealed class NeighborsRefreshApiTests : IClassFixture<NeighborsRefreshTes
         discoveredWithConfig.ShouldNotBeNull();
         // GPS coords from the owned station take priority over the text discovery query,
         // matching the same priority used by GetNeighborCurrentReadingQueryHandler.
-        discoveredWithConfig.UserLatitude.ShouldBe(41.0000);
-        discoveredWithConfig.UserLongitude.ShouldBe(-101.0000);
+        discoveredWithConfig.UserLatitude.ShouldBe(latitude);
+        discoveredWithConfig.UserLongitude.ShouldBe(longitude);
     }
 
     [Fact]

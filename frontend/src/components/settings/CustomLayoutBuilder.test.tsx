@@ -3,6 +3,7 @@ import { axe } from 'jest-axe';
 import { describe, expect, it, vi } from 'vitest';
 import { CustomLayoutBuilder } from './CustomLayoutBuilder';
 import {
+  testAirport,
   testDeviceIdColon,
   testDeviceName,
   testOtherDeviceIdColon,
@@ -550,7 +551,7 @@ describe('CustomLayoutBuilder — disconnected metric sources', () => {
     },
   ];
   const PINNED_STATION: SettingsDeviceDto = {
-    macAddress: 'pinned:WeatherGov:KGEN',
+    macAddress: `pinned:WeatherGov:${testAirport.icao}`,
     name: '(Pinned) Generated pinned station',
     nickname: null,
     isPrimary: false,
@@ -564,7 +565,7 @@ describe('CustomLayoutBuilder — disconnected metric sources', () => {
     lastSyncAtUtc: null,
     sourceKind: 'pinned',
     provider: 'WeatherGov',
-    sourceId: 'KGEN',
+    sourceId: testAirport.icao,
   };
 
   it('warns for saved metrics whose source is no longer available', () => {
@@ -660,7 +661,7 @@ describe('CustomLayoutBuilder — disconnected metric sources', () => {
         displayMode: 'rows',
         metrics: [
           {
-            stationId: 'pinned:weathergov:kgen',
+            stationId: `pinned:weathergov:${testAirport.icao.toLowerCase()}`,
             metricKey: 'outdoor_temp',
             labelOverride: null,
           },
@@ -792,7 +793,7 @@ describe('CustomLayoutBuilder — save payload', () => {
 
 describe('CustomLayoutBuilder — pinned station metric picker', () => {
   const PINNED_STATION: SettingsDeviceDto = {
-    macAddress: 'pinned:WeatherGov:KGEN',
+    macAddress: `pinned:WeatherGov:${testAirport.icao}`,
     name: '(Pinned) Generated pinned station',
     nickname: null,
     isPrimary: false,
@@ -806,7 +807,7 @@ describe('CustomLayoutBuilder — pinned station metric picker', () => {
     lastSyncAtUtc: null,
     sourceKind: 'pinned',
     provider: 'WeatherGov',
-    sourceId: 'KGEN',
+    sourceId: testAirport.icao,
   };
 
   it('shows pinned station in the station picker dropdown', () => {
