@@ -2,6 +2,7 @@ using System.Net;
 using System.Text;
 using AmbientWeather.Domain.Neighbors;
 using AmbientWeather.Infrastructure.Neighbors;
+using AmbientWeather.UnitTests.TestData;
 using Microsoft.Extensions.Logging.Abstractions;
 using Shouldly;
 using Xunit;
@@ -70,6 +71,9 @@ public sealed class WeatherGovNearbyObservationProviderDailyExtremesTests
             "\"maxTemperatureLast24Hours\":" + highJson + "," +
             "\"minTemperatureLast24Hours\":" + lowJson +
             "}}";
+        var latitude = WeatherTestData.Latitude();
+        var longitude = WeatherTestData.Longitude();
+        var airport = WeatherTestData.Airport();
 
         var handler = new StubHttpMessageHandler(request =>
         {
@@ -79,7 +83,7 @@ public sealed class WeatherGovNearbyObservationProviderDailyExtremesTests
                 return Json("""{"properties":{"observationStations":"https://api.weather.gov/stations"}}""");
 
             if (url.Contains("/stations", StringComparison.Ordinal) && !url.Contains("/observations", StringComparison.Ordinal))
-                return Json("""{"features":[{"geometry":{"coordinates":[-90.0,40.0]},"properties":{"stationIdentifier":"KORD","name":"Chicago OHare"}}]}""");
+                return Json($$$"""{"features":[{"geometry":{"coordinates":[{{{WeatherTestData.Coordinate(longitude)}}},{{{WeatherTestData.Coordinate(latitude)}}}]},"properties":{"stationIdentifier":"{{{airport.Icao}}}","name":"{{{airport.Name}}}"}}]}""");
 
             if (url.Contains("/observations/latest", StringComparison.Ordinal))
                 return Json(obsJson);
@@ -99,8 +103,8 @@ public sealed class WeatherGovNearbyObservationProviderDailyExtremesTests
         var config = new NeighborConfig
         {
             IsEnabled = true,
-            UserLatitude = 40.0,
-            UserLongitude = -90.0,
+            UserLatitude = latitude,
+            UserLongitude = longitude,
             RadiusMiles = 25,
             MaxAgeMinutes = 60,
             MinStations = 1,

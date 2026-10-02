@@ -61,7 +61,7 @@ public sealed record NeighborConfig
     public string? DiscoveryLocationQuery { get; init; }
 
     /// <summary>
-    /// Optional municipality or location used to fetch public weather alerts (e.g. "Dallas, TX").
+    /// Optional municipality or location used to fetch public weather alerts (e.g. "{city}, {state}").
     /// When set, the alerts endpoint uses this as the human-readable area label; falls back to
     /// station coordinates for NWS point lookup when absent.
     /// </summary>

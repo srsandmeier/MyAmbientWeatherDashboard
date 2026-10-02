@@ -2,6 +2,7 @@ using System.Net;
 using System.Text;
 using AmbientWeather.Domain.Neighbors;
 using AmbientWeather.Infrastructure.Neighbors;
+using AmbientWeather.UnitTests.TestData;
 using Microsoft.Extensions.Logging.Abstractions;
 using Shouldly;
 using Xunit;
@@ -87,8 +88,8 @@ public sealed class OpenMeteoNearbyBaselineProviderDailyExtremesTests
         var config = new NeighborConfig
         {
             IsEnabled = true,
-            UserLatitude = 41.8781,
-            UserLongitude = -87.6298,
+            UserLatitude = WeatherTestData.Latitude(),
+            UserLongitude = WeatherTestData.Longitude(),
             RadiusMiles = 25,
             MaxAgeMinutes = 60,
             MinStations = 1,
@@ -101,8 +102,8 @@ public sealed class OpenMeteoNearbyBaselineProviderDailyExtremesTests
     private static string BuildResponseJson(double? highF, double? lowF) =>
         $$"""
         {
-          "latitude": 41.8781,
-          "longitude": -87.6298,
+          "latitude": {{WeatherTestData.Coordinate(WeatherTestData.Latitude())}},
+          "longitude": {{WeatherTestData.Coordinate(WeatherTestData.Longitude())}},
           "current": {
             "time": "2026-06-09T15:00",
             "temperature_2m": 75.2,
@@ -124,10 +125,10 @@ public sealed class OpenMeteoNearbyBaselineProviderDailyExtremesTests
         """;
 
     private static string BuildResponseJsonNoDailyBlock() =>
-        """
+        $$"""
         {
-          "latitude": 41.8781,
-          "longitude": -87.6298,
+          "latitude": {{WeatherTestData.Coordinate(WeatherTestData.Latitude())}},
+          "longitude": {{WeatherTestData.Coordinate(WeatherTestData.Longitude())}},
           "current": {
             "time": "2026-06-09T15:00",
             "temperature_2m": 75.2,

@@ -208,4 +208,4 @@ The rule and the faker calls for each language are in the root `CLAUDE.md`, "Pri
 persist any address, GPS coordinate, or station ID". This file adds only:
 
 - Faker state output must use real US state abbreviations — both libraries do this by default; do not override locale to a non-US setting.
-- When a test requires a geographically accurate address (e.g. testing map display or geocoding), pick a real US airport at random from a short predefined list — never hardcode a single airport every time.
+- When a test needs a station code or a place name (pinned stations, geocoding, discovery), pick a real US airport at random from the shared list: `WeatherTestData.Airport()` in C# tests, `testAirport` in `frontend/src/test/weatherTestData.ts`. Never hardcode a single airport or invent a code. Coordinates still come from faker.

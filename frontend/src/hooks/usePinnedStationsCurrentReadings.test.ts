@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { usePinnedStationsCurrentReadings } from './usePinnedStationsCurrentReadings';
 import { pinnedStationId, type PinnedNeighborStationDto } from '../types/neighbors';
 import { createWrapper } from '../test/testUtils';
+import { testAirport } from '../test/weatherTestData';
 import type { CurrentReadingDto } from '../types/dashboard';
 import { faker } from '@faker-js/faker';
 
@@ -17,8 +18,8 @@ const mockFetch = vi.fn();
 
 const PIN_A: PinnedNeighborStationDto = {
   provider: 'WeatherGov',
-  sourceId: `KGEN${faker.string.alphanumeric(3).toUpperCase()}`,
-  displayLabel: `Generated station A`,
+  sourceId: testAirport.icao,
+  displayLabel: testAirport.name,
 };
 
 const PIN_B: PinnedNeighborStationDto = {

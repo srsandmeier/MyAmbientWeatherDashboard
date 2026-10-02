@@ -2,6 +2,7 @@ using System.Net;
 using System.Text;
 using AmbientWeather.Domain.Neighbors;
 using AmbientWeather.Infrastructure.Neighbors;
+using AmbientWeather.UnitTests.TestData;
 using Bogus;
 using Microsoft.Extensions.Logging.Abstractions;
 using Shouldly;
@@ -45,14 +46,17 @@ public sealed class OpenMeteoNearbyBaselineProviderExtendedFieldsTests
     public async Task FinderDiscoveryReturnsNearbyCityCountyAndAirportModelGrids()
     {
         var faker = new Faker();
-        var cityName = faker.Address.City();
+        var airport = WeatherTestData.Airport();
+        var cityName = airport.City;
         var countyName = $"{faker.Address.County()} County";
-        var airportName = $"{faker.Address.City()} Municipal Airport";
-        var airportCode = faker.Random.String2(3, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        var airportName = airport.Name;
+        var airportCode = airport.Iata;
+        var userLatitude = WeatherTestData.Latitude();
+        var userLongitude = WeatherTestData.Longitude();
         var handler = new CapturingHandler(req =>
         {
             if (req.RequestUri!.Host.Contains("overpass", StringComparison.Ordinal))
-                return OkJson(BuildOverpassResponseJson(cityName, countyName, airportName, airportCode));
+                return OkJson(BuildOverpassResponseJson(userLatitude, userLongitude, cityName, countyName, airportName, airportCode));
 
             return OkJson(BuildFullResponseJson());
         });
@@ -63,19 +67,19 @@ public sealed class OpenMeteoNearbyBaselineProviderExtendedFieldsTests
         var config = new NeighborConfig
         {
             IsEnabled = true,
-            UserLatitude = 41.0000,
-            UserLongitude = -99.0000,
+            UserLatitude = userLatitude,
+            UserLongitude = userLongitude,
             RadiusMiles = 50,
             MaxAgeMinutes = 60,
             MinStations = 1,
             EnabledProviders = [],
             DiscoveryCacheScope = "finder",
-            DiscoveryLocationQuery = $"{cityName}, {faker.Address.StateAbbr()}",
+            DiscoveryLocationQuery = airport.CityState,
         };
 
         var stations = await provider.DiscoverAsync(config);
 
-        // The far-away city (42.5, -99.0 ≈ 103 miles) is now filtered by strict radius; 3 remain.
+        // The far-away city (1.5° north ≈ 103 miles) is now filtered by strict radius; 3 remain.
         stations.Count.ShouldBe(3);
         stations.Select(station => station.DiscoveryKind).ShouldBe(["city", "county", "airport"]);
         stations.ShouldContain(station => station.Name == cityName);
@@ -114,8 +118,8 @@ public sealed class OpenMeteoNearbyBaselineProviderExtendedFieldsTests
         var config = new NeighborConfig
         {
             IsEnabled = true,
-            UserLatitude = 41.0000,
-            UserLongitude = -99.0000,
+            UserLatitude = WeatherTestData.Latitude(),
+            UserLongitude = WeatherTestData.Longitude(),
             RadiusMiles = 50,
             MaxAgeMinutes = 60,
             MinStations = 1,
@@ -221,8 +225,8 @@ public sealed class OpenMeteoNearbyBaselineProviderExtendedFieldsTests
         var config = new NeighborConfig
         {
             IsEnabled = true,
-            UserLatitude = 41.8781,
-            UserLongitude = -87.6298,
+            UserLatitude = WeatherTestData.Latitude(),
+            UserLongitude = WeatherTestData.Longitude(),
             RadiusMiles = 25,
             MaxAgeMinutes = 60,
             MinStations = 1,
@@ -234,10 +238,10 @@ public sealed class OpenMeteoNearbyBaselineProviderExtendedFieldsTests
     }
 
     private static string BuildFullResponseJson() =>
-        """
+        $$"""
         {
-          "latitude": 41.8781,
-          "longitude": -87.6298,
+          "latitude": {{WeatherTestData.Coordinate(WeatherTestData.Latitude())}},
+          "longitude": {{WeatherTestData.Coordinate(WeatherTestData.Longitude())}},
           "current": {
             "time": "2026-06-09T15:00",
             "temperature_2m": 75.2,
@@ -271,10 +275,10 @@ public sealed class OpenMeteoNearbyBaselineProviderExtendedFieldsTests
         """;
 
     private static string BuildMinimalResponseJson() =>
-        """
+        $$"""
         {
-          "latitude": 41.8781,
-          "longitude": -87.6298,
+          "latitude": {{WeatherTestData.Coordinate(WeatherTestData.Latitude())}},
+          "longitude": {{WeatherTestData.Coordinate(WeatherTestData.Longitude())}},
           "current": {
             "time": "2026-06-09T15:00",
             "temperature_2m": 75.2,
@@ -296,6 +300,8 @@ public sealed class OpenMeteoNearbyBaselineProviderExtendedFieldsTests
         """;
 
     private static string BuildOverpassResponseJson(
+        double userLatitude,
+        double userLongitude,
         string cityName,
         string countyName,
         string airportName,
@@ -306,28 +312,28 @@ public sealed class OpenMeteoNearbyBaselineProviderExtendedFieldsTests
             {
               "type": "node",
               "id": 1,
-              "lat": 41.0500,
-              "lon": -99.0500,
+              "lat": {{WeatherTestData.Coordinate(userLatitude + 0.05)}},
+              "lon": {{WeatherTestData.Coordinate(userLongitude - 0.05)}},
               "tags": { "name": "{{cityName}}", "place": "city" }
             },
             {
               "type": "relation",
               "id": 2,
-              "center": { "lat": 41.1200, "lon": -99.1200 },
+              "center": { "lat": {{WeatherTestData.Coordinate(userLatitude + 0.12)}}, "lon": {{WeatherTestData.Coordinate(userLongitude - 0.12)}} },
               "tags": { "name": "{{countyName}}", "boundary": "administrative", "admin_level": "6" }
             },
             {
               "type": "node",
               "id": 4,
-              "lat": 41.0300,
-              "lon": -99.0300,
+              "lat": {{WeatherTestData.Coordinate(userLatitude + 0.03)}},
+              "lon": {{WeatherTestData.Coordinate(userLongitude - 0.03)}},
               "tags": { "name": "{{airportName}}", "aeroway": "aerodrome", "iata": "{{airportCode}}" }
             },
             {
               "type": "node",
               "id": 3,
-              "lat": 42.5000,
-              "lon": -99.0000,
+              "lat": {{WeatherTestData.Coordinate(userLatitude + 1.5)}},
+              "lon": {{WeatherTestData.Coordinate(userLongitude)}},
               "tags": { "name": "Generated Far Away", "place": "city" }
             }
           ]

@@ -3,6 +3,7 @@ using AmbientWeather.Application.Features.Neighbors.Queries;
 using AmbientWeather.Application.Interfaces;
 using AmbientWeather.Domain.Entities;
 using AmbientWeather.Domain.Neighbors;
+using AmbientWeather.UnitTests.TestData;
 using Bogus;
 using Moq;
 using Shouldly;
@@ -14,7 +15,8 @@ public sealed class GetPinnedStationReadingQueryHandlerTests
 {
     private const string Subject = "auth0|test-user";
     private const string Provider = "WeatherGov";
-    private const string SourceId = "KORD";
+    private static readonly string SourceId = WeatherTestData.Airport().Icao;
+    private static readonly string RawMetar = $"{SourceId} 091753Z 18015KT 10SM -RA FEW018 22/14 A2992";
 
     private static readonly Faker F = new();
 
@@ -100,7 +102,7 @@ public sealed class GetPinnedStationReadingQueryHandlerTests
             SkyConditions = "FEW @ 1,800ft",
             PresentWeather = "Light Rain",
             TextDescription = "Partly cloudy with light rain.",
-            RawMetar = "KORD 091753Z 18015KT 10SM -RA FEW018 22/14 A2992",
+            RawMetar = RawMetar,
         });
 
         var result = await CreateHandler().Handle(
@@ -110,7 +112,7 @@ public sealed class GetPinnedStationReadingQueryHandlerTests
         result.NwsSkyConditions.ShouldBe("FEW @ 1,800ft");
         result.NwsPresentWeather.ShouldBe("Light Rain");
         result.NwsTextDescription.ShouldBe("Partly cloudy with light rain.");
-        result.NwsRawMetar.ShouldBe("KORD 091753Z 18015KT 10SM -RA FEW018 22/14 A2992");
+        result.NwsRawMetar.ShouldBe(RawMetar);
     }
 
     [Fact]
