@@ -187,6 +187,7 @@ test('a coordinate- or postcode-shaped literal on a location line is reported', 
       line('backend/tests/C.cs', '            Latitude = F.Address.Latitude(),'),
       line('frontend/src/d.ts', `const longTimeout = ${digits(5)};`),
       line('docs/openapi.json', `"latitude": ${digits(2)}.${digits(4)}`),
+      line('backend/tests/E.cs', '        result.Latitude.ShouldBe(latitude, tolerance: 0.0001);'),
     ]),
     ['backend/tests/A.cs', 'tests/e2e/b.ts'],
   );

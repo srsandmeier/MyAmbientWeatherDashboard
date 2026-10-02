@@ -133,8 +133,8 @@ public sealed class DashboardCurrentNeighborsApiTests : IClassFixture<DashboardC
             {
                 MacAddress = WeatherTestData.Mac,
                 Name = WeatherTestData.StationName,
-                Latitude = 39.7392,
-                Longitude = -104.9903,
+                Latitude = WeatherTestData.Latitude(),
+                Longitude = WeatherTestData.Longitude(),
             });
 
         using var client = AuthClient();
@@ -223,8 +223,8 @@ public sealed class DashboardCurrentNeighborsApiTests : IClassFixture<DashboardC
             {
                 MacAddress = WeatherTestData.Mac,
                 Name = WeatherTestData.StationName,
-                Latitude = 39.7392,
-                Longitude = -104.9903,
+                Latitude = WeatherTestData.Latitude(),
+                Longitude = WeatherTestData.Longitude(),
             });
 
         _factory.DiscoveryServiceMock
@@ -271,8 +271,8 @@ public sealed class DashboardCurrentNeighborsApiTests : IClassFixture<DashboardC
             {
                 MacAddress = WeatherTestData.Mac,
                 Name = WeatherTestData.StationName,
-                Latitude = 39.7392,
-                Longitude = -104.9903,
+                Latitude = WeatherTestData.Latitude(),
+                Longitude = WeatherTestData.Longitude(),
             });
 
         _factory.DiscoveryServiceMock
@@ -320,15 +320,18 @@ public sealed class DashboardCurrentNeighborsApiTests : IClassFixture<DashboardC
         return sortedValues[index];
     }
 
-    private static List<NeighborStation> CreateRepresentativeNeighborStations() =>
-        Enumerable.Range(0, 12)
+    private static List<NeighborStation> CreateRepresentativeNeighborStations()
+    {
+        var latitude = WeatherTestData.Latitude();
+        var longitude = WeatherTestData.Longitude();
+        return Enumerable.Range(0, 12)
             .Select(i => new NeighborStation
             {
                 Provider = i % 3 == 0 ? "AmbientOpen" : i % 3 == 1 ? "WeatherGov" : "OpenMeteo",
                 SourceId = $"REP-{i:00}",
                 Name = $"Representative Station {i:00}",
-                Lat = 39.7392 + (i * 0.01),
-                Lon = -104.9903 - (i * 0.01),
+                Lat = latitude + (i * 0.01),
+                Lon = longitude - (i * 0.01),
                 DistanceMiles = 1 + i,
                 LastObservedAtUtc = DateTime.UtcNow.AddMinutes(-i),
                 FreshnessMinutes = i,
@@ -350,6 +353,7 @@ public sealed class DashboardCurrentNeighborsApiTests : IClassFixture<DashboardC
                 Uv = i % 3 == 0 ? i % 9 : null,
             })
             .ToList();
+    }
 }
 
 /// <summary>

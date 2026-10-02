@@ -174,6 +174,8 @@ export function handBuiltQueryKeys(added) {
 export function locationLiterals(added) {
   const files = added
     .filter((line) => !/(package-lock\.json|docs\/openapi\.json|\/Migrations\/)/.test(line.file))
+    // An assertion tolerance is a small decimal on a latitude or longitude line, not a location.
+    .map((line) => ({ ...line, text: line.text.replace(/tolerance:\s*[\d.]+/g, '') }))
     .filter(
       (line) =>
         (/lat|lon|coord/i.test(line.text) && /(?<![\w.])-?\d{1,3}\.\d{4,}(?![\w.])/.test(line.text)) ||

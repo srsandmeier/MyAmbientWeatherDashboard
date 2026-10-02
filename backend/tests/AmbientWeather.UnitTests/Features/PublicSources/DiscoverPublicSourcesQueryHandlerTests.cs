@@ -1,6 +1,7 @@
 using AmbientWeather.Application.DTOs.PublicSources;
 using AmbientWeather.Application.Features.PublicSources.Queries;
 using AmbientWeather.Application.Interfaces;
+using AmbientWeather.UnitTests.TestData;
 using Bogus;
 using Moq;
 using Shouldly;
@@ -26,14 +27,15 @@ public sealed class DiscoverPublicSourcesQueryHandlerTests
     [Fact]
     public async Task HandleDelegatesToDiscoveryServiceAndReturnsResults()
     {
-        const string SearchQuery = "Generated City, ST";
+        var airport = WeatherTestData.Airport();
+        var searchQuery = airport.CityState;
         var expected = new List<DiscoveredPublicSourceDto>
         {
             new()
             {
                 Provider = "WeatherGov",
-                SourceId = $"KGEN{F.Random.AlphaNumeric(3).ToUpperInvariant()}",
-                DisplayLabel = $"Generated Station {F.Random.AlphaNumeric(4)}",
+                SourceId = airport.Icao,
+                DisplayLabel = airport.Name,
                 Latitude = F.Address.Latitude(),
                 Longitude = F.Address.Longitude(),
                 Timezone = null,
@@ -41,10 +43,10 @@ public sealed class DiscoverPublicSourcesQueryHandlerTests
         };
 
         _serviceMock
-            .Setup(s => s.DiscoverAsync(SearchQuery, It.IsAny<CancellationToken>()))
+            .Setup(s => s.DiscoverAsync(searchQuery, It.IsAny<CancellationToken>()))
             .ReturnsAsync(expected);
 
-        var result = await CreateHandler().Handle(new DiscoverPublicSourcesQuery(SearchQuery), CancellationToken.None);
+        var result = await CreateHandler().Handle(new DiscoverPublicSourcesQuery(searchQuery), CancellationToken.None);
 
         result.Count.ShouldBe(1);
         result[0].Provider.ShouldBe("WeatherGov");

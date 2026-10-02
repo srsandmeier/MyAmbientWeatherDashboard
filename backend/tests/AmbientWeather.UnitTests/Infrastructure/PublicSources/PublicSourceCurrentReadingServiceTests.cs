@@ -3,6 +3,7 @@ using System.Text;
 using AmbientWeather.Application.DTOs.Realtime;
 using AmbientWeather.Domain.Entities;
 using AmbientWeather.Infrastructure.PublicSources;
+using AmbientWeather.UnitTests.TestData;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -44,15 +45,17 @@ public sealed class PublicSourceCurrentReadingServiceTests
             new TestHttpClientFactory(handler),
             CreateCache(),
             NullLogger<PublicSourceCurrentReadingService>.Instance);
+        var latitude = WeatherTestData.Latitude();
+        var longitude = WeatherTestData.Longitude();
 
         var result = await service.GetCurrentAsync("user", new PublicWeatherSource
         {
             Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
             Provider = "OpenMeteo",
-            SourceId = "open-meteo:35.2000,-97.4000",
+            SourceId = OpenMeteoSourceId(latitude, longitude),
             DisplayLabel = "Generated source",
-            Latitude = 35.2,
-            Longitude = -97.4,
+            Latitude = latitude,
+            Longitude = longitude,
             Timezone = "Etc/GMT+6",
             IsEnabled = true,
             User = new AppUser { AuthProviderSubject = "auth0|test" },
@@ -128,6 +131,9 @@ public sealed class PublicSourceCurrentReadingServiceTests
         }
         """;
 
+    private static string OpenMeteoSourceId(double latitude, double longitude) =>
+        $"open-meteo:{WeatherTestData.Coordinate(latitude)},{WeatherTestData.Coordinate(longitude)}";
+
     private static async Task<CurrentReadingDto> FetchOpenMeteoAsync(string responseJson)
     {
         var handler = new CapturingHttpMessageHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
@@ -138,14 +144,16 @@ public sealed class PublicSourceCurrentReadingServiceTests
             new TestHttpClientFactory(handler),
             CreateCache(),
             NullLogger<PublicSourceCurrentReadingService>.Instance);
+        var latitude = WeatherTestData.Latitude();
+        var longitude = WeatherTestData.Longitude();
         return await service.GetCurrentAsync("user", new PublicWeatherSource
         {
             Id = Guid.Parse("22222222-2222-2222-2222-222222222222"),
             Provider = "OpenMeteo",
-            SourceId = "open-meteo:41.8781,-87.6298",
+            SourceId = OpenMeteoSourceId(latitude, longitude),
             DisplayLabel = "Generated source",
-            Latitude = 41.8781,
-            Longitude = -87.6298,
+            Latitude = latitude,
+            Longitude = longitude,
             Timezone = "America/Chicago",
             IsEnabled = true,
             User = new AppUser { AuthProviderSubject = "auth0|test" },
@@ -166,15 +174,17 @@ public sealed class PublicSourceCurrentReadingServiceTests
             new TestHttpClientFactory(handler),
             CreateCache(),
             NullLogger<PublicSourceCurrentReadingService>.Instance);
+        var latitude = WeatherTestData.Latitude();
+        var longitude = WeatherTestData.Longitude();
 
         await service.GetCurrentAsync("user", new PublicWeatherSource
         {
             Id = Guid.Parse("33333333-3333-3333-3333-333333333333"),
             Provider = "OpenMeteo",
-            SourceId = "open-meteo:41.0,-87.0",
+            SourceId = OpenMeteoSourceId(latitude, longitude),
             DisplayLabel = "Generated source",
-            Latitude = 41.0,
-            Longitude = -87.0,
+            Latitude = latitude,
+            Longitude = longitude,
             Timezone = "UTC",
             IsEnabled = true,
             User = new AppUser { AuthProviderSubject = "auth0|test" },

@@ -261,6 +261,20 @@ Delivered (2026-10-01, branch `chore/quality-process`):
   names files and never prints the value. Most of the 79 are in backend tests and look like fixed
   coordinates in fixtures; they were not changed here and are worth a separate look against the
   privacy rule.
+- **Location scan follow-up (2026-10-01, branch `test/faker-location-fixtures`):** the same pattern
+  run over the current tree found 59 lines: 56 fixed coordinates in six backend test files, two false
+  hits and one example postcode in a doc comment. The fixture coordinates are now generated: `WeatherTestData.Latitude()` and `Longitude()` wrap the Bogus calls
+  with the bounds the US bounding-box check accepts, and `Coordinate()` formats a value for a JSON
+  fixture. A wider search (any numeric latitude or longitude, place names, station codes) added two
+  WeatherGov provider tests, one frontend fixture, one frontend place name and two example place
+  names in XML doc comments; all replaced. Station codes and place names in tests now come from a
+  real US airport picked at random from one list per language (owner decision, 2026-10-01):
+  `WeatherTestData.Airport()` in C# and `testAirport` in `frontend/src/test/weatherTestData.ts`,
+  ten airports each, no coordinates. They replace the fixed `KORD` and the made-up `KGEN` in nine
+  backend and five frontend test files. Left alone:
+  IANA timezone identifiers, the state-name lookup table, validator boundary values, and the search
+  examples in the `NeighborsConfigPanel` help text (product copy; the owner keeps it). The check
+  itself gave one false warning, an assertion `tolerance:` on a latitude line; it now ignores that.
 - **Not built:** the review-agent exit in P3 (an agent reports a self-review failure first) needs a
   live agent run and was not done in this branch.
 
