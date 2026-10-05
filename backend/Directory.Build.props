@@ -8,6 +8,6 @@
 
   <ItemGroup>
     <PackageReference Include="Meziantou.Analyzer" Version="3.0.291" PrivateAssets="all" />
-    <PackageReference Include="Roslynator.Analyzers" Version="5.0.0" PrivateAssets="all" />
+    <PackageReference Include="Roslynator.Analyzers" Version="5.0.1" PrivateAssets="all" />
   </ItemGroup>
 </Project>
