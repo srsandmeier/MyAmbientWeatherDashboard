@@ -52,5 +52,6 @@ Decoupled web application using 100% free, open-source tools and free-tier cloud
 
 ## Agents
 
-Read the relevant file in `.claude/agents/` before working in that layer:
-`architect` · `backend` · `frontend` · `data` · `api-client` · `realtime` · `charts` · `security` · `devops` · `qa-engineer`
+Area rules are in the folder `CLAUDE.md` files (listed in the root `CLAUDE.md`); read the one for the folder
+you work in. Reviewers in `.claude/agents/`: `architect` · `security` · `performance` · `domain-ux` ·
+`ui-ux-design` · `qa-engineer` · `release-ci`. Procedures in `.claude/skills/` (`docs/AGENT_GUIDELINES.md`).

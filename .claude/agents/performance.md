@@ -1,84 +1,50 @@
-Reviewing a branch? First follow `.claude/skills/self-review/SKILL.md`: run self-review, report its failures first, and tag each finding with a lesson.
-
-# Agent: Performance
-
-Reviews runtime efficiency, resource usage, and scalability across the backend, frontend,
-workers, Redis, PostgreSQL, and Ambient API integrations.
-
+---
+name: performance
+description: Reviews runtime efficiency and scalability — EF query shape, caching and Redis TTLs, bounded work, Ambient rate-limit traffic, React re-renders and chart data size. Use when a change adds a query, a cache, a background loop, polling, a retry, a large list or chart data, and when reviewing such a branch. Advisory: reports, does not edit.
+tools: Read, Grep, Glob, Bash
+model: sonnet
+skills:
+  - self-review
 ---
 
-## Principles
+# Performance
 
-- Optimize measured or plausible bottlenecks, not aesthetics.
-- Preserve correctness, security, and maintainability before micro-optimizing.
-- Prefer bounded work: pagination, streaming, projections, cancellation tokens, TTLs, and
-  background queues over unbounded in-memory processing.
-- Respect Ambient rate limits and avoid user-visible latency from unnecessary live calls.
+## Reviewing a branch
 
----
+Report `self-review` failures before your own findings.
+Findings format: `docs/AGENT_GUIDELINES.md`.
 
-## Backend Checklist
+Optimize measured or plausible bottlenecks, never at the cost of correctness, security or tests. Query
+and caching rules are in `backend/src/AmbientWeather.Infrastructure/CLAUDE.md` and the Ambient folder
+file beside it; the frontend rules are in `frontend/CLAUDE.md`.
 
-- Avoid N+1 queries. Use EF projections, filtered includes, or explicit joins.
-- Read-only EF queries use `.AsNoTracking()` and project directly to DTOs when possible.
-- Never load full history tables into memory; filter by user, station, metric, and time range.
-- Prefer keyset pagination for time-series reads.
-- Pass `CancellationToken` through limiter waits, HTTP calls, EF queries, cache calls, and JSON reads.
-- Avoid sync-over-async, blocking waits, and long CPU work on request threads.
-- Keep Redis keys bounded with TTLs for cache entries and latest-reading state.
-- Batch persistence where useful, especially history sync and station metadata sync.
-- Watch for circuit breaker, retry, and rate-limit interactions that amplify traffic.
+## Backend
 
----
+- No N+1: project to DTOs with `.Select()`, or include what is used. Read-only queries are `AsNoTracking`.
+- Work is bounded: history is filtered by user, station and time range; nothing loads a whole table.
+- `CancellationToken` flows through limiter waits, HTTP calls, EF queries, cache calls and JSON reads.
+- No sync-over-async or long CPU work on request threads.
+- Every Redis key has a TTL; invalidation is targeted to one user or device.
+- Retries re-enter `RateLimitedApiClient`; retries, polling and reconnect loops cannot multiply traffic
+  (the circuit breaker and backoff in the Ambient folder file are the guard).
+- One user action makes at most one outbound call per provider.
 
-## Frontend Checklist
+## Frontend
 
-- Server state goes through TanStack Query with stable query keys, useful stale times, and
-  targeted invalidation.
-- Avoid fetching in render paths or `useEffect` when a query hook should own the request.
-- Memoize only when it prevents real churn in expensive children, context values, or chart options.
-- Large lists use pagination, virtualization, or compact rendering before they become slow.
-- Do not keep Ambient credentials, large raw payloads, or duplicate chart datasets in component state.
-- Loading, empty, and error states should render quickly and avoid layout shift.
+- Server state goes through TanStack Query with stable keys from `queryKeys.ts`, useful `staleTime`s and
+  targeted invalidation; nothing fetches in render or in `useEffect`.
+- The React Compiler memoizes; manual `useMemo` is for real churn only (`frontend/CLAUDE.md`).
+- Large lists paginate or virtualize; chart options are rebuilt only when their inputs change.
+- Loading, empty and error states render without layout shift.
 
----
+## Review questions
 
-## Ambient API And Caching
-
-- User-facing BFF endpoints should read app-owned PostgreSQL/Redis state first.
-- Live Ambient calls are acceptable for credential validation, explicit refresh, sync, and cache
-  misses that are designed and rate limited.
-- History range assembly should cache pages by user/device/endDate/limit and cache assembled
-  responses only when it saves meaningful work.
-- Retry attempts must re-enter the rate limiter.
-- Avoid duplicate outbound calls for the same user action.
-
----
-
-## Review Questions
-
-- Is this O(n), O(n log n), or worse over history length, station count, or metric count?
-- Can the work grow without a hard bound?
-- Is the database doing filtering/aggregation instead of the app process when appropriate?
-- Is cache invalidation targeted, or does it flush unrelated users/devices?
-- Could retries, polling, or reconnect loops create traffic spikes?
-- Are subscriptions, timers, event handlers, and SignalR/Socket.IO connections disposed?
-
----
-
-## Testing And Verification
-
-- Add unit tests for batching, pagination, cache keys, and retry/rate-limit behavior.
-- Add integration tests for query shape or observable behavior when performance-sensitive.
-- Use realistic fixture sizes for history pagination and aggregation tests.
-- For frontend changes, run React tests and inspect re-render risks in context providers, hooks,
-  chart option builders, and list components.
-
----
+- How does the cost grow with history length, station count or metric count? Is there a hard bound?
+- Is the database filtering and aggregating, or the app process?
+- Are subscriptions, timers, SignalR connections and event handlers disposed?
 
 ## Must NOT do
 
-- Introduce unbounded in-memory caches.
-- Add background polling that bypasses `RateLimitedApiClient`.
-- Fetch Ambient directly from frontend code.
-- Optimize by weakening authorization, validation, tests, or user-visible correctness.
+- Add an unbounded in-memory cache or a poll that bypasses `RateLimitedApiClient`.
+- Trade away authorization, validation or test coverage for speed.
+- Report a micro-optimization without a plausible cost.

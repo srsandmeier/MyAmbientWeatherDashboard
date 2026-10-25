@@ -5,6 +5,8 @@
 //   node scripts/test-all.mjs            # npm test — full output of every suite
 //   node scripts/test-all.mjs --quiet    # npm run test:quiet — totals only; failing tests named
 //   node scripts/test-all.mjs --pre-pr   # npm run pre-pr — self-review and lint, the suites, then E2E P0
+//   node scripts/test-all.mjs --after-push  # npm run pre-pr:after-push — once the branch is pushed, only
+//                                           # what CI does not report (self-review's warnings and checklist)
 //
 // Quiet mode (docs/CONTEXT_COST_PLAN.md, C4) sends each suite's full output to test-results/<suite>.log
 // and always writes test-results/summary.txt, which holds exactly what it prints. The pre-PR gate
@@ -98,12 +100,19 @@ function runSuiteQuiet(suite) {
   return { exitCode, lines: formatSuite({ key: suite.key, exitCode, logPath: toRepoPath(logPath), summary: suite.summarize(readFileSync(logPath, 'utf8')) }) };
 }
 
+// CI (ci.yml) runs lint, every suite, E2E P0 and P1 and self-review's required checks, so after a push the
+// only local step left is self-review's advisory output; the rest is read with `gh pr checks`.
+const AFTER_PUSH = [{ ...BEFORE_SUITES[0], quietCommand: { cwd: REPO, args: ['scripts/self-review.mjs'] } }];
+
 const prePr = process.argv.includes('--pre-pr');
-if (prePr || process.argv.includes('--quiet')) {
+const afterPush = process.argv.includes('--after-push');
+if (prePr || afterPush || process.argv.includes('--quiet')) {
   rmSync(RESULTS_DIR, { recursive: true, force: true });
   mkdirSync(RESULTS_DIR, { recursive: true });
-  const results = (prePr ? [...BEFORE_SUITES, ...SUITES, ...AFTER_SUITES] : SUITES).map(runSuiteQuiet);
+  const suites = afterPush ? AFTER_PUSH : prePr ? [...BEFORE_SUITES, ...SUITES, ...AFTER_SUITES] : SUITES;
+  const results = suites.map(runSuiteQuiet);
   const lines = results.flatMap((result) => result.lines);
+  if (afterPush) lines.push('CI runs lint, the suites and E2E: read them with `gh pr checks <number>`.');
   lines.push(`Full logs: ${toRepoPath(RESULTS_DIR)}/<suite>.log · this summary: ${toRepoPath(RESULTS_DIR)}/summary.txt`);
   writeFileSync(join(RESULTS_DIR, 'summary.txt'), `${lines.join('\n')}\n`);
   console.log(lines.join('\n'));

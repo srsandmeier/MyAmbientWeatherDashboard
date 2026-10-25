@@ -313,6 +313,11 @@ Delivered (2026-10-01, branch `chore/quality-process`):
 
 ## Agents and skills audit (2026-10-01)
 
+**Superseded 2026-10-25** by `docs/AGENT_GUIDELINES.md`: the agents now have headers, the implementation
+agents were folded into folder `CLAUDE.md` files, procedures became skills, and
+`scripts/check-agents-skills.mjs` checks stale facts that this audit left manual. The record below is
+kept as it was.
+
 Asked for while P1 was built: are the agent files and skills still useful, and is shared text kept in
 one place and not copied into each agent?
 

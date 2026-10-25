@@ -4,8 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 # Claude Project Rules — Ambient Weather Dashboard
 
-This file is read by Claude on every task. Agents in `.claude/agents/` handle specific
-layers. Always read the relevant agent file before working in that area.
+This file is read by Claude on every task. Folder `CLAUDE.md` files add the rules for each area;
+agents and skills are listed at the end.
 
 ---
 
@@ -38,10 +38,13 @@ npm install --prefix tests/e2e           # install TS Playwright dependencies
 npm run start:all
 
 # All stacks
-npm run lint          # CLAUDE.md split check + backend + frontend lint
+npm run lint          # CLAUDE.md split + agents/skills checks + backend + frontend lint
 npm run test:quiet    # backend + frontend + script tests: totals only, failing tests named (use in sessions)
 npm test              # the same suites with full output
 npm run pre-pr        # before a PR: self-review + lint + those suites + E2E P0, same summary file
+npm run pre-pr:after-push  # once pushed: only what CI does not report; then read `gh pr checks`
+npm run ui:snapshot   # screenshots of each page, 3 widths x light/dark (ui-snapshot skill)
+npm run ui:contrast   # WCAG contrast of the theme tokens, both themes (contrast-tokens skill)
 
 # One stack (run, lint, test, single test): backend/CLAUDE.md and frontend/CLAUDE.md, "Commands"
 # E2E: npm run test:e2e (starts Vite on 5173 if needed; no backend) — details in tests/e2e/CLAUDE.md
@@ -64,7 +67,11 @@ nothing when the work is elsewhere. Read the file for an area before changing it
 |---|---|---|
 | `backend/src/`, `backend/tests/` | Api · Application · Domain · Infrastructure · Workers; unit and integration tests | `backend/CLAUDE.md` — backend architecture, Ambient rate limit, EF migrations, realtime pipeline, backend test rules, folder map, external references |
 | `backend/src/AmbientWeather.Api/` | Controllers, middleware, logging, telemetry | `backend/src/AmbientWeather.Api/CLAUDE.md` — BFF route table, Swagger and health endpoints |
+| `backend/src/AmbientWeather.Infrastructure/` | DbContext, migrations, repositories, services | `backend/src/AmbientWeather.Infrastructure/CLAUDE.md` — schema, query and migration rules |
+| `Infrastructure/Ambient/` | Rate-limited REST client, circuit breaker, Socket.IO client | `backend/src/AmbientWeather.Infrastructure/Ambient/CLAUDE.md` — Ambient client classes and rules |
+| `Infrastructure/Neighbors/` | Nearby providers, discovery, aggregation | `backend/src/AmbientWeather.Infrastructure/Neighbors/CLAUDE.md` — provider contracts, Open-Meteo requests |
 | `frontend/src/` | api · components · hooks · lib · pages · telemetry · types | `frontend/CLAUDE.md` — frontend architecture, frontend test rules, folder map |
+| `frontend/src/components/charts/` | ECharts metric history chart, controls, table | `frontend/src/components/charts/CLAUDE.md` — option builder, chart accessibility and theming |
 | `tests/e2e/` | Playwright TS — playwright.config.ts, fixtures/, pages/, specs/ | `tests/e2e/CLAUDE.md` — Playwright standards, E2E commands and prerequisites |
 | `docs/` | Development plan, phase plans, lessons, security and API docs | `docs/CLAUDE.md` — phase planning and closeout steps, sanitizing plans |
 
@@ -99,7 +106,7 @@ Rules that cross areas (detail in the area files):
   Use `{user-location}`, `{lat}`, `{lon}`, or `KXXX` as placeholders in documentation.
 - **Documentation** must use generic placeholder coordinates (e.g. `{swLat}`, `{swLon}`)
   rather than real values, even in API examples or Postman-style test URLs.
-- This rule applies to all agents listed in the agent index below.
+- This rule applies to every agent and skill.
 
 ### Keep it free
 Every NuGet and npm package must be MIT, Apache 2.0, or BSD-3-Clause licensed. Check before adding.
@@ -165,7 +172,12 @@ Same checks, less usage: most session cost is reading and printing.
 - **Read in ranges.** Outline first (`grep -n "^## "` for `docs/DEVELOPMENT_PLAN.md`; class and method
   lines for large source files), then read only the part needed.
 - **No edit retry loops.** Use the Edit tool for anything with backslashes; a scripted edit asserts its
-  search string is found exactly once.
+  search string is found exactly once. The shell hook denies inline Python, `node -e`, `perl -i` and
+  heredoc writes whose text holds a backslash.
+- **Prove tests with the script.** `node scripts/prove-tests.mjs mutations.json` (list in your scratchpad)
+  puts each old bug back and prints one line per mutation, instead of hand-editing and rerunning.
+- **Probe before writing browser tests.** Measure the real page first (a short Playwright script: which
+  elements exist, what is clipped), then write the assertions; run one spec while iterating, the suite once.
 - **Git Bash rewrites path-like arguments.** Prefix `MSYS_NO_PATHCONV=1` when an argument is not a
   path (`git show origin/main:path`, `/api/health`).
 - **Before a rebase, pull or force-push** a hook reports whether the branch is on `origin` and has a
@@ -196,19 +208,14 @@ Types: feat · fix · docs · refactor · test · chore
 
 ---
 
-## Agent index
+## Agents and skills
 
-| Agent | File | When to use |
-|---|---|---|
-| Architect | `.claude/agents/architect.md` | Cross-cutting design, Clean Architecture, maintainability |
-| Backend | `.claude/agents/backend.md` | MediatR handlers, BFF controllers, workers |
-| Frontend | `.claude/agents/frontend.md` | React components, hooks, pages, TanStack Query |
-| Data | `.claude/agents/data.md` | EF Core, migrations, PostgreSQL schema, sync storage |
-| API client | `.claude/agents/api-client.md` | Ambient REST, nearby public providers, rate limiter, Socket.IO client |
-| Realtime | `.claude/agents/realtime.md` | Socket.IO → Redis → SignalR pipeline |
-| Charts | `.claude/agents/charts.md` | Apache ECharts detail views, chart controls |
-| Security | `.claude/agents/security.md` | Auth, credential encryption, authorization, rate limits |
-| Performance | `.claude/agents/performance.md` | Runtime efficiency, query shape, caching, memory, scalability |
-| Domain UX | `.claude/agents/domain-ux.md` | Ambient Weather product logic, user flows, dashboard/settings UX |
-| DevOps | `.claude/agents/devops.md` | Docker, GitHub Actions, deployment |
-| QA engineer | `.claude/agents/qa-engineer.md` | xUnit, Vitest, Playwright, contract tests |
+Agents (`.claude/agents/`) are reviewers and specialists launched as subagents; skills (`.claude/skills/`)
+are procedures. Claude Code lists both with their descriptions, so they are not repeated here. Ownership,
+models and the review findings format: `docs/AGENT_GUIDELINES.md`. Facts about code live in the folder
+`CLAUDE.md` files, not in agents.
+- **Agents:** reviews by `architect`, `security`, `performance`, `domain-ux` and `ui-ux-design`; tests by
+  `qa-engineer`; CI, dependencies and merge readiness by `release-ci`.
+- **Skills:** `api-change` (add or change a BFF endpoint), `ef-migration`, `e2e-heal`, `ui-snapshot`,
+  `a11y-audit`, `contrast-tokens`, `self-review`; and, only when you type them, `/phase-closeout` and
+  `/dependabot-combine`.
