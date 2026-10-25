@@ -1,7 +1,8 @@
 # Codex Project Rules — Ambient Weather Dashboard
 
-This file is read by Codex on every task. Agent guidance files live in `.claude/agents/`;
-read the relevant one before working in that layer.
+This file is read by Codex on every task. Area rules live in the folder `CLAUDE.md` files (listed in the
+root `CLAUDE.md`); read the one for the folder you work in. Review guidance is in `.claude/agents/` and
+step-by-step procedures in `.claude/skills/` (`docs/AGENT_GUIDELINES.md`).
 
 ---
 
@@ -158,7 +159,7 @@ incident). Use targeted in-place edits instead of bulk stream substitution.
 ### Realtime pipeline
 Browsers must **not** connect directly to Ambient Socket.IO. The server-side
 `RealtimeSubscriberService` subscribes to `rt2.ambientweather.net`, publishes to Redis,
-and fans out via SignalR. See the **realtime** agent.
+and fans out via SignalR. See `backend/CLAUDE.md`, "Realtime pipeline".
 
 ### Test everything
 Every component, hook, handler, validator, and service gets tests before its phase is complete.
@@ -207,18 +208,16 @@ Types: feat · fix · docs · refactor · test · chore
 
 | Agent | File | When to use |
 |---|---|---|
-| Architect | `.claude/agents/architect.md` | Cross-cutting design, Clean Architecture, maintainability |
-| Backend | `.claude/agents/backend.md` | MediatR handlers, BFF controllers, workers |
-| Frontend | `.claude/agents/frontend.md` | React components, hooks, pages, TanStack Query |
-| Data | `.claude/agents/data.md` | EF Core, migrations, PostgreSQL schema, sync storage |
-| API client | `.claude/agents/api-client.md` | Ambient REST, nearby public providers, rate limiter, Socket.IO client |
-| Realtime | `.claude/agents/realtime.md` | Socket.IO → Redis → SignalR pipeline |
-| Charts | `.claude/agents/charts.md` | Apache ECharts detail views, chart controls |
-| Security | `.claude/agents/security.md` | Auth, credential encryption, authorization, rate limits |
-| Performance | `.claude/agents/performance.md` | Runtime efficiency, query shape, caching, memory, scalability |
-| Domain UX | `.claude/agents/domain-ux.md` | Ambient Weather product logic, user flows, dashboard/settings UX |
-| DevOps | `.claude/agents/devops.md` | Docker, GitHub Actions, deployment |
-| QA engineer | `.claude/agents/qa-engineer.md` | xUnit, Vitest, Playwright, contract tests, Playwright planner/generator/healer workflow |
+| Architect | `.claude/agents/architect.md` | Layer boundaries, Clean Architecture, maintainability review |
+| Security | `.claude/agents/security.md` | Auth, credentials, authorization, secrets in logs |
+| Performance | `.claude/agents/performance.md` | Query shape, caching, bounded work, rate-limit traffic |
+| Domain UX | `.claude/agents/domain-ux.md` | What values mean to a station owner, flows, missing data |
+| UI and UX design | `.claude/agents/ui-ux-design.md` | Both themes, phone layout, keyboard, WCAG 2.2 AA |
+| QA engineer | `.claude/agents/qa-engineer.md` | Test strategy, xUnit / Vitest / Playwright, flaky tests |
+| Release and CI | `.claude/agents/release-ci.md` | CI, Docker, dependencies, merge readiness |
+
+Procedures (`.claude/skills/<name>/SKILL.md`): `api-change`, `ef-migration`, `e2e-heal`, `ui-snapshot`,
+`a11y-audit`, `contrast-tokens`, `self-review`, `dependabot-combine`, `phase-closeout`.
 
 ---
 

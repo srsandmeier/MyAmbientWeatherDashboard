@@ -152,7 +152,10 @@ rule. `node scripts/lessons-report.mjs --checklist backend,docs` prints the item
   **Cause:** each agent file was written to stand alone, and nothing compared them with each other or
   with the code after the E2E migration.
   **Prevention:** shared text lives in one `CLAUDE.md` or skill; checklist item "Docs match the code"
-  (enforced: self-review fails on a line copied across agent or skill files; manual for stale facts).
+  (enforced: self-review on copied lines; `check-agents-skills.mjs` on names that are gone).
+- **Miss:** no agent file had a YAML header, so none could be launched as a subagent (agent guidelines).
+  **Cause:** they were written as documents to read, and nothing checked them against Claude Code's format.
+  **Prevention:** checklist item "Docs match the code" (enforced: `check-agents-skills.mjs` in lint and CI).
 
 ## Process
 

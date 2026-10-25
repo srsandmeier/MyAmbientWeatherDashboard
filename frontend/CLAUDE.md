@@ -65,6 +65,7 @@ Frontend HTTP mocking: use `vi.stubGlobal('fetch', vi.fn())` returning typed `Re
 frontend/src/
 ├── api/                             Typed BFF endpoint functions (one per route)
 ├── components/                      UI components with co-located *.test.tsx files
+│   └── charts/                      ECharts metric history (rules: components/charts/CLAUDE.md)
 ├── hooks/                           TanStack Query hooks, useWeatherHub
 ├── lib/                             Centralized query key factory, utilities
 ├── pages/                           Route-level page components

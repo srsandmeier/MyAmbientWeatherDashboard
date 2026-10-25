@@ -5,7 +5,7 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import { isRisky, note } from './before-rebase.mjs';
-import { denyReason, usesPython3, usesSedInPlace } from './block-unsafe-shell.mjs';
+import { backslashWrite, denyReason, usesPython3, usesSedInPlace } from './block-unsafe-shell.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
@@ -65,6 +65,34 @@ test('python3 is denied on Windows only; sed -i is denied everywhere', () => {
   assert.equal(denyReason('python3 script.py', 'linux'), '');
   assert.match(denyReason('sed -i s/a/b/ f', 'linux'), /Edit tool/);
   assert.equal(denyReason('npm run lint', 'win32'), '');
+});
+
+test('scripted file writes with a backslash in the command text are detected', () => {
+  for (const [command, how] of [
+    [String.raw`python -c "open('f.txt','w').write('a\\b')"`, /inline Python/],
+    [String.raw`py -3 -c "import pathlib; pathlib.Path('f').write_text('\\d')"`, /inline Python/],
+    [String.raw`node -e "require('fs').writeFileSync('f', '\\n')"`, /node -e/],
+    ["node - <<'EOF'\nrequire('fs').writeFileSync('f', String.raw`\\d`)\nEOF", /node -e/],
+    [String.raw`perl -pi -e 's/\\d/x/' f.txt`, /perl/],
+    ["cat > f.txt <<'EOF'\na\\b\nEOF", /heredoc/],
+  ]) {
+    assert.match(backslashWrite(command), how, command);
+    assert.match(denyReason(command, 'linux'), /Write tool/, command);
+  }
+});
+
+test('reads, script files and backslash-free writes are allowed', () => {
+  for (const command of [
+    String.raw`node -e "console.log('a\\b')"`,
+    String.raw`grep -n "\\bfoo" src/a.ts`,
+    'python scratch/apply.py edits.json',
+    String.raw`node scripts/prove-tests.mjs C:\\temp\\mutations.json`,
+    `node -e "require('fs').writeFileSync('f', 'plain')"`,
+    "cat > f.txt <<'EOF'\nplain\nEOF",
+    String.raw`perl -Ilib -e 'print "\\n"'`,
+  ]) {
+    assert.equal(backslashWrite(command), '', command);
+  }
 });
 
 test('the block hook prints a deny decision for sed -i and nothing for an allowed command', () => {

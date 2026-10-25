@@ -13,7 +13,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "input=$(cat); case \"$input\" in *sed*|*python3*) printf '%s' \"$input\" | node \"${CLAUDE_PROJECT_DIR:-.}/scripts/hooks/block-unsafe-shell.mjs\";; esac; exit 0",
+            "command": "input=$(cat); case \"$input\" in *sed*|*py*|*node*|*perl*|*'<<'*) printf '%s' \"$input\" | node \"${CLAUDE_PROJECT_DIR:-.}/scripts/hooks/block-unsafe-shell.mjs\";; esac; exit 0",
             "timeout": 10
           },
           {

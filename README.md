@@ -70,6 +70,7 @@ API contract, and phased execution plan.
 | [`docs/PHASE_12_COMPLETION_PLAN.md`](docs/PHASE_12_COMPLETION_PLAN.md) | Metric detail charts, contracts, accessibility, and production hardening |
 | [`docs/CONTEXT_COST_PLAN.md`](docs/CONTEXT_COST_PLAN.md) | Lower Claude Code session cost: project settings and hooks, per-folder `CLAUDE.md` and its check, quiet test output |
 | [`docs/QUALITY_PROCESS_PLAN.md`](docs/QUALITY_PROCESS_PLAN.md) | Lessons-learned file and its checks, the self-review step before review, the pull request template |
+| [`docs/AGENT_GUIDELINES.md`](docs/AGENT_GUIDELINES.md) | How the Claude Code agents and skills are written, which agent owns what, the review findings format, and the check that keeps them current |
 | [`docs/LESSONS_LEARNED.md`](docs/LESSONS_LEARNED.md) | Misses with their cause and prevention, and the process checklist; `node scripts/lessons-report.mjs` ranks the weak checklist items, `--check` holds the format and size limits |
 | [`docs/e2e-specs/e2e-test-flows.md`](docs/e2e-specs/e2e-test-flows.md) | Extracted user journeys and E2E scenario plan across dashboard, settings, layouts, neighbors, public sources, alerts, and charts |
 | [`docs/AMBIENT_HISTORY_API_RESEARCH.md`](docs/AMBIENT_HISTORY_API_RESEARCH.md) | Research notes on Ambient REST history API pagination and caching |
@@ -187,14 +188,18 @@ npm run dev            # Vite dev server — frontend on http://localhost:5173
 npm run db:update                   # apply EF Core migrations to local Postgres
 npm run db:migrate -- <Name>        # add a new migration (e.g. npm run db:migrate -- AddUserTable)
 
-npm run lint           # CLAUDE.md split check + backend dotnet format + frontend ESLint
+npm run lint           # CLAUDE.md split + agents/skills checks + backend dotnet format + frontend ESLint
 npm run lint:claude-md # per-folder CLAUDE.md sizes, area table and rule headings only
+npm run lint:agents    # agent and skill headers, and every script, path and class the instructions name exists
 npm run self-review    # before a review or a PR: checks the branch against docs/LESSONS_LEARNED.md (add -- --quiet on reruns)
 npm run lint:backend   # dotnet format whitespace only
 npm run lint:frontend  # ESLint only
 npm test               # backend + frontend + repo-script tests; prints a pass/fail summary (all always run)
 npm run test:quiet     # same suites; prints totals and failing tests only, full logs in test-results/
 npm run pre-pr         # before a PR: self-review, lint, the test:quiet suites, then E2E P0; one summary in test-results/summary.txt
+npm run pre-pr:after-push  # once pushed: self-review's advisory output only; CI covers the rest (gh pr checks)
+npm run ui:snapshot    # screenshots of dashboard, metric detail and settings at 3 widths in light and dark
+npm run ui:contrast    # WCAG contrast of the theme tokens in frontend/src/index.css, both themes
 npm run test:scripts   # node --test for scripts/ (hooks, CLAUDE.md check, test summary) only
 npm run test:backend   # dotnet test only
 npm run test:frontend  # Vitest only

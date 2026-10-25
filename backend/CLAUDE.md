@@ -77,7 +77,8 @@ Key contracts:
 - `ILatestReadingCache` (`DistributedLatestReadingCache`) stores the last reading per `(userHash, normalizedMac)` for the REST fallback path (`GET /api/dashboard/current`).
 - `IAmbientSensorFields` (`DTOs/AmbientApi/`) is implemented by both `WeatherReadingDto` and `DeviceDataDto`. `CurrentReadingMapper.FromWeatherReading` and `FromDeviceData` delegate to a single private `MapSensorFields(IAmbientSensorFields, WeatherStation)` helper — add new sensor fields to the interface and all three DTOs to keep them in sync.
 
-See the **realtime** agent for connection lifecycle, backoff, and teardown details.
+`WeatherHub` is `[Authorize]` and joins only the caller's group; `WeatherHubPusher` sends `ReadingUpdated`
+with the mapped DTO, never a raw Ambient payload. Connection lifecycle and backoff: `Infrastructure/Ambient/CLAUDE.md`.
 
 Multiple users can each configure the same physical MAC address — the routing table fans out to all of them. One user owning multiple API/application key pairs simultaneously is out of scope for v1.
 
@@ -88,11 +89,14 @@ Location fields in fixtures come from `Bogus` (`new Bogus.Faker()`): `F.Address.
 
 **xUnit test method naming — no underscores (CA1707 is enforced).** Use PascalCase: `FormatCloudLayersWithNullInputReturnsNull`, not `FormatCloudLayers_NullInput_ReturnsNull`. This applies to both `[Fact]` and `[Theory]` methods.
 
-Integration test factories (`WebApplicationFactory` subclasses like `MetricsTestFactory`, `DashboardTestFactory`) mock individual services via `ConfigureTestServices`. When a handler gains a new injected dependency (e.g. `IUserPreferencesStore`), the corresponding test factory must also register a mock for it — otherwise the handler resolves from the real DI graph, hits a missing DB, and returns 500 instead of the expected status.
+Integration test factories (`WebApplicationFactory` subclasses like `MetricsTestFactory`, `DashboardCurrentTestFactory`) mock individual services via `ConfigureTestServices`. When a handler gains a new injected dependency (e.g. `IUserPreferencesStore`), the corresponding test factory must also register a mock for it — otherwise the handler resolves from the real DI graph, hits a missing DB, and returns 500 instead of the expected status.
 
 ---
 
 ## Folder responsibilities
+
+More rules load with the folder: `AmbientWeather.Api/CLAUDE.md` (routes), `AmbientWeather.Infrastructure/CLAUDE.md`
+(data), its `Ambient/CLAUDE.md` (Ambient clients) and `Neighbors/CLAUDE.md` (nearby providers).
 
 ```
 backend/src/
@@ -116,7 +120,8 @@ backend/src/
 ├── AmbientWeather.Domain/           Entities, MetricDefinition, domain exceptions, neighbor types
 ├── AmbientWeather.Infrastructure/
 │   ├── Ambient/                     Rate-limited Ambient REST client, shared JSON options, circuit breaker
-│   ├── Data/                        EF Core DbContext, migrations
+│   ├── Data/                        EF Core DbContext and its design-time factory
+│   ├── Migrations/                  EF Core migrations and the model snapshot
 │   ├── Neighbors/                   AmbientOpenWeatherProvider, WeatherGovNearbyObservationProvider,
 │   │                                OpenMeteoNearbyBaselineProvider, discovery/aggregation services
 │   ├── Repositories/                EF Core repository implementations
@@ -143,7 +148,7 @@ or changing a route, the handler behind one, or its DTO. The generated contract 
 
 | Resource | URL |
 |---|---|
-| Ambient REST API | `https://rt.ambientweather.net/v1` |
+| Ambient REST API | `https://api.ambientweather.net/v1` (`AmbientApiOptions.BaseUrl`) |
 | Ambient Realtime | `https://rt2.ambientweather.net` |
 | Ambient Open API (neighbors) | `https://lightning.ambientweather.net` |
 | Apiary docs + helper libraries | https://ambientweather.docs.apiary.io/ |

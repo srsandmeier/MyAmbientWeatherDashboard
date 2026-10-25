@@ -1,6 +1,6 @@
 ---
 name: self-review
-description: Check the branch against the misses recorded in docs/LESSONS_LEARNED.md; use before review agents, /code-review, or opening a pull request.
+description: Check the branch against the misses recorded in docs/LESSONS_LEARNED.md. Use before review agents, /code-review, or opening a pull request.
 ---
 
 # self-review
