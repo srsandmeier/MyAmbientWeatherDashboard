@@ -19,7 +19,7 @@ Findings format: `docs/AGENT_GUIDELINES.md`.
 - **`.github/workflows/ci.yml`** runs three jobs in parallel on every PR and push to `main`:
   - `backend`: restore, build, `dotnet format whitespace --verify-no-changes`, then unit and integration
     tests (Testcontainers needs Docker on the runner).
-  - `frontend`: `tsc -b`, ESLint, the CLAUDE.md split check, the agents and skills check,
+  - `frontend`: `tsc -b`, ESLint, the CLAUDE.md split check, the agents and skills check, token contrast,
     `self-review --required`, the repo-script tests, Vitest and the production build.
   - `e2e`: a matrix of P0 and P1, each against the Vite dev server with every BFF and Auth0 call mocked.
     One retry in CI; a test that passes on its retry is flaky and gets an issue.

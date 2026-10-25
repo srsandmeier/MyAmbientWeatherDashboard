@@ -20,10 +20,13 @@ controls and its data table. Frontend architecture and test rules are in `fronte
 ### Accessibility and theming
 - The option keeps ECharts `aria` enabled with a description of the series, and turns animation off when
   the user prefers reduced motion.
-- ECharts draws on a canvas, so a series colour must be a resolved colour value: a CSS `var(...)` is not
-  read. Resolve theme tokens from the document before building the option, for light and dark.
-  Known gap: the builder still passes `hsl(var(--chart-1))`, and `--chart-*` is not defined in
-  `frontend/src/index.css`.
+- ECharts draws on a canvas and parses colours itself: it reads neither CSS variables nor `oklch()`.
+  `MetricHistoryChart` reads the `--chart-N`, `--muted-foreground`, `--border` and `--popover` tokens with
+  `readMetricHistoryChartPalette` (converted to `rgb()` by `lib/themeColors.ts`) and passes them to the
+  builder as `palette`; it reads them again when `useAppliedTheme` sees the `dark` class change. The
+  builder never emits a `var(...)`; a new colour in the option comes from the palette.
+- The `--chart-N` tokens are in `frontend/src/index.css` for both themes, and `npm run ui:contrast` holds
+  each at 3:1 or more on the background and card.
 - Neighbour or comparison series are labelled as comparisons; indoor metrics have none.
 
 ### Tests

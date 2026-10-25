@@ -1,7 +1,8 @@
 // WCAG contrast of the theme tokens in frontend/src/index.css, light (:root) and dark (.dark), with no
 // browser (.claude/skills/contrast-tokens/SKILL.md). Every `--x-foreground` is checked on its `--x`, and
-// body and muted text on every surface it is drawn on. Text needs 4.5:1 (WCAG 1.4.3); the focus ring
-// needs 3:1 (1.4.11). Input borders at 3:1 are advisory: a field can be identified by other cues.
+// body and muted text on every surface it is drawn on. Text needs 4.5:1 (WCAG 1.4.3); the focus ring and
+// the `--chart-N` series need 3:1 (1.4.11). The OKLCH conversion matches frontend/src/lib/themeColors.ts,
+// which the browser bundle uses; Node scripts cannot import that TypeScript file. Input borders at 3:1 are advisory: a field can be identified by other cues.
 //
 //   node scripts/contrast-tokens.mjs    # one line per failing pair, then the totals; exits 1 on a failure
 
@@ -61,6 +62,10 @@ export function pairs(tokens) {
       if (tokens.has(text) && !list.some(([f, b]) => f === text && b === surface)) list.push([text, surface, TEXT_MIN, true]);
     }
     if (tokens.has('ring')) list.push(['ring', surface, NON_TEXT_MIN, true]);
+    // Chart series are drawn on the chart panel (background) and its card.
+    if (surface === 'background' || surface === 'card') {
+      for (const name of [...tokens.keys()].filter((t) => /^chart-\d+$/.test(t))) list.push([name, surface, NON_TEXT_MIN, true]);
+    }
     if (tokens.has('input') && (surface === 'background' || surface === 'card')) list.push(['input', surface, NON_TEXT_MIN, false]);
   }
   return list;

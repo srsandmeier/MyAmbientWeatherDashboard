@@ -5,6 +5,8 @@ import {
   type MetricHistoryChartType,
   type MetricHistoryComparisonSeries,
 } from './buildMetricHistoryChartOption';
+import { readMetricHistoryChartPalette } from './metricHistoryChartPalette';
+import { useAppliedTheme } from '../../hooks/useAppliedTheme';
 import type { MetricCategory, MetricHistoryPoint } from '../../types/metrics';
 
 function subscribeToReducedMotion(callback: () => void): () => void {
@@ -42,9 +44,12 @@ export function MetricHistoryChart({
     getReducedMotionSnapshot,
     () => false,
   );
+  // The canvas cannot read CSS variables: read the theme colours once the theme class is applied.
+  const theme = useAppliedTheme();
+  const palette = useMemo(() => readMetricHistoryChartPalette(theme), [theme]);
   const option = useMemo(
-    () => buildMetricHistoryChartOption({ metricLabel, unit, category, points, comparisonSeries, chartType, reduceMotion, timezone }),
-    [category, chartType, comparisonSeries, metricLabel, points, reduceMotion, timezone, unit],
+    () => buildMetricHistoryChartOption({ metricLabel, unit, category, points, comparisonSeries, chartType, reduceMotion, timezone, palette }),
+    [category, chartType, comparisonSeries, metricLabel, palette, points, reduceMotion, timezone, unit],
   );
 
   return (

@@ -7,7 +7,7 @@
   },
   "scripts": {
     "start:all": "node scripts/start-all.mjs",
-    "lint": "npm run lint:claude-md && npm run lint:agents && npm run lint:backend && npm run lint:frontend",
+    "lint": "npm run lint:claude-md && npm run lint:agents && npm run ui:contrast && npm run lint:backend && npm run lint:frontend",
     "lint:claude-md": "node scripts/check-claude-md.mjs",
     "lint:agents": "node scripts/check-agents-skills.mjs",
     "self-review": "node scripts/self-review.mjs",

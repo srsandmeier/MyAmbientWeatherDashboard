@@ -38,7 +38,7 @@ npm install --prefix tests/e2e           # install TS Playwright dependencies
 npm run start:all
 
 # All stacks
-npm run lint          # CLAUDE.md split + agents/skills checks + backend + frontend lint
+npm run lint          # CLAUDE.md split, agents/skills and token contrast checks + backend + frontend lint
 npm run test:quiet    # backend + frontend + script tests: totals only, failing tests named (use in sessions)
 npm test              # the same suites with full output
 npm run pre-pr        # before a PR: self-review + lint + those suites + E2E P0, same summary file

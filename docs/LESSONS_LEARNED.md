@@ -113,6 +113,14 @@ rule. `node scripts/lessons-report.mjs --checklist backend,docs` prints the item
   **Prevention:** `AppShell` owns the landmark and pages use a `<div>` (enforced: the page-level audits
   in `tests/e2e/specs/axe-audits.spec.ts` for the dashboard, settings and metric detail pages; manual
   for the other routes).
+- **Miss:** the dark focus ring (`--ring`) was 1.9–2.5:1 on every surface, under WCAG 1.4.11's 3:1.
+  **Cause:** axe does not measure focus indicators, and token contrast was never computed.
+  **Prevention:** keep tokens at 3:1 (enforced: `scripts/contrast-tokens.mjs` in `npm run lint` and CI).
+- **Miss:** chart series used `hsl(var(--chart-1))`: the token did not exist, and a canvas cannot read
+  CSS variables, so dark mode drew a faint grey line under bright default grid lines.
+  **Cause:** unit tests checked the option's shape, not that its colours were real.
+  **Prevention:** colours come from `readMetricHistoryChartPalette` (enforced: the builder test fails
+  on any `var(` in the option; `--chart-N` contrast in `contrast-tokens.mjs`).
 
 ## Tests and E2E
 

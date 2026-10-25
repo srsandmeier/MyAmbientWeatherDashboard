@@ -106,6 +106,38 @@ describe('buildMetricHistoryChartOption', () => {
     ]);
   });
 
+  it('never passes CSS variables, which the canvas cannot read, and keeps ECharts colours without a palette', () => {
+    const option = buildMetricHistoryChartOption({ metricLabel: 'Outdoor Temperature', unit: 'F', category: 'scalar', points: POINTS });
+
+    expect(option.color).toBeUndefined();
+    expect(JSON.stringify(option)).not.toContain('var(');
+  });
+
+  it('applies the palette to series, axes, grid lines, tooltip and slider', () => {
+    const palette = {
+      theme: 'dark' as const,
+      series: ['rgb(1, 2, 3)', 'rgb(4, 5, 6)', 'rgb(7, 8, 9)'],
+      text: 'rgb(10, 10, 10)',
+      line: 'rgb(20, 20, 20)',
+      tooltipBackground: 'rgb(30, 30, 30)',
+      tooltipText: 'rgb(40, 40, 40)',
+    };
+    const option = buildMetricHistoryChartOption({ metricLabel: 'Outdoor Temperature', unit: 'F', category: 'scalar', points: POINTS, palette });
+
+    expect(option.color).toEqual(palette.series);
+    expect(option.textStyle).toEqual({ color: palette.text });
+    expect(option.xAxis).toMatchObject({ axisLabel: { color: palette.text }, axisLine: { lineStyle: { color: palette.line } } });
+    expect(option.yAxis).toMatchObject({
+      nameTextStyle: { color: palette.text },
+      axisLabel: { color: palette.text },
+      splitLine: { lineStyle: { color: palette.line } },
+    });
+    expect(option.tooltip).toMatchObject({ backgroundColor: palette.tooltipBackground, borderColor: palette.line, textStyle: { color: palette.tooltipText } });
+    expect(option.dataZoom).toEqual(expect.arrayContaining([
+      expect.objectContaining({ type: 'slider', borderColor: palette.line, textStyle: { color: palette.text } }),
+    ]));
+  });
+
   it('uses numeric millisecond timestamps in series data for local timezone', () => {
     const option = buildMetricHistoryChartOption({
       metricLabel: 'Outdoor Temperature',

@@ -14,6 +14,22 @@ export interface BuildMetricHistoryChartOptionInput {
   readonly reduceMotion?: boolean;
   /** Controls how timestamps are displayed on the chart. Defaults to 'utc'. */
   readonly timezone?: 'utc' | 'local';
+  /** Resolved theme colours (see `readMetricHistoryChartPalette`); ECharts defaults when omitted. */
+  readonly palette?: MetricHistoryChartPalette;
+}
+
+/** Theme colours as values ECharts can parse: it draws on a canvas and cannot read CSS variables. */
+export interface MetricHistoryChartPalette {
+  /** The theme the colours were read for. */
+  readonly theme: 'light' | 'dark';
+  /** One colour per series, in order: the primary series first. */
+  readonly series: readonly string[];
+  /** Axis labels, the axis name and slider labels. */
+  readonly text: string;
+  /** Axis lines, grid lines and borders. */
+  readonly line: string;
+  readonly tooltipBackground: string;
+  readonly tooltipText: string;
 }
 
 export interface MetricHistoryComparisonSeries {
@@ -31,6 +47,7 @@ export function buildMetricHistoryChartOption({
   chartType,
   reduceMotion = false,
   timezone = 'local',
+  palette,
 }: BuildMetricHistoryChartOptionInput): EChartsOption {
   const resolvedChartType = chartType ?? (category === 'rainfall' ? 'bar' : 'line');
   const seriesType = resolvedChartType === 'bar' ? 'bar' : 'line';
@@ -45,7 +62,7 @@ export function buildMetricHistoryChartOption({
         description: ariaDescription,
       },
     },
-    color: ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))'],
+    ...(palette ? { color: [...palette.series], textStyle: { color: palette.text } } : {}),
     grid: {
       left: 48,
       right: 24,
@@ -56,19 +73,35 @@ export function buildMetricHistoryChartOption({
     tooltip: {
       trigger: 'axis',
       valueFormatter: (value) => formatTooltipValue(value, unit),
+      ...(palette
+        ? { backgroundColor: palette.tooltipBackground, borderColor: palette.line, textStyle: { color: palette.tooltipText } }
+        : {}),
     },
     dataZoom: [
       { type: 'inside', throttle: 50 },
-      { type: 'slider', height: 28, bottom: 16 },
+      {
+        type: 'slider',
+        height: 28,
+        bottom: 16,
+        ...(palette ? { borderColor: palette.line, textStyle: { color: palette.text } } : {}),
+      },
     ],
     xAxis: {
       type: 'time',
-      axisLabel: { hideOverlap: true },
+      axisLabel: { hideOverlap: true, ...(palette ? { color: palette.text } : {}) },
+      ...(palette ? { axisLine: { lineStyle: { color: palette.line } } } : {}),
     },
     yAxis: {
       type: 'value',
       name: unit,
       nameGap: 12,
+      ...(palette
+        ? {
+            nameTextStyle: { color: palette.text },
+            axisLabel: { color: palette.text },
+            splitLine: { lineStyle: { color: palette.line } },
+          }
+        : {}),
     },
     series: [
       buildSeries(metricLabel, points, seriesType, resolvedChartType, timezone),
