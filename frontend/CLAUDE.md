@@ -39,6 +39,9 @@ cd frontend && npx vitest  # Vitest watch mode for TDD
 - `@typescript-eslint/switch-exhaustiveness-check` is enforced. Every `switch` on a discriminated union must be exhaustive — cover all members or add a `default` that throws or narrows to `never`.
 - `DevAuthBypass=true` in `appsettings.Development.json` injects a mock user so the backend
   accepts requests without a real Auth0 token. Set to `false` to require real JWT.
+- **Theme:** change it only through `useTheme().setTheme`, which applies the `dark` class before React
+  re-renders, so `resolvedTheme` and the document class always agree (also when the OS theme changes under
+  "system"). Read the applied theme with `useResolvedTheme`; never watch the class yourself.
 - Telemetry: use `ITelemetry` from `src/telemetry/index.ts` — never import
   `@microsoft/applicationinsights-web` or any RUM SDK directly into page/component/hook code.
 - Every interactive element (buttons, inputs, selects, toggles, links, form fields) and every

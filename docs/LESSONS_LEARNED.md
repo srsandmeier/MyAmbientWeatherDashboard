@@ -121,6 +121,16 @@ rule. `node scripts/lessons-report.mjs --checklist backend,docs` prints the item
   **Cause:** unit tests checked the option's shape, not that its colours were real.
   **Prevention:** colours come from `readMetricHistoryChartPalette` (enforced: the builder test fails
   on any `var(` in the option; `--chart-N` contrast in `contrast-tokens.mjs`).
+- **Miss:** `resolvedTheme` lagged the document class, so the chart fix first added a second theme source
+  watching `<html>` (review of PR #184).
+  **Cause:** ThemeProvider set the class in an effect, after children render, and ignored OS changes.
+  **Prevention:** `frontend/CLAUDE.md`, "Theme" (enforced: the render-order and OS-change tests in
+  `ThemeProvider.test.tsx`).
+- **Miss:** the contrast check skipped `oklch(72% …)` tokens without a word and kept its own copy of the
+  colour maths (review of PR #184).
+  **Cause:** it had its own narrower parser instead of the chart's.
+  **Prevention:** it imports `lib/themeColors.ts` and fails on a colour token it cannot read (enforced:
+  `scripts/contrast-tokens.test.mjs`).
 
 ## Tests and E2E
 
@@ -205,5 +215,14 @@ rule. `node scripts/lessons-report.mjs --checklist backend,docs` prints the item
   text held backslashes matched nothing (quality plan, P1 and P2).
   **Cause:** the search text passed through a shell here-document inside a JavaScript string, and the
   backslashes did not arrive as written.
-  **Prevention:** the Edit tool, or a script file written directly; a scripted edit asserts one match,
-  which is what stopped both (manual).
+  **Prevention:** the Edit tool, or a script file written directly; a scripted edit asserts one match
+  (enforced: the shell hook denies an interpreter or heredoc write whose code holds a backslash).
+- **Miss:** that hook, as first ported, denied commands that write nothing (`sys.stdout.write`, a grep
+  pattern next to a `node -e`) (review of PR #184).
+  **Cause:** its patterns were matched against the whole command line, not one interpreter's code.
+  **Prevention:** each interpreter is judged on its own `-c`/`-e` code, here-document or piped input
+  (enforced: the allowed and denied cases in `scripts/hooks/hooks.test.mjs`).
+- **Miss:** `prove-tests` reported CAUGHT for a `cmd` that could not start (review of PR #184).
+  **Cause:** any non-zero exit after the mutation counted as caught.
+  **Prevention:** the test must pass on the unchanged code first, or the line is SETUP (enforced:
+  `scripts/prove-tests.test.mjs`).

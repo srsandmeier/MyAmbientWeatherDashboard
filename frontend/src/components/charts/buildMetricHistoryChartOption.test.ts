@@ -115,7 +115,6 @@ describe('buildMetricHistoryChartOption', () => {
 
   it('applies the palette to series, axes, grid lines, tooltip and slider', () => {
     const palette = {
-      theme: 'dark' as const,
       series: ['rgb(1, 2, 3)', 'rgb(4, 5, 6)', 'rgb(7, 8, 9)'],
       text: 'rgb(10, 10, 10)',
       line: 'rgb(20, 20, 20)',

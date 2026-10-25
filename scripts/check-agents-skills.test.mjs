@@ -33,6 +33,26 @@ test('the header is parsed with its tools list and preloaded skills', () => {
   assert.equal(parseHeader('# No header\n'), null);
 });
 
+test('multi-line and quoted descriptions and YAML lists are read like single-line ones', () => {
+  const folded = parseHeader('---\nname: reviewer\ndescription: >-\n  Reviews things.\n  Use when a thing changes.\ntools:\n  - Read\n  - Bash\nskills: [checker, "other"]\n---\n');
+  assert.deepEqual(folded, { skills: ['checker', 'other'], name: 'reviewer', description: 'Reviews things. Use when a thing changes.', tools: ['Read', 'Bash'] });
+
+  const literal = parseHeader('---\nname: "reviewer"\ndescription: |\n  Reviews things.\n\n  Use when a thing changes.\ntools: [Read, Grep]\n---\n');
+  assert.equal(literal.name, 'reviewer');
+  assert.equal(literal.description, 'Reviews things.\n\nUse when a thing changes.');
+  assert.deepEqual(literal.tools, ['Read', 'Grep']);
+
+  const plain = parseHeader("---\nname: reviewer\ndescription: 'Reviews things.\n  Use when a thing changes.'\n---\n");
+  assert.equal(plain.description, 'Reviews things. Use when a thing changes.');
+});
+
+test('a folded description and a tools list pass the wiring checks', () => {
+  const problems = findProblems(docs({
+    '.claude/agents/reviewer.md': '---\nname: reviewer\ndescription: >-\n  Reviews things.\n  Use when a thing changes.\ntools:\n  - Read\n  - Bash\nmodel: sonnet\nskills:\n  - checker\n---\n\n## Must NOT do\n',
+  }), repo);
+  assert.deepEqual(problems, []);
+});
+
 test('a missing header, a wrong name and a description with no "Use when" are reported', () => {
   const problems = findProblems(docs({
     '.claude/agents/plain.md': '# Plain\n\n## Must NOT do\n',

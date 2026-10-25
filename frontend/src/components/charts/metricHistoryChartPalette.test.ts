@@ -22,10 +22,9 @@ afterEach(() => {
 describe('readMetricHistoryChartPalette', () => {
   it('reads every chart colour from the theme tokens as rgb()', () => {
     setTokens(TOKENS);
-    const palette = readMetricHistoryChartPalette('light');
+    const palette = readMetricHistoryChartPalette();
 
     expect(palette).toMatchObject({
-      theme: 'light',
       text: 'rgb(0, 0, 0)',
       line: 'rgb(128, 128, 128)',
       tooltipBackground: 'rgb(255, 255, 255)',
@@ -38,6 +37,6 @@ describe('readMetricHistoryChartPalette', () => {
   it('is undefined when any token is missing, so the chart keeps ECharts defaults', () => {
     const { 'chart-3': _missing, ...rest } = TOKENS;
     setTokens(rest);
-    expect(readMetricHistoryChartPalette('dark')).toBeUndefined();
+    expect(readMetricHistoryChartPalette()).toBeUndefined();
   });
 });

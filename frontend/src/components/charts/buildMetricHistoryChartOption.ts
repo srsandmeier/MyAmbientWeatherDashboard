@@ -20,8 +20,6 @@ export interface BuildMetricHistoryChartOptionInput {
 
 /** Theme colours as values ECharts can parse: it draws on a canvas and cannot read CSS variables. */
 export interface MetricHistoryChartPalette {
-  /** The theme the colours were read for. */
-  readonly theme: 'light' | 'dark';
   /** One colour per series, in order: the primary series first. */
   readonly series: readonly string[];
   /** Axis labels, the axis name and slider labels. */

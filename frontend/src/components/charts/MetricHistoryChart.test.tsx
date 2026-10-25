@@ -1,6 +1,7 @@
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MetricHistoryChart } from './MetricHistoryChart';
+import { ThemeProvider, useTheme } from '../../providers/ThemeProvider';
 
 interface MockOption {
   readonly animation?: boolean;
@@ -110,7 +111,37 @@ describe('MetricHistoryChart', () => {
       expect(chart).toHaveAttribute('data-text-color', 'rgb(0, 0, 0)');
     });
 
-    it('reads the colours again when the dark theme is applied after the chart rendered', async () => {
+    it('picks up the colours on the next render when the stylesheet is applied after the first', () => {
+      themeStyle.remove();
+      const { rerender } = render(<MetricHistoryChart metricLabel="Temperature" unit="F" category="scalar" points={POINTS} />);
+      expect(screen.getByTestId('mock-echarts')).toHaveAttribute('data-color', '');
+
+      document.head.appendChild(themeStyle);
+      rerender(<MetricHistoryChart metricLabel="Temperature" unit="F" category="scalar" points={[...POINTS]} />);
+
+      expect(screen.getByTestId('mock-echarts')).toHaveAttribute('data-color', 'rgb(0, 0, 0),rgb(0, 0, 0),rgb(0, 0, 0)');
+    });
+
+    it('draws the dark colours in the same render that ThemeProvider switches to dark', () => {
+      function ThemeSwitch() {
+        const { setTheme } = useTheme();
+        return <button type="button" data-test-id="switch-dark" onClick={() => { setTheme('dark'); }}>dark</button>;
+      }
+      render(
+        <ThemeProvider>
+          <ThemeSwitch />
+          <MetricHistoryChart metricLabel="Temperature" unit="F" category="scalar" points={POINTS} />
+        </ThemeProvider>,
+      );
+      expect(screen.getByTestId('mock-echarts')).toHaveAttribute('data-text-color', 'rgb(0, 0, 0)');
+
+      fireEvent.click(screen.getByTestId('switch-dark'));
+
+      expect(screen.getByTestId('mock-echarts')).toHaveAttribute('data-text-color', 'rgb(255, 255, 255)');
+      expect(screen.getByTestId('mock-echarts')).toHaveAttribute('data-color', 'rgb(255, 255, 255),rgb(0, 0, 0),rgb(0, 0, 0)');
+    });
+
+    it('reads the colours again when the dark class is applied after the chart rendered', async () => {
       render(<MetricHistoryChart metricLabel="Temperature" unit="F" category="scalar" points={POINTS} />);
 
       act(() => { document.documentElement.classList.add('dark'); });

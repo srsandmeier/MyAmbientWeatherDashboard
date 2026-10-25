@@ -65,6 +65,18 @@ test('each chart series token needs 3:1 on background and card, not on the other
   assert.deepEqual(failed.map((r) => r.fg), ['chart-1']);
 });
 
+test('percentage lightness, a deg hue and an alpha are read, not dropped from the check', () => {
+  const { light, unchecked } = parseThemes(':root {\n  --background: oklch(100% 0 0deg);\n  --chart-1: oklch(90% 0 0 / 80%);\n}\n');
+  assert.deepEqual([...light.keys()], ['background', 'chart-1']);
+  assert.deepEqual(unchecked, []);
+  assert.deepEqual(check(':root {\n  --background: oklch(100% 0 0deg);\n  --chart-1: oklch(90% 0 0 / 80%);\n}\n').filter((r) => !r.pass).map((r) => r.fg), ['chart-1']);
+});
+
+test('a colour token in another format is reported as unchecked; lengths are not', () => {
+  const { unchecked } = parseThemes('.dark {\n  --chart-1: #123456;\n  --ring: hsl(0 0% 50%);\n  --radius: 0.625rem;\n}\n');
+  assert.deepEqual(unchecked, ['dark --chart-1: #123456', 'dark --ring: hsl(0 0% 50%)']);
+});
+
 test('the script passes on this repository', () => {
   const result = spawnSync(process.execPath, [join(HERE, 'contrast-tokens.mjs')], { encoding: 'utf8' });
   assert.equal(result.status, 0, result.stdout);
