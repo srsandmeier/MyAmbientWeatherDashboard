@@ -89,6 +89,9 @@ jobs:
       - name: Check Agents and Skills
         run: node scripts/check-agents-skills.mjs
 
+      - name: Check Theme Token Contrast
+        run: node scripts/contrast-tokens.mjs
+
       - name: Self-Review Required Checks
         run: node scripts/self-review.mjs --required
 

@@ -17,16 +17,88 @@ const SED_CALL = new RegExp(String.raw`${COMMAND_START}sed\s+([^;&|\n]*)`, 'gm')
 const IN_PLACE_FLAG = /(?:^|\s)(?:-[a-zA-Z]*i[a-zA-Z.~]*|--in-place(?:=\S*)?)(?=\s|$)/;
 const PYTHON3_CALL = new RegExp(String.raw`${COMMAND_START}python3(?:\.exe)?(?=\s|$)`, 'm');
 
-// Ported from the inclusive-travel-navigator hook (scripts/hooks/no-backslash-writes.mjs). Options may sit
-// between the program and the inline code (`py -3 -c`, `node --input-type=module <<EOF`); code piped in
-// (`echo ... | python -`, a PowerShell here-string `'@ | node`) counts too.
-const OPTS = String.raw`(\s+(-X\s+\S+|-[^\s|;&]*))*\s*(?=$|[\n;&|])`;
-const INLINE_PYTHON = new RegExp(String.raw`\b(python3?|py)(\.exe)?\b[^|;&\n]*?\s(-c\b|-\s*<<|<<)|\|\s*(python3?|py)(\.exe)?` + OPTS);
-const PYTHON_WRITE = /\.write_(text|bytes)\(|\.write\(|\bjson\.dump\(|\bopen\([^)]*,\s*["'](w|a|r\+)/;
-const INLINE_NODE = new RegExp(String.raw`\bnode(\.exe)?\b[^|;&\n]*?\s(-[a-zA-Z]*[ep]|--eval|--print)\b|\bnode(\.exe)?\b[^|;&\n]*?\s(-\s*)?<<|\|\s*node(\.exe)?` + OPTS);
+// Adapted from the inclusive-travel-navigator hook (scripts/hooks/no-backslash-writes.mjs). The command line
+// is split into pipelines and stages, and each interpreter is judged on its own code only: the `-c`/`-e`
+// argument, the here-document it reads, or the text piped into it. So a backslash in a grep pattern or a path
+// argument elsewhere on the line does not count, and printing (`sys.stdout.write`) is not a file write.
+const HERE_DOC = /<<-?[ \t]*(['"]?)(\w+)\1([^\n]*)\n([\s\S]*?)\n[ \t]*\2(?=[ \t]*(?:\n|$))/g;
+const POWERSHELL_HERE_STRING = /@(['"])[ \t]*\r?\n([\s\S]*?)\r?\n\1@/g;
+const PROGRAM = /^\s*(?:[\w./\\:-]*[/\\])?(python3?|py|node|perl|cat|tee)(?:\.exe)?(?=\s|$)([\s\S]*)$/;
+const ARG = String.raw`('([^']*)'|"((?:[^"\\]|\\.)*)"|(\S+))`;
+const INLINE_CODE = {
+  python: new RegExp(String.raw`(?:^|\s)-c\s*` + ARG),
+  node: new RegExp(String.raw`(?:^|\s)(?:-[a-zA-Z]*[ep]|--eval|--print)(?:=|\s+)` + ARG),
+};
+const PYTHON_WRITE = /\.write_(text|bytes)\(|(?<!std(?:out|err))\.write\(|\bjson\.dump\(|\bopen\([^)]*,\s*["'](w|a|x|r\+)/;
 const NODE_WRITE = /\b(writeFileSync|writeFile|appendFileSync|appendFile|createWriteStream)\b/;
-const PERL_IN_PLACE = /\bperl\b[^|;&\n]*?\s(-[a-zA-Z]*i(\.[\w.]*|~)?|--in-place)(\s|=|$)/;
-const HEREDOC_FILE = /\bcat\s*>>?\s*\S+\s*<<|\bcat\s*<<-?\s*['"]?\w+['"]?\s*>>?\s*\S|\btee\b[^|;&]*<<|<<[^|;&\n]*\|\s*tee\b/;
+const PERL_IN_PLACE = /(?:^|\s)(?:-[a-zA-Z]*i(?:\.[\w.]*|~)?|--in-place)(?=\s|=|$)/;
+
+/**
+ * The pipelines of a command line (split at `;`, `&&`, `||` and new lines outside quotes), each a list of
+ * stages (split at `|`) with the here-document and here-string bodies that stage reads.
+ */
+export function pipelines(command) {
+  const bodies = [];
+  const keep = (body) => `\u0000${String(bodies.push(body) - 1)}`;
+  const text = (command ?? '')
+    .replace(HERE_DOC, (_all, _quote, _tag, rest, body) => `<<${keep(body)}${rest}`)
+    .replace(POWERSHELL_HERE_STRING, (_all, _quote, body) => `@${keep(body)}`);
+  const result = [];
+  let stages = [];
+  let current = '';
+  let quote = '';
+  const endStage = () => { stages.push(current); current = ''; };
+  const endPipeline = () => { endStage(); result.push(stages); stages = []; };
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (quote) {
+      current += ch;
+      if (ch === '\\' && quote === '"' && i + 1 < text.length) current += text[++i];
+      else if (ch === quote) quote = '';
+    } else if (ch === "'" || ch === '"') {
+      quote = ch;
+      current += ch;
+    } else if (ch === '\n' || ch === ';') {
+      endPipeline();
+    } else if ((ch === '&' || ch === '|') && text[i + 1] === ch) {
+      endPipeline();
+      i++;
+    } else if (ch === '|') {
+      endStage();
+    } else {
+      current += ch;
+    }
+  }
+  endPipeline();
+  return result
+    .map((pipeline) => pipeline
+      .filter((stage) => stage.trim() !== '')
+      .map((stage) => ({ text: stage, bodies: [...stage.matchAll(/\u0000(\d+)/g)].map((m) => bodies[Number(m[1])]) })))
+    .filter((pipeline) => pipeline.length > 0);
+}
+
+/**
+ * Whether the arguments are only options, so the program reads its code from standard input (`| python -`,
+ * `| node`). Split into words rather than matched with one regex: `-X value` and `-\S*` overlap, and a
+ * pattern that repeats both backtracks exponentially (CodeQL js/redos).
+ */
+export function readsStandardInput(args) {
+  const words = args.trim().split(/\s+/).filter(Boolean);
+  for (let i = 0; i < words.length; i++) {
+    if (words[i] === '-X') i++;
+    else if (!words[i].startsWith('-')) return false;
+  }
+  return true;
+}
+
+/** The code an interpreter stage runs, or '' when it runs a script file. */
+function inlineCode(language, args, stage, upstream) {
+  const pattern = INLINE_CODE[language];
+  const match = pattern?.exec(args);
+  if (match) return match[2] ?? match[3] ?? match[4] ?? '';
+  if (stage.bodies.length > 0) return stage.bodies.join('\n');
+  return readsStandardInput(args) ? upstream : '';
+}
 
 export function usesSedInPlace(command) {
   // Quoted arguments are the sed script or file names, not flags.
@@ -37,14 +109,31 @@ export function usesPython3(command) {
   return PYTHON3_CALL.test(command ?? '');
 }
 
-/** How a command writes a file with a backslash in its text, or an empty string when it does not. */
+/** How a command writes a file with a backslash in its code, or an empty string when it does not. */
 export function backslashWrite(command) {
-  const cmd = command ?? '';
-  if (!cmd.includes('\\')) return '';
-  if (INLINE_PYTHON.test(cmd) && PYTHON_WRITE.test(cmd)) return 'inline Python that writes a file';
-  if (INLINE_NODE.test(cmd) && NODE_WRITE.test(cmd)) return '`node -e` code that writes a file';
-  if (PERL_IN_PLACE.test(cmd)) return 'an in-place `perl` edit';
-  if (HEREDOC_FILE.test(cmd)) return 'a heredoc written to a file';
+  if (!(command ?? '').includes('\\')) return '';
+  for (const pipeline of pipelines(command)) {
+    for (const [index, stage] of pipeline.entries()) {
+      const program = PROGRAM.exec(stage.text);
+      if (!program) continue;
+      const [, name, args] = program;
+      const before = pipeline.slice(0, index);
+      const upstream = before.map((s) => [s.text, ...s.bodies].join('\n')).join('\n');
+      if (name === 'python' || name === 'python3' || name === 'py') {
+        const code = inlineCode('python', args, stage, upstream);
+        if (code.includes('\\') && PYTHON_WRITE.test(code)) return 'inline Python that writes a file';
+      } else if (name === 'node') {
+        const code = inlineCode('node', args, stage, upstream);
+        if (code.includes('\\') && NODE_WRITE.test(code)) return '`node -e` code that writes a file';
+      } else if (name === 'perl') {
+        if (PERL_IN_PLACE.test(args) && [stage.text, ...stage.bodies].join('\n').includes('\\')) return 'an in-place `perl` edit';
+      } else if (name === 'cat') {
+        if (/>/.test(args) && stage.bodies.some((body) => body.includes('\\'))) return 'a heredoc written to a file';
+      } else if ([stage, ...before].some((s) => s.bodies.some((body) => body.includes('\\')))) {
+        return 'a heredoc written to a file'; // tee
+      }
+    }
+  }
   return '';
 }
 

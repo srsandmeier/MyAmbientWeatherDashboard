@@ -58,6 +58,10 @@
   --border: oklch(0.78 0 0);
   --input: oklch(0.78 0 0);
   --ring: oklch(0.44 0 0);
+  /* Chart series (ECharts reads these through lib/themeColors.ts); 3:1 or more on background and card. */
+  --chart-1: oklch(0.5 0.17 255);
+  --chart-2: oklch(0.55 0.15 45);
+  --chart-3: oklch(0.5 0.12 160);
   --radius: 0.625rem;
 }
 
@@ -83,7 +87,11 @@
   --destructive-foreground: oklch(0.985 0 0);
   --border: oklch(0.31 0 0);
   --input: oklch(0.31 0 0);
-  --ring: oklch(0.439 0 0);
+  /* 3:1 or more on every dark surface (WCAG 1.4.11); `npm run ui:contrast` checks it. */
+  --ring: oklch(0.6 0 0);
+  --chart-1: oklch(0.72 0.14 255);
+  --chart-2: oklch(0.75 0.14 60);
+  --chart-3: oklch(0.74 0.13 160);
 }
 
 *,

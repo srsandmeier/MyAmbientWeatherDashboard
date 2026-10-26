@@ -11,9 +11,12 @@ npm run ui:contrast    # node scripts/contrast-tokens.mjs: one line per failing 
 
 - Reads the OKLCH tokens in `:root` (light) and `.dark`, converts them to sRGB luminance and checks:
   every `--x-foreground` on `--x`; `--foreground` and `--muted-foreground` on each surface (background,
-  card, popover, muted, surface layers); `--ring` on each surface.
-- Text needs 4.5:1 (WCAG 1.4.3) and the focus ring 3:1 (1.4.11): both are `FAIL` and exit 1. Input borders
-  below 3:1 are `WARN`: a field can be identified by its label and fill.
+  card, popover, muted, surface layers); `--ring` on each surface; each `--chart-N` on background and card.
+- Text needs 4.5:1 (WCAG 1.4.3); the focus ring and chart series 3:1 (1.4.11): all are `FAIL` and exit 1,
+  which fails `npm run lint` and CI. Input borders below 3:1 are `WARN`: a field can be identified by its
+  label and fill. A colour token that is not `oklch()` (hex, hsl) also fails, so no token drops out of the
+  check; `oklch()` with a percentage, `deg` or an alpha is read.
+- The parsing and the OKLCH conversion are `frontend/src/lib/themeColors.ts`, the code the charts draw with.
 - It checks tokens, not components: a component that uses a raw colour utility (`text-green-800`) needs
   its `dark:` partner checked by eye or with `ui-snapshot`.
 

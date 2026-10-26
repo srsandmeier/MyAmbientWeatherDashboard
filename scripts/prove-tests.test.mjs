@@ -18,10 +18,33 @@ function withRepo(text, run) {
   }
 }
 
-test('Vitest totals are read as caught, missed or not run', () => {
-  assert.deepEqual(vitestResult(' Test Files  1 failed (1)\n      Tests  1 failed | 4 passed (5)\n'), { status: 'CAUGHT' });
-  assert.deepEqual(vitestResult('      Tests  5 passed (5)\n'), { status: 'MISSED' });
-  assert.equal(vitestResult('No test files found, exiting with code 1\n').status, 'NO-RUN');
+test('Vitest totals are read as fail, pass or nothing run', () => {
+  assert.deepEqual(vitestResult(' Test Files  1 failed (1)\n      Tests  1 failed | 4 passed (5)\n'), { outcome: 'fail' });
+  assert.deepEqual(vitestResult('      Tests  5 passed (5)\n'), { outcome: 'pass' });
+  assert.equal(vitestResult('No test files found, exiting with code 1\n').outcome, 'none');
+});
+
+test('a command that cannot run, or fails on the unchanged code, is a setup problem, never caught', () => {
+  withRepo('const limit = 1;\n', (repo) => {
+    for (const cmd of ['no-such-command-for-prove-tests --run', `${node} -e "process.exit(3)"`]) {
+      const result = proveOne({ what: 'limit', file: 'code.txt', find: 'limit = 1', replace: 'limit = 2', cmd }, repo);
+      assert.equal(result.status, 'SETUP', cmd);
+      assert.match(result.detail, /does not pass on the unchanged code \(exit /);
+    }
+    assert.equal(readFileSync(join(repo, 'code.txt'), 'utf8'), 'const limit = 1;\n');
+  });
+});
+
+test('the unchanged-code run is made once per test and reused', () => {
+  withRepo('a = 1;\nb = 1;\n', (repo) => {
+    const counter = join(repo, 'runs.txt');
+    writeFileSync(counter, '');
+    const cmd = `${node} -e "const fs=require('fs');fs.appendFileSync('runs.txt','x');process.exit(fs.readFileSync('code.txt','utf8').includes('= 2')?1:0)"`;
+    const baselines = new Map();
+    assert.equal(proveOne({ what: 'a', file: 'code.txt', find: 'a = 1', replace: 'a = 2', cmd }, repo, baselines).status, 'CAUGHT');
+    assert.equal(proveOne({ what: 'b', file: 'code.txt', find: 'b = 1', replace: 'b = 2', cmd }, repo, baselines).status, 'CAUGHT');
+    assert.equal(readFileSync(counter, 'utf8'), 'xxx');
+  });
 });
 
 test('a command that fails on the mutated file is caught, and the file is restored', () => {

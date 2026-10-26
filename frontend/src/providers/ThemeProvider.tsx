@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState, useSyncExternalStore, type ReactNode } from 'react';
 
 export type Theme = 'light' | 'dark' | 'system';
 
@@ -60,37 +60,53 @@ function readStoredTheme(): Theme {
   return isTheme(stored) ? stored : 'system';
 }
 
+/** The stored theme, with its class already on the document before the first render. */
+// The `dark` class is applied wherever the theme changes (the first read, setTheme, an OS change) before
+// React re-renders, so a child that reads theme colours from the document during render (canvas charts)
+// always sees the class that matches `resolvedTheme`. An effect would run after the children rendered.
+let currentTheme: Theme = 'system';
+
+function readAndApplyStoredTheme(): Theme {
+  currentTheme = readStoredTheme();
+  applyTheme(currentTheme);
+  return currentTheme;
+}
+
+function subscribeToSystemTheme(callback: () => void): () => void {
+  try {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = () => {
+      if (currentTheme === 'system') applyTheme('system');
+      callback();
+    };
+    mq.addEventListener('change', handler);
+    return () => { mq.removeEventListener('change', handler); };
+  } catch {
+    // matchMedia unavailable in this environment.
+    return () => undefined;
+  }
+}
+
 // ─── Provider ─────────────────────────────────────────────────────────────────
 
 export function ThemeProvider({ children }: { readonly children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(readStoredTheme);
+  const [theme, setThemeState] = useState<Theme>(readAndApplyStoredTheme);
+  const systemTheme = useSyncExternalStore(subscribeToSystemTheme, getSystemTheme, () => 'light' as const);
+  const resolvedTheme = theme === 'system' ? systemTheme : theme;
 
   useEffect(() => {
-    applyTheme(theme);
+    currentTheme = theme;
     safeStorage.set('theme', theme);
   }, [theme]);
 
-  useEffect(() => {
-    if (theme !== 'system') return;
-
-    // Capture cleanup outside try/catch so it is always returned regardless of
-    // which branch executes — avoids leaking a registered listener on exception.
-    let cleanup: (() => void) | undefined;
-    try {
-      const mq = window.matchMedia('(prefers-color-scheme: dark)');
-      const handler = () => { applyTheme('system'); };
-      mq.addEventListener('change', handler);
-      cleanup = () => { mq.removeEventListener('change', handler); };
-    } catch {
-      // matchMedia unavailable in this environment.
-    }
-    return cleanup;
-  }, [theme]);
-
-  const setTheme = useCallback((next: Theme) => { setThemeState(next); }, []);
+  const setTheme = useCallback((next: Theme) => {
+    currentTheme = next;
+    applyTheme(next);
+    setThemeState(next);
+  }, []);
 
   return (
-    <ThemeContext.Provider value={{ theme, resolvedTheme: resolve(theme), setTheme }}>
+    <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -102,4 +118,32 @@ export function useTheme(): ThemeContextValue {
     throw new Error('useTheme must be used within ThemeProvider');
   }
   return ctx;
+}
+
+function subscribeToDocumentClass(callback: () => void): () => void {
+  const observer = new MutationObserver(callback);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+  return () => { observer.disconnect(); };
+}
+
+function getDocumentTheme(): 'light' | 'dark' {
+  return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+}
+
+/**
+ * The applied theme: `resolvedTheme` inside ThemeProvider. A component rendered on its own (an isolated
+ * test) has no provider, so it follows the `dark` class on the document instead.
+ */
+export function useResolvedTheme(): 'light' | 'dark' {
+  const ctx = useContext(ThemeContext);
+  const documentTheme = useSyncExternalStore(
+    ctx === null ? subscribeToDocumentClass : subscribeToNothing,
+    getDocumentTheme,
+    () => 'light' as const,
+  );
+  return ctx === null ? documentTheme : ctx.resolvedTheme;
+}
+
+function subscribeToNothing(): () => void {
+  return () => undefined;
 }

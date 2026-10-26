@@ -5,7 +5,7 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import { isRisky, note } from './before-rebase.mjs';
-import { backslashWrite, denyReason, usesPython3, usesSedInPlace } from './block-unsafe-shell.mjs';
+import { backslashWrite, denyReason, pipelines, readsStandardInput, usesPython3, usesSedInPlace } from './block-unsafe-shell.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
@@ -75,6 +75,10 @@ test('scripted file writes with a backslash in the command text are detected', (
     ["node - <<'EOF'\nrequire('fs').writeFileSync('f', String.raw`\\d`)\nEOF", /node -e/],
     [String.raw`perl -pi -e 's/\\d/x/' f.txt`, /perl/],
     ["cat > f.txt <<'EOF'\na\\b\nEOF", /heredoc/],
+    [String.raw`echo "open('f', 'w').write('\\d')" | python -`, /inline Python/],
+    ["@'\nrequire('fs').writeFileSync('f', '\\d')\n'@ | node", /node -e/],
+    ["cat <<'EOF' | tee f.txt\na\\b\nEOF", /heredoc/],
+    [String.raw`cd scripts && node -e "require('fs').writeFileSync('f', '\\n')"`, /node -e/],
   ]) {
     assert.match(backslashWrite(command), how, command);
     assert.match(denyReason(command, 'linux'), /Write tool/, command);
@@ -90,9 +94,23 @@ test('reads, script files and backslash-free writes are allowed', () => {
     `node -e "require('fs').writeFileSync('f', 'plain')"`,
     "cat > f.txt <<'EOF'\nplain\nEOF",
     String.raw`perl -Ilib -e 'print "\\n"'`,
+    // Printing is not writing a file.
+    String.raw`python -c "import sys; sys.stdout.write('a\\n')"`,
+    String.raw`python -c "import sys; sys.stderr.write('a\\n')"`,
+    // The write keyword and the backslash are in other commands than the interpreter's code.
+    String.raw`grep -rn "writeFileSync" src | node -e "x" C:\temp`,
+    "cat > f.txt <<'EOF'\nplain\nEOF\ngrep -n \"\\bfoo\" x",
+    String.raw`node -e "require('fs').writeFileSync('out.txt', 'x')" C:\temp\in.txt`,
+    "git commit -F - <<'EOF'\nfix: handle \\d in patterns\nEOF",
   ]) {
     assert.equal(backslashWrite(command), '', command);
   }
+});
+
+test('a command line is split into pipelines and stages outside quotes, keeping here-document bodies', () => {
+  const lines = pipelines("a 'x;y' | b && c \"p|q\"\ncat > f <<'EOF'\nbody; with | marks\nEOF");
+  assert.deepEqual(lines.map((p) => p.map((s) => s.text.trim())), [["a 'x;y'", 'b'], ['c "p|q"'], ['cat > f <<\u00000']]);
+  assert.deepEqual(lines[2][0].bodies, ['body; with | marks']);
 });
 
 test('the block hook prints a deny decision for sed -i and nothing for an allowed command', () => {
@@ -175,4 +193,15 @@ test('the note says where the branch is and what its pull requests are', () => {
 test('no note on a detached HEAD or when the branch is unknown', () => {
   assert.equal(note({ branch: 'HEAD', local: 'abc1234', remote: '', prs: [] }), '');
   assert.equal(note({ branch: '', local: '', remote: '', prs: [] }), '');
+});
+
+test('an interpreter with only options reads its code from standard input', () => {
+  for (const args of ['', ' -', ' -u -', ' -X utf8 -', ' -X dev']) assert.equal(readsStandardInput(args), true, args);
+  for (const args of [' script.py', ' -u script.py', ' -X utf8 script.py']) assert.equal(readsStandardInput(args), false, args);
+});
+
+test('the standard-input check stays fast on the input CodeQL flagged', () => {
+  const started = performance.now();
+  assert.equal(readsStandardInput(` ${'-X - '.repeat(5000)}x`), false);
+  assert.ok(performance.now() - started < 100);
 });

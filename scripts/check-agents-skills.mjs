@@ -26,25 +26,38 @@ const COMMAND = /\b(node scripts\/|npm run |dotnet |npx )/;
 // Names that are written in backticks but are not this repo's code: products, specs and libraries.
 const NOT_CODE = new Set(['PostgreSQL', 'TypeScript', 'JavaScript', 'GitHub', 'SignalR', 'OpenAPI', 'OpenTelemetry', 'TanStack', 'ECharts', 'WebKit', 'OAuth']);
 
-/** The YAML header of a Markdown file as { name, description, tools, model, skills }, or null. */
+const unquote = (value) => value.replace(/^(['"])([\s\S]*)\1$/, '$2');
+
+/**
+ * The YAML header of a Markdown file as { name, description, tools, model, skills }, or null. Reads the YAML
+ * that agent and skill headers use: plain, quoted and multi-line scalars (`>-`, `|`, indented continuation
+ * lines), and lists written as `- item` lines, `[a, b]` or (for tools) `a, b`.
+ */
 export function parseHeader(text) {
   const match = /^---\r?\n([\s\S]*?)\r?\n---\r?\n/.exec(text);
   if (!match) return null;
   const header = { skills: [] };
-  let list = '';
-  for (const line of match[1].split(/\r?\n/)) {
-    const item = /^\s+-\s+(\S+)/.exec(line);
-    if (list === 'skills' && item) {
-      header.skills.push(item[1]);
-      continue;
-    }
-    list = '';
-    const pair = /^([\w-]+):\s*(.*)$/.exec(line);
+  const lines = match[1].split(/\r?\n/);
+  for (let i = 0; i < lines.length; i++) {
+    const pair = /^([\w-]+):\s*(.*)$/.exec(lines[i]);
     if (!pair) continue;
-    const [, key, value] = pair;
-    if (key === 'skills' && value === '') list = 'skills';
-    else if (key === 'tools') header.tools = value.split(',').map((t) => t.trim()).filter(Boolean);
-    else header[key] = value.trim();
+    const [, key, raw] = pair;
+    const block = [];
+    while (i + 1 < lines.length && (/^\s+\S/.test(lines[i + 1]) || (lines[i + 1].trim() === '' && /^\s+\S/.test(lines[i + 2] ?? '')))) {
+      block.push(lines[++i].trim());
+    }
+    const value = raw.trim();
+    let list;
+    if (block.length > 0 && block.every((line) => line.startsWith('- '))) list = block.map((line) => unquote(line.slice(2).trim()));
+    else if (/^\[.*\]$/.test(value)) list = value.slice(1, -1).split(',').map((item) => unquote(item.trim())).filter(Boolean);
+    let scalar = value;
+    if (/^[>|][-+]?$/.test(value)) scalar = block.join(value.startsWith('>') ? ' ' : '\n');
+    else if (!list && block.length > 0) scalar = [value, ...block].join(' ');
+    scalar = unquote(scalar.trim());
+
+    if (key === 'skills') header.skills = list ?? (scalar ? [scalar] : []);
+    else if (key === 'tools') header.tools = list ?? scalar.split(',').map((t) => t.trim()).filter(Boolean);
+    else header[key] = scalar;
   }
   return header;
 }
