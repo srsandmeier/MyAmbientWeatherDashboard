@@ -29,8 +29,6 @@ const INLINE_CODE = {
   python: new RegExp(String.raw`(?:^|\s)-c\s*` + ARG),
   node: new RegExp(String.raw`(?:^|\s)(?:-[a-zA-Z]*[ep]|--eval|--print)(?:=|\s+)` + ARG),
 };
-// Only options, so the program reads its code from standard input (`| python -`, `| node`).
-const NO_SCRIPT = /^(?:\s+(?:-X\s+\S+|-\S*))*\s*$/;
 const PYTHON_WRITE = /\.write_(text|bytes)\(|(?<!std(?:out|err))\.write\(|\bjson\.dump\(|\bopen\([^)]*,\s*["'](w|a|x|r\+)/;
 const NODE_WRITE = /\b(writeFileSync|writeFile|appendFileSync|appendFile|createWriteStream)\b/;
 const PERL_IN_PLACE = /(?:^|\s)(?:-[a-zA-Z]*i(?:\.[\w.]*|~)?|--in-place)(?=\s|=|$)/;
@@ -79,13 +77,27 @@ export function pipelines(command) {
     .filter((pipeline) => pipeline.length > 0);
 }
 
+/**
+ * Whether the arguments are only options, so the program reads its code from standard input (`| python -`,
+ * `| node`). Split into words rather than matched with one regex: `-X value` and `-\S*` overlap, and a
+ * pattern that repeats both backtracks exponentially (CodeQL js/redos).
+ */
+export function readsStandardInput(args) {
+  const words = args.trim().split(/\s+/).filter(Boolean);
+  for (let i = 0; i < words.length; i++) {
+    if (words[i] === '-X') i++;
+    else if (!words[i].startsWith('-')) return false;
+  }
+  return true;
+}
+
 /** The code an interpreter stage runs, or '' when it runs a script file. */
 function inlineCode(language, args, stage, upstream) {
   const pattern = INLINE_CODE[language];
   const match = pattern?.exec(args);
   if (match) return match[2] ?? match[3] ?? match[4] ?? '';
   if (stage.bodies.length > 0) return stage.bodies.join('\n');
-  return NO_SCRIPT.test(args) ? upstream : '';
+  return readsStandardInput(args) ? upstream : '';
 }
 
 export function usesSedInPlace(command) {

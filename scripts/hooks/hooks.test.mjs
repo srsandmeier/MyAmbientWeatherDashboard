@@ -5,7 +5,7 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import { isRisky, note } from './before-rebase.mjs';
-import { backslashWrite, denyReason, pipelines, usesPython3, usesSedInPlace } from './block-unsafe-shell.mjs';
+import { backslashWrite, denyReason, pipelines, readsStandardInput, usesPython3, usesSedInPlace } from './block-unsafe-shell.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
@@ -193,4 +193,15 @@ test('the note says where the branch is and what its pull requests are', () => {
 test('no note on a detached HEAD or when the branch is unknown', () => {
   assert.equal(note({ branch: 'HEAD', local: 'abc1234', remote: '', prs: [] }), '');
   assert.equal(note({ branch: '', local: '', remote: '', prs: [] }), '');
+});
+
+test('an interpreter with only options reads its code from standard input', () => {
+  for (const args of ['', ' -', ' -u -', ' -X utf8 -', ' -X dev']) assert.equal(readsStandardInput(args), true, args);
+  for (const args of [' script.py', ' -u script.py', ' -X utf8 script.py']) assert.equal(readsStandardInput(args), false, args);
+});
+
+test('the standard-input check stays fast on the input CodeQL flagged', () => {
+  const started = performance.now();
+  assert.equal(readsStandardInput(` ${'-X - '.repeat(5000)}x`), false);
+  assert.ok(performance.now() - started < 100);
 });

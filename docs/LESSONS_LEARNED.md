@@ -222,6 +222,11 @@ rule. `node scripts/lessons-report.mjs --checklist backend,docs` prints the item
   **Cause:** its patterns were matched against the whole command line, not one interpreter's code.
   **Prevention:** each interpreter is judged on its own `-c`/`-e` code, here-document or piped input
   (enforced: the allowed and denied cases in `scripts/hooks/hooks.test.mjs`).
+- **Miss:** the rewrite added a regex that CodeQL rated high: `(-X\s+\S+|-\S*)*` backtracks
+  exponentially (CodeQL on PR #184).
+  **Cause:** two alternatives inside a repeat could match the same text.
+  **Prevention:** split options into words instead of one repeating regex (enforced: CodeQL js/redos
+  and the timing test in `scripts/hooks/hooks.test.mjs`).
 - **Miss:** `prove-tests` reported CAUGHT for a `cmd` that could not start (review of PR #184).
   **Cause:** any non-zero exit after the mutation counted as caught.
   **Prevention:** the test must pass on the unchanged code first, or the line is SETUP (enforced:
