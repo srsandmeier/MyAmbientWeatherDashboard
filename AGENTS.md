@@ -12,7 +12,7 @@ Decoupled full-stack **web application** for live and historical Ambient Weather
 data. React + TypeScript frontend, .NET 10 ASP.NET Core backend, PostgreSQL, Redis.
 
 Clean Architecture with MediatR handlers. All dependencies are free and open-source
-(MIT, Apache 2.0, or BSD-3-Clause). See `docs/DEVELOPMENT_PLAN.md` for the full phased plan.
+(permissive licences: MIT, Apache 2.0, BSD, ISC or 0BSD). See `docs/DEVELOPMENT_PLAN.md` for the full phased plan.
 
 ---
 
@@ -71,7 +71,8 @@ Health endpoints (all unauthenticated): `GET /api/health` · `/api/health/live` 
 ## Non-negotiable rules (apply everywhere)
 
 ### Keep it free
-Every NuGet and npm package must be MIT, Apache 2.0, or BSD-3-Clause licensed. Check before adding.
+Every NuGet and npm package must have a permissive licence: MIT, Apache 2.0, BSD-2-Clause, BSD-3-Clause,
+ISC or 0BSD. No copyleft (GPL, LGPL, AGPL, MPL) or source-available licences (SSPL, BSL). Check before adding.
 Do not add anything else without updating the development plan and getting confirmation.
 Prefer free-tier cloud services (Auth0 Free Tier) or self-hosted open-source (OpenIddict).
 

@@ -18,7 +18,7 @@ Decoupled web application using 100% free, open-source tools and free-tier cloud
 
 ## Universal rules
 
-1. **Keep it free** — MIT, Apache 2.0, or BSD-3-Clause packages only. No paid dependencies.
+1. **Keep it free** — permissive licences only (MIT, Apache 2.0, BSD, ISC, 0BSD); no copyleft. No paid dependencies.
 2. **No deprecated** — .NET 10, React 19, actively maintained packages only. No deprecated APIs.
 3. **DRY** — reuse handlers, hooks, metric registry, query keys, chart builders. Extract at 2+ uses.
 4. **Test everything** — every handler, validator, component, and hook gets tests. CI must pass.

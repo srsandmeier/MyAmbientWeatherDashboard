@@ -35,7 +35,8 @@ Findings format: `docs/AGENT_GUIDELINES.md`.
 
 - Runtimes: .NET 10, Node 24 LTS, PostgreSQL 16, Redis 7 (root `CLAUDE.md`, "No deprecated dependencies").
   A setup action or image pins a supported LTS, never an end-of-life one.
-- Every package is MIT, Apache 2.0 or BSD-3-Clause, maintained and not deprecated. Check before adding.
+- Every package has a licence on the root `CLAUDE.md` "Keep it free" list, is maintained and is not
+  deprecated. Check before adding.
 - Secrets come from `${{ secrets.* }}` or User Secrets, never from a workflow file, compose file or
   `appsettings.json`.
 - Caches key on lock files (`package-lock.json`, the project files for NuGet) so a dependency change

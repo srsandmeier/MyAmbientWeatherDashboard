@@ -9,8 +9,8 @@ disable-model-invocation: true
 1. **List them:** `gh pr list --author app/dependabot --state open --json number,title,headRefName,files`.
    For each, read only its failing checks
    (`gh pr view <n> --json statusCheckRollup --jq '[.statusCheckRollup[] | select(.conclusion=="FAILURE") | .name]'`).
-   Leave out any PR with a failing check, a major bump, or a package that is deprecated or not MIT,
-   Apache 2.0 or BSD-3-Clause; say why in the summary.
+   Leave out any PR with a failing check, a major bump, or a package that is deprecated or whose licence
+   is not on the root `CLAUDE.md` "Keep it free" list; say why in the summary.
 2. **Branch** from `origin/main`: `chore/dependabot-<yyyy-mm>[-b]`.
 3. **Apply the exact versions each PR tested**, never newer ones:
    - NuGet: edit the version in the `.csproj` or `backend/Directory.Build.props` the PR changed.
