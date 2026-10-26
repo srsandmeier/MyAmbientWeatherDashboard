@@ -34,7 +34,7 @@ Sources: `docs/SECURITY.md` (the design), the root `CLAUDE.md` ("No plain-text s
   configuration, never from user input (SSRF).
 - **Dev-only paths stay dev-only:** the auth bypass is evaluated only through
   `HttpContextCurrentUserService.IsDevBypassActive`; Swagger is off outside Development.
-- **Dependencies:** a new package is maintained, not deprecated, and MIT, Apache 2.0 or BSD-3-Clause.
+- **Dependencies:** a new package is maintained, not deprecated, and permissively licensed (root `CLAUDE.md`, "Keep it free").
 
 ## Tests a security change needs
 

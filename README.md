@@ -477,5 +477,5 @@ official [Open-Meteo Forecast API docs](https://open-meteo.com/en/docs).
 
 ## Licence
 
-Open-source dependencies only (MIT, Apache 2.0, or BSD-3-Clause). See the development plan for the
+Open-source dependencies only (permissive licences: MIT, Apache 2.0, BSD, ISC or 0BSD). See the development plan for the
 approved package list.
