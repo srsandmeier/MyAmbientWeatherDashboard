@@ -112,7 +112,9 @@ jobs:
   # so only the frontend dev server is required — no backend needed.
   e2e:
     name: E2E Tests (Playwright ${{ matrix.suite }})
-    runs-on: ubuntu-latest
+    # Pinned: ubuntu-latest is now 26.04, where `playwright install --with-deps` fails
+    # ("Playwright does not support chromium on ubuntu26.04-x64"). Move back once Playwright supports it.
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
     strategy:
