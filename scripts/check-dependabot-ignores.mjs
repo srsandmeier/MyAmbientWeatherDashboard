@@ -190,7 +190,7 @@ async function getJson(url, headers = {}) {
 /** Latest stable release from the package registry, or null if it cannot be read. */
 export async function latestVersion(ecosystem, name) {
   try {
-    if (ecosystem === 'npm') return (await getJson(`https://registry.npmjs.org/${name.replace('/', '%2F')}/latest`)).version;
+    if (ecosystem === 'npm') return (await getJson(`https://registry.npmjs.org/${name.replaceAll('/', '%2F')}/latest`)).version;
     if (ecosystem === 'nuget') {
       const { versions } = await getJson(`https://api.nuget.org/v3-flatcontainer/${name.toLowerCase()}/index.json`);
       return versions.filter((v) => !v.includes('-')).at(-1) ?? null;
