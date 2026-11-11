@@ -10,7 +10,9 @@ disable-model-invocation: true
    For each, read only its failing checks
    (`gh pr view <n> --json statusCheckRollup --jq '[.statusCheckRollup[] | select(.conclusion=="FAILURE") | .name]'`).
    Leave out any PR with a failing check, a major bump, or a package that is deprecated or whose licence
-   is not on the root `CLAUDE.md` "Keep it free" list; say why in the summary.
+   is not on the root `CLAUDE.md` "Keep it free" list; say why in the summary. To stop a recurring bump, add
+   an `ignore` rule to `.github/dependabot.yml` with a comment giving the reason and when to remove it; the
+   monthly `dependabot-ignore-review` workflow re-checks every rule and lifts one that blocks a high fix.
 2. **Branch** from `origin/main`: `chore/dependabot-<yyyy-mm>[-b]`.
 3. **Apply the exact versions each PR tested**, never newer ones:
    - NuGet: edit the version in the `.csproj` or `backend/Directory.Build.props` the PR changed.

@@ -231,3 +231,9 @@ rule. `node scripts/lessons-report.mjs --checklist backend,docs` prints the item
   **Cause:** any non-zero exit after the mutation counted as caught.
   **Prevention:** the test must pass on the unchanged code first, or the line is SETUP (enforced:
   `scripts/prove-tests.test.mjs`).
+- **Miss:** a registry URL encoded a package name with `replace('/', '%2F')`, which CodeQL rated high
+  as incomplete escaping (CodeQL on PR #255).
+  **Cause:** a string pattern in `replace` changes only the first match; scoped names have one slash,
+  so tests never showed it.
+  **Prevention:** `replaceAll` or `encodeURIComponent` for any escaping (enforced: CodeQL
+  js/incomplete-sanitization).

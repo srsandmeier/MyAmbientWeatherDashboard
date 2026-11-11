@@ -1,0 +1,89 @@
+# .github/workflows/dependabot-ignore-review.yml
+#
+# Monthly review of every ignore rule in .github/dependabot.yml
+# (scripts/check-dependabot-ignores.mjs). Opens or updates one issue labelled
+# `dependabot-ignore-review` with the report: the packages each rule covers, their latest
+# release, any high or critical advisory, and the reason recorded for the rule.
+#
+# A rule that holds back the fix for a high or critical advisory is lifted: the job pushes a
+# branch without that rule and links it from the issue, and the job fails so it shows in Actions.
+# Repository settings do not let Actions open pull requests, so the PR is opened from the link.
+#
+# Uses the free single-CPU runner; it only runs Node and calls public APIs.
+name: Dependabot Ignore Review
+
+on:
+  schedule:
+    - cron: "0 14 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: dependabot-ignore-review
+  cancel-in-progress: false
+
+jobs:
+  review:
+    name: Review Dependabot ignore rules
+    runs-on: ubuntu-latest-1-core
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ github.token }}
+      REPORT: ${{ runner.temp }}/dependabot-ignore-review.md
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24.x"
+
+      - name: Review ignore rules
+        id: review
+        run: node scripts/check-dependabot-ignores.mjs --lift --report "$REPORT"
+
+      - name: Push branch with lifted rules
+        id: lift
+        if: steps.review.outputs.lifted != '0'
+        run: |
+          branch="chore/dependabot-lift-ignores-$(date -u +%Y-%m)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add .github/dependabot.yml
+          git commit -m "chore(deps): lift Dependabot ignore rules blocking high-severity fixes"
+          git push --force origin "$branch"
+          url="${{ github.server_url }}/${{ github.repository }}/compare/${{ github.event.repository.default_branch }}...$branch?expand=1"
+          printf '\n### Lifted rules\n\nOpen the pull request: %s\n' "$url" >> "$REPORT"
+
+      - name: Job summary
+        if: always() && steps.review.outcome == 'success'
+        run: cat "$REPORT" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Open or update review issue
+        if: steps.review.outcome == 'success'
+        run: |
+          label="dependabot-ignore-review"
+          title="Dependabot ignore review $(date -u +%Y-%m)"
+          if [ "${{ steps.review.outputs.lifted }}" != "0" ]; then
+            title="$title: high-severity fix blocked, rules lifted"
+          fi
+          gh label create "$label" --color FBCA04 --description "Monthly Dependabot ignore review" --force
+          issue=$(gh issue list --label "$label" --state open --json number --jq '.[0].number // empty')
+          if [ -n "$issue" ]; then
+            gh issue edit "$issue" --title "$title"
+            gh issue comment "$issue" --body-file "$REPORT"
+          else
+            gh issue create --title "$title" --label "$label" --body-file "$REPORT"
+          fi
+
+      - name: Fail when a rule was lifted
+        if: steps.review.outputs.lifted != '0'
+        run: |
+          echo "::error::A Dependabot ignore rule held back a high or critical fix; see the review issue."
+          exit 1
