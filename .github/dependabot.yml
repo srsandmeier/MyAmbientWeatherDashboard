@@ -4,10 +4,23 @@ updates:
     directory: "/backend"
     schedule:
       interval: "weekly"
+    # Every ignore rule is reviewed monthly by .github/workflows/dependabot-ignore-review.yml.
+    # A rule that blocks the fix for a high or critical advisory is lifted automatically.
     ignore:
       # MediatR 13+ is commercially licensed; violates the free-license rule in CLAUDE.md.
       - dependency-name: "MediatR"
         versions: [">= 13.0.0"]
+      # .NET 11 packages: the app targets .NET 10 (LTS). Version-11 packages on the net10 runtime
+      # broke SignalR (NU1605 restore error, hub tests failing). Remove when the app moves to .NET 11;
+      # 10.0.x patches still arrive.
+      - dependency-name: "Microsoft.AspNetCore.*"
+        versions: [">= 11.0.0"]
+      - dependency-name: "Microsoft.Extensions.*"
+        versions: [">= 11.0.0"]
+      - dependency-name: "Microsoft.EntityFrameworkCore*"
+        versions: [">= 11.0.0"]
+      - dependency-name: "System.*"
+        versions: [">= 11.0.0"]
 
   - package-ecosystem: "npm"
     directory: "/frontend"
