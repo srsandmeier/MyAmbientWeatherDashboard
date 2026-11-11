@@ -5,7 +5,7 @@ Weather devices. Click any metric for a customizable chart. Optionally compare a
 other owned devices or an average of nearby public stations.
 
 All dependencies and cloud services use 100% free tiers and open-source tools
-(permissive licences: MIT, Apache 2.0, BSD, ISC or 0BSD), optimized for local development.
+(permissive licences: MIT, Apache 2.0, BSD, ISC, 0BSD or BlueOak-1.0.0), optimized for local development.
 
 ---
 
