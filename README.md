@@ -188,9 +188,10 @@ npm run dev            # Vite dev server — frontend on http://localhost:5173
 npm run db:update                   # apply EF Core migrations to local Postgres
 npm run db:migrate -- <Name>        # add a new migration (e.g. npm run db:migrate -- AddUserTable)
 
-npm run lint           # CLAUDE.md split, agents/skills and token contrast checks + backend dotnet format + frontend ESLint
+npm run lint           # CLAUDE.md split, agents/skills, Dependabot ignore reasons, token contrast + backend dotnet format + frontend ESLint
 npm run lint:claude-md # per-folder CLAUDE.md sizes, area table and rule headings only
 npm run lint:agents    # agent and skill headers, and every script, path and class the instructions name exists
+npm run lint:dependabot # every ignore rule in .github/dependabot.yml has a reason comment above it
 npm run self-review    # before a review or a PR: checks the branch against docs/LESSONS_LEARNED.md (add -- --quiet on reruns)
 npm run lint:backend   # dotnet format whitespace only
 npm run lint:frontend  # ESLint only

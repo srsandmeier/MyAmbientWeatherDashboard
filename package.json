@@ -7,9 +7,10 @@
   },
   "scripts": {
     "start:all": "node scripts/start-all.mjs",
-    "lint": "npm run lint:claude-md && npm run lint:agents && npm run ui:contrast && npm run lint:backend && npm run lint:frontend",
+    "lint": "npm run lint:claude-md && npm run lint:agents && npm run lint:dependabot && npm run ui:contrast && npm run lint:backend && npm run lint:frontend",
     "lint:claude-md": "node scripts/check-claude-md.mjs",
     "lint:agents": "node scripts/check-agents-skills.mjs",
+    "lint:dependabot": "node scripts/check-dependabot-ignores.mjs --check-reasons",
     "self-review": "node scripts/self-review.mjs",
     "lint:backend": "dotnet format whitespace backend/AmbientWeather.slnx --verify-no-changes --verbosity minimal",
     "lint:frontend": "npm run lint --prefix frontend",
