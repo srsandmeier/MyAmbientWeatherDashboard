@@ -37,6 +37,10 @@ updates:
       # peer resolution. Raise this bound once typescript-eslint widens its range.
       - dependency-name: "typescript"
         versions: [">= 6.1.0"]
+      # @microsoft/signalr 11 is the .NET 11 client; the hub runs on .NET 10 (see the nuget
+      # Microsoft.AspNetCore.* rule). Remove when the app moves to .NET 11.
+      - dependency-name: "@microsoft/signalr"
+        versions: [">= 11.0.0"]
 
   # Playwright and the E2E toolchain; after a @playwright/test update the browsers must be reinstalled
   # (dependabot-combine skill, "Verify").
@@ -44,6 +48,15 @@ updates:
     directory: "/tests/e2e"
     schedule:
       interval: "weekly"
+    ignore:
+      # CI and engines run Node 24 LTS; newer @types/node types APIs that Node 24 lacks.
+      # Remove when the repo moves to the next Node LTS.
+      - dependency-name: "@types/node"
+        versions: [">= 26.0.0"]
+      # Keep E2E on the frontend's TypeScript major, which typescript-eslint bounds below 6.1.
+      # Remove once the frontend typescript rule is raised past 7.0.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
 
   # Root dev tooling (concurrently for npm run start:all).
   - package-ecosystem: "npm"
