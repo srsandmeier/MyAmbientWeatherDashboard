@@ -6,8 +6,8 @@
 // Reads the closed, unmerged Dependabot pull requests (gh CLI), takes each package and the version the
 // PR proposed, and keeps those where the repo is still below that version and no open Dependabot PR
 // carries the package. Each row says whether an ignore rule in .github/dependabot.yml covers it or an
-// `@dependabot ignore` comment on the PR does (those are invisible in dependabot.yml). Used by the
-// dependabot-combine skill.
+// `@dependabot ignore` comment on the PR does (those are invisible in dependabot.yml), or the skill left
+// it out with a `Left out: <reason>` comment. Used by the dependabot-combine skill.
 
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -69,6 +69,16 @@ export function ignoreCommand(comments = []) {
   return null;
 }
 
+/** The reason in the latest `Left out: <reason>` comment the dependabot-combine skill left on a PR, or null. */
+export function leftOutReason(comments = []) {
+  let reason = null;
+  for (const comment of comments) {
+    const match = /^Left out:\s*(.+)$/m.exec(comment.body ?? '');
+    if (match) reason = match[1].trim();
+  }
+  return reason;
+}
+
 /**
  * Closed, unmerged Dependabot updates that the repo still does not have. One row per package (the
  * highest proposed version); packages carried by an open Dependabot PR are left to the normal flow.
@@ -96,6 +106,7 @@ export function findSkipped({ closed, open, entries, groups, installed }) {
         .flatMap((group) => group.rules)
         .find((r) => matchesPattern(r.dependencyName, update.name, target.ecosystem) && ruleIgnores(r, current, update.to));
       const command = ignoreCommand(pr.comments);
+      const leftOut = leftOutReason(pr.comments);
       rows.set(key, {
         pr: pr.number,
         name: update.name,
@@ -103,7 +114,13 @@ export function findSkipped({ closed, open, entries, groups, installed }) {
         directory: target.directory,
         installed: current,
         to: update.to,
-        ignoredBy: rule ? `rule \`${rule.dependencyName}\`` : command ? `comment "${command}"` : null,
+        ignoredBy: rule
+          ? `rule \`${rule.dependencyName}\``
+          : command
+            ? `comment "${command}"`
+            : leftOut
+              ? `left out: ${leftOut.replaceAll('|', '\\|')}`
+              : null,
       });
     }
   }
