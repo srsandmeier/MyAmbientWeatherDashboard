@@ -33,8 +33,11 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       GITHUB_TOKEN: ${{ github.token }}
-      REPORT: ${{ runner.temp }}/dependabot-ignore-review.md
     steps:
+      # The runner context is not available in job-level env; set the path from a step instead.
+      - name: Set report path
+        run: echo "REPORT=$RUNNER_TEMP/dependabot-ignore-review.md" >> "$GITHUB_ENV"
+
       - name: Checkout
         uses: actions/checkout@v7
 
