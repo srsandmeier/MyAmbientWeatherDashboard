@@ -7,6 +7,7 @@ import {
   findSkipped,
   formatSkipped,
   ignoreCommand,
+  leftOutReason,
   parseUpdateEntries,
   proposedUpdates,
 } from './list-skipped-dependabot.mjs';
@@ -31,7 +32,7 @@ const entries = parseUpdateEntries(CONFIG);
 const groups = parseIgnoreRules(CONFIG);
 const installedMap = {
   'nuget:/backend': new Map([['Runtime.Hosting', '10.0.14'], ['Analyzer.Pack', '3.0.335']]),
-  'npm:/frontend': new Map([['jsdom', '30.1.3'], ['vitest', '5.1.0'], ['globals', '17.13.0']]),
+  'npm:/frontend': new Map([['eslint', '9.39.4'], ['jsdom', '30.1.3'], ['vitest', '5.1.0'], ['globals', '17.13.0']]),
 };
 const installed = (ecosystem, directory) => installedMap[`${ecosystem}:${directory}`] ?? new Map();
 
@@ -67,6 +68,11 @@ test('ignoreCommand finds an @dependabot ignore comment', () => {
   assert.equal(ignoreCommand([{ body: '@dependabot rebase' }]), null);
 });
 
+test('leftOutReason returns the latest Left out reason', () => {
+  assert.equal(leftOutReason([{ body: 'Left out: CI failed' }, { body: 'note\nLeft out: needs ESLint 10 plugins' }]), 'needs ESLint 10 plugins');
+  assert.equal(leftOutReason([{ body: 'It was left out: no' }]), null);
+});
+
 test('findSkipped keeps only closed updates the repo still lacks', () => {
   const closed = [
     pr(1, 'chore(deps-dev): Bump jsdom from 30.1.3 to 31.0.0 in /frontend', 'dependabot/npm_and_yarn/frontend/jsdom-31.0.0', {
@@ -79,6 +85,9 @@ test('findSkipped keeps only closed updates the repo still lacks', () => {
     pr(6, 'Bump globals from 17.13.0 to 17.14.0', 'dependabot/npm_and_yarn/frontend/globals-17.14.0'), // open PR carries it
     pr(7, 'Bump Gone.Pkg from 1.0.0 to 1.1.0', 'dependabot/nuget/backend/Gone.Pkg-1.1.0'), // removed from repo
     pr(8, 'Bump Analyzer.Pack from 3.0.335 to 3.0.400', 'dependabot/nuget/backend/Analyzer.Pack-3.0.400', { mergedAt: '2026-01-01' }),
+    pr(10, 'Bump eslint from 9.39.4 to 10.0.0', 'dependabot/npm_and_yarn/frontend/eslint-10.0.0', {
+      comments: [{ body: 'Left out: plugin | peers stop at ESLint 9' }],
+    }),
   ];
   const open = [pr(9, 'Bump globals from 17.13.0 to 17.15.0', 'dependabot/npm_and_yarn/frontend/globals-17.15.0')];
 
@@ -88,6 +97,7 @@ test('findSkipped keeps only closed updates the repo still lacks', () => {
     rows.map((r) => [r.pr, r.name, r.installed, r.to, r.ignoredBy]),
     [
       [4, 'Analyzer.Pack', '3.0.335', '3.0.339', null],
+      [10, 'eslint', '9.39.4', '10.0.0', 'left out: plugin \\| peers stop at ESLint 9'],
       [1, 'jsdom', '30.1.3', '31.0.0', 'comment "ignore this major version"'],
       [3, 'Runtime.Hosting', '10.0.14', '11.0.0', 'rule `Runtime.*`'],
     ],

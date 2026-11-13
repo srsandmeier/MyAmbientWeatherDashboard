@@ -3,6 +3,7 @@
 //   node scripts/check-dependabot-ignores.mjs                  # print the review report
 //   node scripts/check-dependabot-ignores.mjs --lift           # also remove rules that block a high/critical fix
 //   node scripts/check-dependabot-ignores.mjs --report <file>  # write the report (Markdown) to a file
+//   node scripts/check-dependabot-ignores.mjs --check-reasons  # offline lint: fail when a rule has no reason comment
 //
 // For each ignore rule it lists the installed packages the rule covers, their latest release and any
 // high or critical GitHub advisory against the installed version. When the first patched version of such
@@ -230,6 +231,11 @@ export function removeRules(text, groups, rulesToRemove) {
   return lines.filter((_, i) => !drop.has(i)).join('\n');
 }
 
+/** Rules with no comment above them (or above the first rule of their group): every ignore needs a reason. */
+export function rulesWithoutReason(groups) {
+  return groups.filter((group) => group.reason.trim() === '').flatMap((group) => group.rules.map((rule) => ({ group, rule })));
+}
+
 /** Reviews every rule; returns { rows, lift } where lift holds the start lines of rules to remove. */
 export async function reviewRules(groups, root = REPO, lookups = { latestVersion, blockingAdvisories }) {
   const rows = [];
@@ -288,6 +294,15 @@ async function main() {
   const configPath = join(REPO, CONFIG_FILE);
   const text = readFileSync(configPath, 'utf8');
   const groups = parseIgnoreRules(text);
+  if (args.includes('--check-reasons')) {
+    const missing = rulesWithoutReason(groups);
+    for (const { group, rule } of missing) {
+      console.error(`${CONFIG_FILE}:${rule.start + 1}: ignore rule "${rule.dependencyName}" (${group.ecosystem}) has no reason comment above it`);
+    }
+    if (missing.length > 0) process.exit(1);
+    console.log(`dependabot ignores: ${String(groups.reduce((n, g) => n + g.rules.length, 0))} rules, all with a reason.`);
+    return;
+  }
   const result = await reviewRules(groups);
   const report = formatReport(result);
   console.log(report);

@@ -12,6 +12,7 @@ import {
   removeRules,
   reviewRules,
   ruleIgnores,
+  rulesWithoutReason,
   satisfiesRange,
 } from './check-dependabot-ignores.mjs';
 
@@ -54,6 +55,12 @@ test('parseIgnoreRules groups rules under their comment and keeps ecosystem and 
   assert.equal(groups[2].directory, '/frontend');
   assert.deepEqual(groups[0].rules[0].versions, ['>= 13.0.0']);
   assert.deepEqual(groups[2].rules[0].updateTypes, ['version-update:semver-major']);
+});
+
+test('rulesWithoutReason flags only rules with no comment above their group', () => {
+  assert.deepEqual(rulesWithoutReason(parseIgnoreRules(CONFIG)), []);
+  const bare = CONFIG.replace('      # Peer reason.\n', '');
+  assert.deepEqual(rulesWithoutReason(parseIgnoreRules(bare)).map(({ rule }) => rule.dependencyName), ['linter']);
 });
 
 test('matchesPattern supports wildcards and ignores case only for NuGet', () => {
