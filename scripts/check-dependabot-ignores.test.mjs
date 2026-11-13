@@ -5,9 +5,11 @@ import { join } from 'node:path';
 import { test } from 'node:test';
 
 import {
+  compareVersions,
   formatReport,
   installedPackages,
   matchesPattern,
+  packageVersions,
   parseIgnoreRules,
   removeRules,
   reviewRules,
@@ -78,6 +80,17 @@ test('satisfiesRange handles comparators, combined ranges and .x', () => {
   assert.ok(satisfiesRange('6.1.4', '6.1.x'));
 });
 
+test('compareVersions puts a prerelease below its release and orders prerelease identifiers', () => {
+  assert.equal(compareVersions('10.0.0-rc.1', '10.0.0'), -1);
+  assert.equal(compareVersions('10.0.0', '10.0.0-rc.1'), 1);
+  assert.equal(compareVersions('10.0.0-rc.2', '10.0.0-rc.10'), -1);
+  assert.equal(compareVersions('10.0.0-alpha', '10.0.0-alpha.1'), -1);
+  assert.equal(compareVersions('10.0.0-1', '10.0.0-alpha'), -1);
+  assert.equal(compareVersions('v1.2.3', '1.2.3'), 0);
+  assert.equal(compareVersions('1.2.3+build', '1.2.3'), 0);
+  assert.equal(compareVersions('1.10.0', '1.9.0'), 1);
+});
+
 test('ruleIgnores checks version ranges and update types', () => {
   const ranged = { versions: ['>= 11.0.0'], updateTypes: [] };
   assert.ok(ruleIgnores(ranged, '10.0.14', '11.0.1'));
@@ -129,6 +142,29 @@ test('installedPackages reads NuGet references and top-level npm packages only',
   try {
     assert.deepEqual([...installedPackages('nuget', '/backend', root)], [['Paid.Lib', '12.5.0'], ['Runtime.Hub', '10.0.14'], ['Other.Thing', '10.0.14']]);
     assert.deepEqual([...installedPackages('npm', '/frontend', root)], [['linter', '9.1.0']]);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('packageVersions keeps every version per project and reads workflow actions, SHA pins by comment', () => {
+  const root = fixtureRepo();
+  try {
+    writeFileSync(join(root, 'backend', 'Other.csproj'), '<Project><PackageReference Include="Runtime.Hub" Version="10.0.13" /></Project>');
+    mkdirSync(join(root, '.github', 'workflows'), { recursive: true });
+    writeFileSync(join(root, '.github', 'workflows', 'ci.yml'), [
+      'steps:',
+      '  - uses: actions/checkout@v7',
+      `  - uses: actions/setup-node@${'a'.repeat(40)} # v7.1.0`,
+      '  - uses: github/codeql-action/init@v4',
+    ].join('\n'));
+    assert.deepEqual(packageVersions('nuget', '/backend', root).get('Runtime.Hub').sort(), ['10.0.13', '10.0.14']);
+    assert.equal(installedPackages('nuget', '/backend', root).get('Runtime.Hub'), '10.0.13');
+    assert.deepEqual([...packageVersions('github-actions', '/', root)], [
+      ['actions/checkout', ['v7']],
+      ['actions/setup-node', ['v7.1.0']],
+      ['github/codeql-action', ['v4']],
+    ]);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

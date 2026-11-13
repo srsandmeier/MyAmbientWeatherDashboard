@@ -105,12 +105,36 @@ export function parseVersion(version) {
   return String(version).replace(/^v/, '').split(/[-+]/)[0].split('.').map((part) => Number.parseInt(part, 10) || 0);
 }
 
+/** The prerelease identifiers of a version (`1.0.0-rc.1+build` -> ['rc', '1']); empty for a release. */
+function prereleaseOf(version) {
+  const match = /^[^-+]*-([^+]+)/.exec(String(version).replace(/^v/, ''));
+  return match ? match[1].split('.') : [];
+}
+
+/** Semver order: numeric parts first, then a prerelease sorts below its release (`1.0.0-rc.1 < 1.0.0`). */
 export function compareVersions(a, b) {
   const left = parseVersion(a);
   const right = parseVersion(b);
   for (let i = 0; i < Math.max(left.length, right.length); i += 1) {
     const diff = (left[i] ?? 0) - (right[i] ?? 0);
     if (diff !== 0) return Math.sign(diff);
+  }
+  const leftPre = prereleaseOf(a);
+  const rightPre = prereleaseOf(b);
+  if (leftPre.length === 0 || rightPre.length === 0) return Math.sign(rightPre.length - leftPre.length);
+  for (let i = 0; i < Math.max(leftPre.length, rightPre.length); i += 1) {
+    if (leftPre[i] === undefined) return -1;
+    if (rightPre[i] === undefined) return 1;
+    const leftNum = /^\d+$/.test(leftPre[i]);
+    const rightNum = /^\d+$/.test(rightPre[i]);
+    if (leftNum && rightNum) {
+      const diff = Number(leftPre[i]) - Number(rightPre[i]);
+      if (diff !== 0) return Math.sign(diff);
+    } else if (leftNum !== rightNum) {
+      return leftNum ? -1 : 1;
+    } else if (leftPre[i] !== rightPre[i]) {
+      return leftPre[i] < rightPre[i] ? -1 : 1;
+    }
   }
   return 0;
 }
@@ -156,16 +180,23 @@ function walkFiles(dir, accept, found = []) {
   return found;
 }
 
-/** Installed direct dependencies of one Dependabot entry: Map name -> version. */
-export function installedPackages(ecosystem, directory, root = REPO) {
+/**
+ * Every version of each dependency one Dependabot entry holds: Map name -> distinct versions. NuGet
+ * references in each project, top-level npm lock entries, and the `owner/repo` of each workflow
+ * `uses:` (a sub-path such as `github/codeql-action/init` counts as `github/codeql-action`).
+ */
+export function packageVersions(ecosystem, directory, root = REPO) {
   const base = join(root, directory ?? '/');
   const found = new Map();
+  const add = (name, version) => {
+    const list = found.get(name) ?? [];
+    if (!list.includes(version)) list.push(version);
+    found.set(name, list);
+  };
   if (ecosystem === 'nuget') {
     for (const file of walkFiles(base, (name) => /\.(cs|fs)proj$|\.props$/.test(name))) {
       const text = readFileSync(file, 'utf8');
-      for (const match of text.matchAll(/<PackageReference\s+Include="([^"]+)"\s+Version="([^"]+)"/g)) {
-        found.set(match[1], match[2]);
-      }
+      for (const match of text.matchAll(/<PackageReference\s+Include="([^"]+)"\s+Version="([^"]+)"/g)) add(match[1], match[2]);
     }
   } else if (ecosystem === 'npm') {
     const lockFile = join(base, 'package-lock.json');
@@ -173,9 +204,26 @@ export function installedPackages(ecosystem, directory, root = REPO) {
       const lock = JSON.parse(readFileSync(lockFile, 'utf8'));
       for (const [key, value] of Object.entries(lock.packages ?? {})) {
         const name = key.startsWith('node_modules/') ? key.slice('node_modules/'.length) : null;
-        if (name && !name.includes('/node_modules/') && value.version) found.set(name, value.version);
+        if (name && !name.includes('/node_modules/') && value.version) add(name, value.version);
       }
     }
+  } else if (ecosystem === 'github-actions') {
+    for (const file of walkFiles(join(base, '.github', 'workflows'), (name) => /\.ya?ml$/.test(name))) {
+      const text = readFileSync(file, 'utf8');
+      // A ref pinned to a commit SHA takes its version from the trailing `# vX.Y.Z` comment.
+      for (const match of text.matchAll(/uses:\s*["']?([\w.-]+\/[\w.-]+)(?:\/[^@\s"']*)?@([^\s"'#]+)["']?[ \t]*(?:#[ \t]*(v?\d[\w.-]*))?/g)) {
+        add(match[1], /^[0-9a-f]{40}$/.test(match[2]) && match[3] ? match[3] : match[2]);
+      }
+    }
+  }
+  return found;
+}
+
+/** Installed direct dependencies of one Dependabot entry: Map name -> lowest version held. */
+export function installedPackages(ecosystem, directory, root = REPO) {
+  const found = new Map();
+  for (const [name, versions] of packageVersions(ecosystem, directory, root)) {
+    found.set(name, versions.reduce((low, v) => (compareVersions(v, low) < 0 ? v : low)));
   }
   return found;
 }
