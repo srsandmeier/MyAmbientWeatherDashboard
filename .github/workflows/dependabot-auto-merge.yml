@@ -3,7 +3,7 @@
 # Enables auto-merge only for Dependabot patch bumps after a maintainer adds the
 # `automerge-dependabot` label. Minor and major bumps require manual review.
 #
-# Uses the free single-CPU runner (ubuntu-latest-1-core) — no compilation or test
+# Uses the free single-CPU runner (ubuntu-slim) — no compilation or test
 # execution happens here, so 1 core and the 15-minute job timeout are sufficient.
 #
 # Major version bumps are left open for manual review.
@@ -21,7 +21,7 @@ permissions:
 jobs:
   auto-merge:
     name: Auto-merge labeled Dependabot patch updates
-    runs-on: ubuntu-latest-1-core
+    runs-on: ubuntu-slim
     if: |
       github.actor == 'dependabot[bot]' &&
       contains(github.event.pull_request.labels.*.name, 'automerge-dependabot')
