@@ -37,4 +37,18 @@ public sealed class MigrationTests : IAsyncLifetime
 
         appliedMigrations.ShouldContain(m => m.Contains("InitialCreate"));
     }
+
+    // An EF Core or Npgsql update can change the model the migrations snapshot describes; this fails
+    // until a migration is added for it (dependabot-combine skill, "Verify").
+    [Fact]
+    public async Task ModelShouldHaveNoPendingChanges()
+    {
+        var options = new DbContextOptionsBuilder<AmbientWeatherDbContext>()
+            .UseNpgsql(_postgres.GetConnectionString())
+            .Options;
+
+        await using var dbContext = new AmbientWeatherDbContext(options);
+
+        dbContext.Database.HasPendingModelChanges().ShouldBeFalse();
+    }
 }

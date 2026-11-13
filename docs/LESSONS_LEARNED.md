@@ -237,3 +237,24 @@ rule. `node scripts/lessons-report.mjs --checklist backend,docs` prints the item
   so tests never showed it.
   **Prevention:** `replaceAll` or `encodeURIComponent` for any escaping (enforced: CodeQL
   js/incomplete-sanitization).
+
+## Dependencies
+
+- **Miss:** `dependabot-combine` kept a PR whose checks were pending or cancelled, since its filter
+  dropped only `FAILURE` (dependabot-combine review).
+  **Cause:** the CI rule was a hand-written jq filter in prose that listed the bad outcome, not the good ones.
+  **Prevention:** a check passes only as `SUCCESS`, `SKIPPED` or `NEUTRAL` (enforced: `ciState` in
+  `list-skipped-dependabot.mjs` and its tests).
+- **Miss:** the skipped-update script read `Left out:` and `@dependabot ignore` from any commenter on a
+  public repo, and the skill did not say fetched text is data (dependabot-combine review).
+  **Cause:** comments were treated as our own notes; nothing checked who wrote them.
+  **Prevention:** only owner, member and collaborator comments count (enforced: `trustedComments` tests).
+- **Miss:** the skill's apply and verify steps could land a version newer than the PR tested, drop one
+  lock's changes, and skip the build and EF model check (dependabot-combine review).
+  **Cause:** the runbook's commands were written down without being run against real PRs.
+  **Prevention:** checklist item "Docs match the code" (enforced: `list-skipped-dependabot.mjs --verify`;
+  `ModelShouldHaveNoPendingChanges`).
+- **Miss:** the skipped-update script treated `10.0.0-rc.1` as `10.0.0` and hid closed updates behind any
+  open PR with the same package name (dependabot-combine review).
+  **Cause:** prerelease and directory cases had no test.
+  **Prevention:** checklist item "New checks proven" (enforced: `compareVersions` and `findSkipped` tests).

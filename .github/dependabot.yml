@@ -38,6 +38,19 @@ updates:
       - dependency-name: "typescript"
         versions: [">= 6.1.0"]
 
+  # Playwright and the E2E toolchain; after a @playwright/test update the browsers must be reinstalled
+  # (dependabot-combine skill, "Verify").
+  - package-ecosystem: "npm"
+    directory: "/tests/e2e"
+    schedule:
+      interval: "weekly"
+
+  # Root dev tooling (concurrently for npm run start:all).
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
