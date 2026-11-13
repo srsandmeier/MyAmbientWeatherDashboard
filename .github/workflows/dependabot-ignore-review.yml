@@ -9,7 +9,7 @@
 # branch without that rule and links it from the issue, and the job fails so it shows in Actions.
 # Repository settings do not let Actions open pull requests, so the PR is opened from the link.
 #
-# Uses the free single-CPU runner; it only runs Node and calls public APIs.
+# Uses the free single-CPU runner (ubuntu-slim); it only runs Node and calls public APIs.
 name: Dependabot Ignore Review
 
 on:
@@ -28,13 +28,16 @@ concurrency:
 jobs:
   review:
     name: Review Dependabot ignore rules
-    runs-on: ubuntu-latest-1-core
+    runs-on: ubuntu-slim
     timeout-minutes: 15
     env:
       GH_TOKEN: ${{ github.token }}
       GITHUB_TOKEN: ${{ github.token }}
-      REPORT: ${{ runner.temp }}/dependabot-ignore-review.md
     steps:
+      # The runner context is not available in job-level env; set the path from a step instead.
+      - name: Set report path
+        run: echo "REPORT=$RUNNER_TEMP/dependabot-ignore-review.md" >> "$GITHUB_ENV"
+
       - name: Checkout
         uses: actions/checkout@v7
 
